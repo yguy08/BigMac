@@ -1,0 +1,26 @@
+# Eclipse
+.settings/
+.metadata/
+.classpath
+.project
+
+# Generated
+target/
+javadoc/
+bin/
+classes/
+activemq-data/
+dependency-reduced-pom.xml
+
+# Misc.
+.DS_Store
+*.swp
+*.swo
+
+# externalized configuration file for keys
+*.exchange.properties
+
+#logs
+*.log
+log/
+logs/

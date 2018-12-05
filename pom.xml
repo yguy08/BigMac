@@ -1,0 +1,91 @@
+<project
+ xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+
+ <groupId>com.tickercash</groupId>
+ <artifactId>tapereader</artifactId>
+ <packaging>pom</packaging>
+ <version>${revision}</version>
+
+ <modules>
+  <module>tapereader-lib</module>
+  <module>tapereader-swing-ui</module>
+  <module>tapereader-server</module>
+  <module>tapereader-clerk</module>
+ </modules>
+
+ <repositories>
+  <repository>
+   <id>sonatype-oss-public</id>
+   <url>https://oss.sonatype.org/content/groups/public/</url>
+   <releases>
+    <enabled>true</enabled>
+   </releases>
+   <snapshots>
+    <enabled>true</enabled>
+   </snapshots>
+  </repository>
+ </repositories>
+
+ <properties>
+  <revision>0.0.1</revision>
+  <maven.compiler.source>1.8</maven.compiler.source>
+  <maven.compiler.target>1.8</maven.compiler.target>
+  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <dependency.locations.enabled>false</dependency.locations.enabled>
+  <log4j2.version>2.9.1</log4j2.version>
+ </properties>
+
+ <dependencies>
+  <dependency>
+   <groupId>org.apache.logging.log4j</groupId>
+   <artifactId>log4j-api</artifactId>
+   <version>${log4j2.version}</version>
+  </dependency>
+  <dependency>
+   <groupId>org.apache.logging.log4j</groupId>
+   <artifactId>log4j-core</artifactId>
+   <version>${log4j2.version}</version>
+  </dependency>
+  <dependency>
+   <groupId>org.apache.logging.log4j</groupId>
+   <artifactId>log4j-slf4j-impl</artifactId>
+   <version>${log4j2.version}</version>
+  </dependency>
+  <dependency>
+   <groupId>junit</groupId>
+   <artifactId>junit</artifactId>
+   <version>4.12</version>
+   <scope>test</scope>
+  </dependency>
+ </dependencies>
+
+ <reporting>
+  <plugins>
+   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-site-plugin</artifactId>
+    <version>3.3</version>
+   </plugin>
+   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-project-info-reports-plugin</artifactId>
+    <version>2.7</version>
+   </plugin>
+   <plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>findbugs-maven-plugin</artifactId>
+    <version>3.0.5</version>
+    <configuration>
+     <xmlOutput>true</xmlOutput>
+     <!-- Optional directory to put findbugs xdoc xml report -->
+     <xmlOutputDirectory>target/site</xmlOutputDirectory>
+    </configuration>
+   </plugin>
+  </plugins>
+ </reporting>
+
+</project>
