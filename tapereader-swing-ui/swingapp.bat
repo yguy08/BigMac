@@ -12,7 +12,7 @@ REM The TR-server 'fat' jar
 SET tr_jar=tapereader-swing-ui-0.0.1.jar
 
 REM Debug
-SET tr_debug=-Xrunjdwp:transport=dt_socket,server=y,address=5556,suspend=y
+SET tr_debug=-Xrunjdwp:transport=dt_socket,server=y,address=5556,suspend=n
 
 REM Start Class
 SET start_class=com.tapereader.gui.AppLoader

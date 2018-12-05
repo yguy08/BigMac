@@ -39,13 +39,13 @@ public class BinanceServerModule extends AbstractModule {
     private void loadProperties() {
         Properties properties = new Properties();
         InputStream is = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("application-binance.properties");
+                .getResourceAsStream("binance.properties");
         try {
             properties.load(is);
             Names.bindProperties(binder(), properties);
-            System.out.println("Loaded application.properties from resources");
+            System.out.println("Loaded binance.properties from resources");
         } catch (Exception e) {
-            System.out.println("Failed to Load application.properties from resources");
+            System.out.println("Failed to Load binance.properties from resources");
         }
     }
 

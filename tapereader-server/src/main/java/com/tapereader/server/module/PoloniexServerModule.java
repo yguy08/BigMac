@@ -31,13 +31,13 @@ public class PoloniexServerModule extends AbstractModule {
     private void loadProperties() {
         Properties properties = new Properties();
         InputStream is = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("application-poloniex.properties");
+                .getResourceAsStream("poloniex.properties");
         try {
             properties.load(is);
             Names.bindProperties(binder(), properties);
-            System.out.println("Loaded application.properties from resources");
+            System.out.println("Loaded poloniex.properties from resources");
         } catch (Exception e) {
-            System.out.println("Failed to Load application.properties from resources");
+            System.out.println("Failed to Load poloniex.properties from resources");
         }
     }
 
