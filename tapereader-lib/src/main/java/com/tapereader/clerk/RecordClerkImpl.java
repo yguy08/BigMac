@@ -53,7 +53,7 @@ public class RecordClerkImpl implements RecordClerk {
     }
 
     private void cleanMarketData() {
-        if (Boolean.valueOf(cleanMarketData) && getMarketDataCount() > 15000L) {
+        if (Boolean.valueOf(cleanMarketData)) {
             em.getTransaction().begin();
             int del = em.createNamedQuery("MarketData.clean").executeUpdate();
             em.getTransaction().commit();

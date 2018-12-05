@@ -2,6 +2,7 @@ package com.tapereader.clerk;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -101,7 +102,7 @@ public class BinanceExchangeClerk implements ExchangeClerk {
     };
     
     private static BiFunction<String, BinanceTicker24h, Tick> binance24hourToTick = (s, p) -> {
-        return new Tick(UniqueTimeMicros.uniqueTimeMicros(), 
+        return new Tick(p.getCloseTime().toInstant().toEpochMilli(), 
                 TradingUtils.toSymbol(BinanceAdapters.adaptSymbol(s).toString(), 
                 TickerType.BINANCE),
                 p.getLastPrice().doubleValue(),

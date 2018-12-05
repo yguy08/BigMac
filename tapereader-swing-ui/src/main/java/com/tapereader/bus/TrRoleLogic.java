@@ -1,10 +1,13 @@
 package com.tapereader.bus;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.jfree.chart.JFreeChart;
 import org.ta4j.core.BaseStrategy;
 import org.ta4j.core.BaseTimeSeries;
@@ -52,8 +55,9 @@ public class TrRoleLogic extends TapeReader {
     public List<Tick> getCurrentTicks() {
         List<Tick> ticks = getLookupClerk().getCurrentTicks();
         if (ticks.size() == 0) {
-            ticks = getMarketDataClerk().getCurrentTicks();
-            getRecordClerk().saveTicks(ticks);
+            ticks = getMarketDataClerk().getCurrentTicks().stream()
+                    .filter(t -> t.getTimestamp() > (Instant.now().toEpochMilli() - 86400))
+                    .collect(Collectors.toList());
         }
         return ticks;
     }
