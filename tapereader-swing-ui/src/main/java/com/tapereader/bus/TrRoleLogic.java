@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.jfree.chart.JFreeChart;
@@ -36,12 +38,18 @@ import com.tapereader.tip.TapeReader;
 import com.tapereader.util.TradingUtils;
 
 public class TrRoleLogic extends TapeReader {
+    
+    private Map<String, Tick> tickMap = new ConcurrentHashMap<>();
 
     @Override
     public void init() {
         super.init();
         Tip tip = getLookupClerk().findTipByName("Buy High");
         setTip(tip);
+        List<Tick> ticks = getMarketDataClerk().getCurrentTicks();
+        for (Tick t : ticks) {
+            tickMap.put(t.getSymbol(), t);
+        }
     }
 
     public List<Line> getAllLines() {
@@ -53,12 +61,9 @@ public class TrRoleLogic extends TapeReader {
     }
 
     public List<Tick> getCurrentTicks() {
-        List<Tick> ticks = getLookupClerk().getCurrentTicks();
-        if (ticks.size() == 0) {
-            ticks = getMarketDataClerk().getCurrentTicks().stream()
-                    .filter(t -> t.getTimestamp() > (Instant.now().toEpochMilli() - 86400))
-                    .collect(Collectors.toList());
-        }
+        List<Tick> ticks = tickMap.values().stream()
+                .filter(t -> t.getTimestamp() > Instant.now().minusSeconds(86400).toEpochMilli())
+                .collect(Collectors.toList());
         return ticks;
     }
 
@@ -152,7 +157,10 @@ public class TrRoleLogic extends TapeReader {
 
     @Subscribe
     public void onMarketData(MarketData data) {
-        getRecordClerk().persist(data);
-        System.out.println("PERSISTED!" + data);
+        if (data instanceof Tick) {
+            Tick tick = (Tick) data;
+            tickMap.put(tick.getSymbol(), tick);
+        }
+        System.out.println("Tick updated: " + data);
     }
 }

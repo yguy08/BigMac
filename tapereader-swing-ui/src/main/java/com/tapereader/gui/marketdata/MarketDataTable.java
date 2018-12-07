@@ -9,9 +9,6 @@ import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import com.tapereader.gui.TapeReaderGuiMain;
@@ -75,19 +72,6 @@ public class MarketDataTable extends TrTable {
                 Tick tick = ticks.get(i);
                 TapeReaderGuiMain.getTrGui().rebuildChart(tick.getSymbol());
             }
-        }
-    }
-    
-    private class MarketDataTableModelListener implements TableModelListener {
-
-        @Override
-        public void tableChanged(TableModelEvent e) {
-            int row = e.getFirstRow();
-            int column = e.getColumn();
-            TableModel model = (TableModel)e.getSource();
-            String columnName = model.getColumnName(column);
-            Object data = model.getValueAt(row, column);
-            System.out.println("CHANGED: " + data);
         }
     }
 }

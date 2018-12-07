@@ -3,7 +3,6 @@ package com.tapereader.marketdata;
 import java.util.Map;
 
 import com.google.inject.Inject;
-import com.tapereader.model.Security;
 
 public class QuotronImpl implements Quotron {
     
@@ -27,11 +26,6 @@ public class QuotronImpl implements Quotron {
     @Override
     public void startRecording() {
         tickerMap.values().stream().forEach(t -> t.startTicker());
-    }
-
-    @Override
-    public Tick getLastMarketEvent(Security security) {
-        return null;
     }
 
 }

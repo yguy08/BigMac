@@ -8,7 +8,6 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.tapereader.clerk.ExchangeClerk;
 import com.tapereader.event.MarketDataHandler;
-import com.tapereader.model.Security;
 
 public class BinanceTicker implements Ticker, Runnable {
 
@@ -59,11 +58,6 @@ public class BinanceTicker implements Ticker, Runnable {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    @Override
-    public void subscribe(String tipName, Security security) {
-
     }
 
 }

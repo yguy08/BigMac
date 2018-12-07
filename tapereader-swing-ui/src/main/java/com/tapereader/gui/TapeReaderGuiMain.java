@@ -121,12 +121,11 @@ public class TapeReaderGuiMain implements Clerk {
     
     public void initTimer() {
         timer = new Timer(Integer.parseInt(INTERVAL) * 1000, new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 marketDataPanel.updateTable(trRoleLogic.getCurrentTicks());
+                marketDataPanel.filterSecurities();
             }
-            
         });
         timer.start();
     }

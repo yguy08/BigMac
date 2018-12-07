@@ -1,7 +1,6 @@
 package com.tapereader.marketdata;
 
 import com.tapereader.clerk.Clerk;
-import com.tapereader.model.Security;
 
 /**
  * The Quotron consists of a storage unit that records data from the ticker line
@@ -13,7 +12,5 @@ import com.tapereader.model.Security;
 public interface Quotron extends Clerk {
 
     void startRecording();
-
-    Tick getLastMarketEvent(Security security);
 
 }

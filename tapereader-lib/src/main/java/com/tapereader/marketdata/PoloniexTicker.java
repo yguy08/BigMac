@@ -95,10 +95,4 @@ public class PoloniexTicker implements Ticker, Runnable {
         return tickSupplier.apply(symbol, chartData);
     }
 
-    @Override
-    public void subscribe(String tipName, Security security) {
-        // TODO Auto-generated method stub
-        
-    }
-
 }
