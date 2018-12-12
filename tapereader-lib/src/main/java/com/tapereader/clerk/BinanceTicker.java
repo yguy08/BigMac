@@ -1,4 +1,4 @@
-package com.tapereader.marketdata;
+package com.tapereader.clerk;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.tapereader.clerk.ExchangeClerk;
 import com.tapereader.event.MarketDataHandler;
 
 public class BinanceTicker implements Ticker, Runnable {
@@ -18,11 +17,16 @@ public class BinanceTicker implements Ticker, Runnable {
     private ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
 
     @Inject
+    @Named("bncExchangeClerk")
     private ExchangeClerk clerk;
 
     @Inject(optional = true)
-    @Named("binance.throttle.seconds")
+    @Named("bnc.throttle")
     private String throttle = "3600";
+    
+    @Inject
+    @Named("initdelay")
+    private String initDelay = "60";
 
     @Inject
     public BinanceTicker(MarketDataHandler eventHandler) {
@@ -42,7 +46,7 @@ public class BinanceTicker implements Ticker, Runnable {
 
     @Override
     public void startTicker() {
-        executor.scheduleWithFixedDelay(this, 120, Integer.parseInt(throttle), TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(this, Integer.parseInt(initDelay), Integer.parseInt(throttle), TimeUnit.SECONDS);
     }
 
     @Override

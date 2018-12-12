@@ -15,7 +15,7 @@ REM Debug
 SET tr_debug=-Xrunjdwp:transport=dt_socket,server=y,address=5556,suspend=n
 
 REM Start Class
-SET start_class=com.tapereader.gui.AppLoader
+SET start_class=com.tapereader.Application
 
 :start
 SET START_TIME=%time%

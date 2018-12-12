@@ -1,8 +1,9 @@
-package com.tapereader.marketdata;
+package com.tapereader.ticker;
 
 import java.util.Map;
 
 import com.google.inject.Inject;
+import com.tapereader.clerk.Ticker;
 
 public class QuotronImpl implements Quotron {
     

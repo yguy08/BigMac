@@ -1,10 +1,12 @@
-package com.tapereader.gui;
+package com.tapereader;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.tapereader.clerk.JPAClerk;
+import com.tapereader.gui.AppModule;
+import com.tapereader.gui.TapeReaderGuiMain;
 
-public class AppLoader {
+public class Application {
 
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new AppModule());

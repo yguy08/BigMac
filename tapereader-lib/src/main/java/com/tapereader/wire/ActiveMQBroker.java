@@ -4,15 +4,16 @@ import org.apache.activemq.broker.BrokerService;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.tapereader.clerk.Clerk;
 
-public class ActiveMQBroker implements BrokerClerk {
+public class ActiveMQBroker implements Clerk {
     
     private final String BROKER_URL;
     
     private final BrokerService broker;
     
     @Inject
-    private ActiveMQBroker(@Named("mqbrokerurl") String brokerUrl) {
+    public ActiveMQBroker(@Named("mqbrokerurl") String brokerUrl) {
         this.BROKER_URL = brokerUrl;
         this.broker = new BrokerService();
     }

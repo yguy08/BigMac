@@ -1,4 +1,4 @@
-package com.tapereader.marketdata;
+package com.tapereader.ticker;
 
 import com.tapereader.clerk.Clerk;
 

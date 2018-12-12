@@ -61,13 +61,6 @@ public class RecordClerkImpl implements RecordClerk {
         }
     }
 
-    private long getMarketDataCount() {
-        String sql = "SELECT COUNT(d) FROM MarketData d";
-        Query q = em.createQuery(sql);
-        long count = (long) q.getSingleResult();
-        return count;
-    }
-
     @Override
     public void terminate() {
         jpaClerk.terminate();

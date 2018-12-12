@@ -1,6 +1,4 @@
-package com.tapereader.marketdata;
-
-import com.tapereader.clerk.Clerk;
+package com.tapereader.clerk;
 
 public interface Ticker extends Clerk {
 

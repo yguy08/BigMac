@@ -1,4 +1,4 @@
-package com.tapereader.boot;
+package com.tapereader.config;
 
 import java.time.Duration;
 

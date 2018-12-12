@@ -1,4 +1,4 @@
-package com.tapereader.clerk;
+package com.tapereader.adapter;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -13,6 +13,7 @@ import org.knowm.xchange.binance.service.BinanceMarketDataService;
 import org.knowm.xchange.binance.service.BinanceMarketDataServiceRaw;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.tapereader.clerk.ExchangeClerk;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Tick;
 import com.tapereader.util.TradingUtils;
@@ -48,7 +49,6 @@ public class BinanceExchangeClerk implements ExchangeClerk {
             return ((BinanceMarketDataServiceRaw) marketDataService)
             .ticker24h()
             .stream()
-            .filter(t -> t.getQuoteVolume().intValue() > 50)
             .map(t -> binance24hourToTick.apply(t.getSymbol(), t))
             .collect(Collectors.toList());
         } catch (Exception e) {

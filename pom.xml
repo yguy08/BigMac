@@ -14,7 +14,6 @@
   <module>tapereader-lib</module>
   <module>tapereader-swing-ui</module>
   <module>tapereader-server</module>
-  <module>tapereader-clerk</module>
  </modules>
 
  <repositories>
