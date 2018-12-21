@@ -194,10 +194,13 @@ public class TapeReaderGuiMain implements Clerk {
         
         List<Bar> bars = trRoleLogic.getBars(security);
         int ignoreDays = trRoleLogic.getConfiguration().getIgnoreBarDays();
-        if (ignoreDays > 0 && bars.size() < lookback) {
-            bars = bars.subList(ignoreDays, bars.size());
+        int barSize = bars.size();
+        if (ignoreDays > 0 && barSize < lookback) {
+            bars = bars.subList(ignoreDays, barSize);
+            barSize = bars.size();
         }
-        List<Bar> minMaxBars = bars.subList(bars.size() - 25, bars.size() - 1);
+        int minMax = barSize - 25 > 0 ? barSize - 25 : 0;
+        List<Bar> minMaxBars = bars.subList(minMax, barSize);
         Bar min = minMaxBars.stream().min(Comparator.comparing(Bar::getClose)).get();
         Bar max = minMaxBars.stream().max(Comparator.comparing(Bar::getClose)).get();
         
