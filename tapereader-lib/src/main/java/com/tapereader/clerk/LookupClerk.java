@@ -17,8 +17,6 @@ public interface LookupClerk extends Clerk {
     
     List<Tick> getCurrentTicks();
     
-    List<Security> getAllSecurities();
-    
     Bar getCurrentBar(Security security);
 
     List<Bar> getBars(Security security);

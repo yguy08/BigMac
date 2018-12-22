@@ -45,28 +45,9 @@ public class PositionPanel extends JPanel {
         titlePanel.add(positionLbl);
         titlePanel.add(Box.createRigidArea(new Dimension(40,5)));
         addButton = new JButton("Add");
-        addButton.addActionListener(new AddListener());
         titlePanel.add(addButton);
         titlePanel.add(Box.createRigidArea(new Dimension(5,5)));
         return titlePanel;
-    }
-    
-    private class AddListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            PositionDialog dialog = new PositionDialog(TapeReaderGuiMain.getTrGui().getFrame());
-            dialog.pack();
-            dialog.setLocationRelativeTo(TapeReaderGuiMain.getTrGui().getFrame());
-            dialog.setVisible(true);
-            Line position = dialog.getPosition();
-            if (position != null) {
-                TapeReaderGuiMain.getTrGui().getTrRoleLogic().updatePosition(position);
-                positions.add(position);
-                ((AbstractTableModel) positionTable.getModel()).fireTableDataChanged();
-            }
-        }
-        
     }
 
 }

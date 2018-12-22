@@ -67,16 +67,8 @@ public class TrRoleLogic extends TapeReader {
         return ticks;
     }
 
-    public List<Security> getAllSecurities() {
-        return getLookupClerk().getAllSecurities();
-    }
-
     public List<MarketType> getAllMarkets() {
         return Arrays.asList(MarketType.values());
-    }
-
-    public Bar getCurrentBar(Security security) {
-        return getLookupClerk().getCurrentBar(security);
     }
 
     public void storeHistoricalBars(Security security, LocalDateTime start, LocalDateTime now, Duration ofDays) {

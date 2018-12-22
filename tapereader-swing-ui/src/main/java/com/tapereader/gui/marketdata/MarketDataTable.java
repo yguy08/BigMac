@@ -27,7 +27,6 @@ public class MarketDataTable extends TrTable {
     public MarketDataTable(MarketDataTableModel tableModel) {
         super(tableModel);
         addMouseListener(new MarketDataTableListener());
-        //getModel().addTableModelListener(new MarketDataTableModelListener());
         sorter = new TableRowSorter<MarketDataTableModel>(tableModel);
         setRowSorter(sorter);
     }

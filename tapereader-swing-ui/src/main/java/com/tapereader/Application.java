@@ -9,6 +9,7 @@ import com.tapereader.gui.TapeReaderGuiMain;
 public class Application {
 
     public static void main(String[] args) {
+        System.setProperty("tr_properties", "application.properties");
         Injector injector = Guice.createInjector(new AppModule());
         JPAClerk clerk = injector.getInstance(JPAClerk.class);
         clerk.init();

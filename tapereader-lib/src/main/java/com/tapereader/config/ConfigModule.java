@@ -1,6 +1,5 @@
 package com.tapereader.config;
 
-import java.io.FileInputStream;
 import java.util.Properties;
 
 import com.google.inject.AbstractModule;
@@ -11,9 +10,8 @@ public class ConfigModule extends AbstractModule {
     @Override
     protected void configure() {
       Properties properties = new Properties();
-      String trprop = System.getProperty("tr.properties");
-      try (FileInputStream fis = new FileInputStream(trprop)) {
-          properties.load(new FileInputStream(trprop));
+      try {
+          properties.load(ConfigModule.class.getResourceAsStream("/application.properties"));
           Names.bindProperties(binder(), properties);
       } catch (Exception e) {
           e.printStackTrace();

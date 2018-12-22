@@ -1,6 +1,5 @@
 package com.tapereader.gui;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class TrTable extends JTable {
         getTableHeader().setResizingAllowed(true);
         getTableHeader().setEnabled(true);
         ((JLabel)getTableHeader().getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
-        setPreferredScrollableViewportSize(new Dimension(350, 200));
+        //setPreferredScrollableViewportSize(new Dimension(350, 200));
     }
     
     public void sortTable(int columnIndex, SortOrder sortOrder) {

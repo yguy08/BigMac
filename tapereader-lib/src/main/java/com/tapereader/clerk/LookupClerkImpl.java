@@ -50,14 +50,6 @@ public class LookupClerkImpl implements LookupClerk {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Security> getAllSecurities() {
-        List<Security> securities = em.createQuery("SELECT s FROM Security s ORDER BY symbol ASC")
-                .getResultList();
-        return securities;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public Bar getCurrentBar(Security security) {
         List<Bar> bars = em.createQuery("SELECT b FROM MarketData b WHERE TYPE(b) = Bar AND symbol like :symbol "
                 + "ORDER BY timestamp DESC")

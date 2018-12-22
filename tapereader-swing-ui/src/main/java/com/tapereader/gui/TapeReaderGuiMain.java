@@ -1,16 +1,22 @@
 package com.tapereader.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
+
+import javax.imageio.ImageIO;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,9 +37,6 @@ import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.gui.chart.ChartUtils;
 import com.tapereader.gui.marketdata.MarketDataPanel;
-import com.tapereader.gui.order.OrderPanel;
-import com.tapereader.gui.position.PositionPanel;
-import com.tapereader.gui.transaction.TransactionPanel;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 import com.tapereader.model.BucketShop;
@@ -69,6 +72,8 @@ public class TapeReaderGuiMain implements Clerk {
     
     private JComboBox<Tip> tipCombo;
     
+    private JComboBox<MarketType> marketCombo;
+    
     @Inject
     private TapeReaderGuiMain(TapeReader tapeReader) {
         this.trRoleLogic = (TrRoleLogic) tapeReader;
@@ -77,14 +82,6 @@ public class TapeReaderGuiMain implements Clerk {
     
     public static TapeReaderGuiMain getTrGui() {
         return trGui;
-    }
-    
-    public JFrame getFrame() {
-        return frame;
-    }
-    
-    public TrRoleLogic getTrRoleLogic() {
-        return trRoleLogic;
     }
     
     public void init() {
@@ -101,13 +98,11 @@ public class TapeReaderGuiMain implements Clerk {
     void createAndShowGUI() {
         Security security = trRoleLogic.getSecurity("BTC/USDT", TickerType.BINANCE);
         buildChartPanel(security);
-        buildLeftPanel();
         buildRightPanel();
         
         //Create and set up the window.
         frame = new JFrame("Tape Reader");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
         container = frame.getContentPane();
  
         //Set up the content pane.
@@ -124,7 +119,6 @@ public class TapeReaderGuiMain implements Clerk {
             @Override
             public void actionPerformed(ActionEvent e) {
                 marketDataPanel.updateTable(trRoleLogic.getCurrentTicks());
-                marketDataPanel.filterSecurities();
             }
         });
         timer.start();
@@ -133,33 +127,32 @@ public class TapeReaderGuiMain implements Clerk {
     public void buildRightPanel() {
         // Right Panel
         rightPanel = new JPanel();
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
-        rightPanel.setPreferredSize(new Dimension(450, 700));
+        rightPanel.setLayout(new BorderLayout(5, 5));
         
-        rightPanel.add(buildStrategyPanel());
-        marketDataPanel = getMarketDataPanel();
-        rightPanel.add(marketDataPanel);
-        rightPanel.add(new PositionPanel(trRoleLogic.getAllLines()));
-        rightPanel.add(new TransactionPanel());
+        // Strategy Panel
+        rightPanel.add(buildStrategyPanel(), BorderLayout.PAGE_START);
+        
+        //market data panel
+        List<Tick> ticks = trRoleLogic.getCurrentTicks();
+        marketDataPanel = new MarketDataPanel(ticks);
+        marketDataPanel.filterSecurities(marketCombo.getSelectedItem().toString());
+        rightPanel.add(marketDataPanel, BorderLayout.CENTER);
     }
-    
+
     public JPanel buildStrategyPanel() {
         JPanel strategyPanel = new JPanel();
-        strategyPanel.setLayout(new BoxLayout(strategyPanel, BoxLayout.LINE_AXIS));
-        
+        strategyPanel.setLayout(new FlowLayout());
+        ComboListener comboListener = new ComboListener();
         JLabel strategyLbl = new JLabel("Tip: ");
         strategyPanel.add(strategyLbl);
-        strategyPanel.add(Box.createRigidArea(new Dimension(20,0)));
         List<Tip> tips = trRoleLogic.getAllTips();
         tipCombo = new JComboBox<>(tips.toArray(new Tip[tips.size()]));
         tipCombo.setSelectedItem(trRoleLogic.getTip());
-        tipCombo.addActionListener(new StrategyComboListener());
+        tipCombo.addActionListener(comboListener);
         strategyPanel.add(tipCombo);
         
-        strategyPanel.add(Box.createRigidArea(new Dimension(20,0)));
         JLabel shopLbl = new JLabel("Shop: ");
         strategyPanel.add(shopLbl);
-        strategyPanel.add(Box.createRigidArea(new Dimension(20,0)));
         List<BucketShop> shops = trRoleLogic.getAllBucketShops();
         shopCombo = new JComboBox<>(shops.toArray(new BucketShop[shops.size()]));
         for (BucketShop shop : shops) {
@@ -167,27 +160,24 @@ public class TapeReaderGuiMain implements Clerk {
                 shopCombo.setSelectedItem(shop);
             }
         }
-        shopCombo.addActionListener(new ShopComboListener());
+        shopCombo.addActionListener(comboListener);
         strategyPanel.add(shopCombo);
+        
+        JLabel marketLbl = new JLabel("Market: ");
+        strategyPanel.add(marketLbl);
+        List<MarketType> markets = trRoleLogic.getAllMarkets();
+        marketCombo = new JComboBox<>(markets.toArray(new MarketType[markets.size()]));
+        marketCombo.setSelectedItem(MarketType.BTC);
+        marketCombo.addActionListener(comboListener);
+        strategyPanel.add(marketCombo);
         return strategyPanel;
     }
     
-    public MarketDataPanel getMarketDataPanel() {
-        List<Tick> ticks = trRoleLogic.getCurrentTicks();
-        List<Security> securities = trRoleLogic.getAllSecurities();
-        List<MarketType> markets = trRoleLogic.getAllMarkets();
-        return new MarketDataPanel(markets, securities, ticks);
-    }
-    
-    public void buildLeftPanel() {
-        leftPanel = new JPanel();
-        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
-        leftPanel.setPreferredSize(new Dimension(900, 700));
-        leftPanel.add(chartPanel);
-        leftPanel.add(new OrderPanel());
-    }
-    
     public void buildChartPanel(Security security) {
+        leftPanel = new JPanel();
+        leftPanel.setLayout(new BorderLayout());
+        leftPanel.setPreferredSize(new Dimension(1000, 600));
+        
         int lookback = trRoleLogic.getConfiguration().getLookback();
         LocalDateTime start = LocalDateTime.now().minusDays(lookback);
         trRoleLogic.storeHistoricalBars(security, start, LocalDateTime.now(), trRoleLogic.getConfiguration().getBarSize());
@@ -221,6 +211,30 @@ public class TapeReaderGuiMain implements Clerk {
         // Set the chart
         chartPanel = ChartUtils.newJFreeAppFrame(chart);
         
+        writeChartImage(chart);
+        
+        leftPanel.add(chartPanel);
+    }
+    
+    public void writeChartImage(JFreeChart chart) {
+        BufferedImage objBufferedImage=chart.createBufferedImage(900, 700);
+        ByteArrayOutputStream bas = new ByteArrayOutputStream();
+                try {
+                    ImageIO.write(objBufferedImage, "png", bas);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+        byte[] byteArray = bas.toByteArray();
+        try {
+            InputStream in = new ByteArrayInputStream(byteArray);
+            BufferedImage image = ImageIO.read(in);
+            File outputfile = new File("c:\\tmp\\chart.png");
+            ImageIO.write(image, "png", outputfile);
+            System.out.println("Wrote Chart!");
+        } catch (Exception e) {
+            
+        }
     }
     
     public void rebuildChart(String symbol) {
@@ -228,49 +242,32 @@ public class TapeReaderGuiMain implements Clerk {
             String[] split = symbol.split(":");
             container.remove(leftPanel);
             buildChartPanel(trRoleLogic.getSecurity(split[0], TickerType.valueOf(split[1])));
-            buildLeftPanel();
             addComponentsToPane();
             container.revalidate();
         });
     }
     
     public void addComponentsToPane() {
-        container.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        
-        // Left Panel
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 0.6;
-        c.weighty = 0.5;
-        c.gridx = 0;
-        c.gridy = 0;
-        container.add(leftPanel, c);
-        
-        // Right Panel
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 0.4;
-        c.weighty = 0.5;
-        c.gridx = 1;
-        c.gridy = 0;
-        container.add(rightPanel, c);
+        container.setLayout(new BorderLayout());
+        container.add(leftPanel, BorderLayout.CENTER);
+        container.add(rightPanel, BorderLayout.LINE_END);
     }
     
-    private class StrategyComboListener implements ActionListener {
+    private class ComboListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JComboBox cb = (JComboBox)e.getSource();
-            Tip tip = (Tip)cb.getSelectedItem();
-            trRoleLogic.setTip(tip);
-        }
-        
-    }
-    
-    private class ShopComboListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            marketDataPanel.filterSecurities();
+            Object obj = e.getSource();
+            if (obj == tipCombo) {
+                Tip tip = (Tip) tipCombo.getSelectedItem();
+                trRoleLogic.setTip(tip);
+            } else if (obj == shopCombo) {
+                marketDataPanel.filterSecurities(marketCombo.getSelectedItem().toString());
+            } else if (obj == marketCombo) {
+                MarketType marketType = (MarketType) marketCombo.getSelectedItem();
+                String marketName = marketType.toString();
+                marketDataPanel.filterSecurities(marketName);
+            }
         }
         
     }
@@ -281,7 +278,6 @@ public class TapeReaderGuiMain implements Clerk {
 
     @Override
     public void terminate() {
-        // TODO Auto-generated method stub
         
     }
 
