@@ -2,7 +2,6 @@ package com.tapereader.bus;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +70,7 @@ public class TrRoleLogic extends TapeReader {
         return Arrays.asList(MarketType.values());
     }
 
-    public void storeHistoricalBars(Security security, LocalDateTime start, LocalDateTime now, Duration ofDays) {
+    public void storeHistoricalBars(Security security, Instant start, Instant now, Duration ofDays) {
         List<Bar> bars = getNewspaper().getHistoricalBars(security, start, now, ofDays);
         getRecordClerk().updateBars(security, bars);
     }
@@ -95,7 +94,7 @@ public class TrRoleLogic extends TapeReader {
     public TimeSeries buildTimeSeries(List<Bar> bars) {
         TimeSeries series = new BaseTimeSeries.SeriesBuilder().build();
         for (Bar b : bars) {
-            series.addBar(TradingUtils.microsToInstant(b.getTimestamp()).atZone(ZoneOffset.UTC),
+            series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
                     b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
         }
         return series;

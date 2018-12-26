@@ -54,8 +54,6 @@ import org.ta4j.core.indicators.ATRIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.PrecisionNum;
 
-import com.tapereader.util.TradingUtils;
-
 public class ChartUtils {
 
     public static final Stroke FATLINE = new BasicStroke(.9f);

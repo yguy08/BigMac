@@ -6,15 +6,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.MapBinder;
 import com.tapereader.clerk.ClerkModule;
-import com.tapereader.clerk.ExchangeClerk;
 import com.tapereader.clerk.MarketDataClerk;
 import com.tapereader.clerk.MarketDataClerkImpl;
 import com.tapereader.config.ConfigModule;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.historical.NewspaperModule;
 import com.tapereader.tip.TapeReader;
-import com.tapereader.adapter.BinanceExchangeClerk;
-import com.tapereader.adapter.PoloniexExchangeClerk;
+import com.tapereader.adapter.BinanceExchangeAdapter;
+import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.adapter.PoloniexExchangeAdapter;
 import com.tapereader.bus.TrRoleLogic;
 import com.tapereader.wire.WireModule;
 
@@ -28,21 +28,21 @@ public class AppModule extends AbstractModule {
         install(new WireModule());
         bind(TapeReader.class).to(TrRoleLogic.class);
         bind(TapeReaderGuiMain.class);
-        MapBinder<String, ExchangeClerk> exchangeClerkBinder = MapBinder.newMapBinder(binder(), String.class, ExchangeClerk.class);
-        exchangeClerkBinder.addBinding(TickerType.BINANCE.toString()).to(BinanceExchangeClerk.class);
-        exchangeClerkBinder.addBinding(TickerType.POLONIEX.toString()).to(PoloniexExchangeClerk.class);
+        MapBinder<String, ExchangeAdapter> exchangeClerkBinder = MapBinder.newMapBinder(binder(), String.class, ExchangeAdapter.class);
+        exchangeClerkBinder.addBinding(TickerType.BINANCE.toString()).to(BinanceExchangeAdapter.class);
+        exchangeClerkBinder.addBinding(TickerType.POLONIEX.toString()).to(PoloniexExchangeAdapter.class);
         bind(MarketDataClerk.class).to(MarketDataClerkImpl.class);
     }
     
     @Named("bncExchangeClerk")
     @Provides
-    public ExchangeClerk bncExchange() {
-        return new BinanceExchangeClerk();
+    public ExchangeAdapter bncExchange() {
+        return new BinanceExchangeAdapter();
     }
 
     @Named("poloExchangeClerk")
     @Provides
-    public ExchangeClerk poloExchange() {
-        return new PoloniexExchangeClerk();
+    public ExchangeAdapter poloExchange() {
+        return new PoloniexExchangeAdapter();
     }
 }

@@ -1,25 +1,26 @@
 package com.tapereader.marketdata.historical;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 import com.google.inject.Inject;
+import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.model.Security;
 
 public class NewspaperImpl implements Newspaper {
     
-    private Map<String, HistoricalDataClerk> clerkMap;
+    private Map<String, ExchangeAdapter> clerkMap;
     
     @Inject
-    public NewspaperImpl(Map<String, HistoricalDataClerk> clerkMap) {
+    public NewspaperImpl(Map<String, ExchangeAdapter> clerkMap) {
         this.clerkMap = clerkMap;
     }
 
     @Override
-    public List<Bar> getHistoricalBars(Security security, LocalDateTime startDate, LocalDateTime endDate,
+    public List<Bar> getHistoricalBars(Security security, Instant startDate, Instant endDate,
             Duration duration) {
         List<Bar> bars = clerkMap.get(security.getBucketShop().getName()).getHistoricalBars(security, startDate, endDate, duration);
         return bars;

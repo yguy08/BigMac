@@ -1,0 +1,4 @@
+#rescu.http.readTimeoutMillis = 10000
+#rescu.http.readProxyHost = fsproxy.services.treasury.gov
+#rescu.http.readProxyPort = 8080
+#rescu.http.ignoreErrorCodes = true 

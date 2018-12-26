@@ -1,5 +1,9 @@
 package com.tapereader.adapter;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -7,20 +11,24 @@ import java.util.stream.Collectors;
 
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.poloniex.PoloniexExchange;
+import org.knowm.xchange.poloniex.dto.marketdata.PoloniexChartData;
 import org.knowm.xchange.poloniex.dto.marketdata.PoloniexMarketData;
+import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataServiceRaw;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.tapereader.clerk.ExchangeClerk;
 import com.tapereader.enumeration.TickerType;
+import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
+import com.tapereader.model.Security;
 import com.tapereader.util.TradingUtils;
 import com.tapereader.util.UniqueTimeMicros;
 
-public class PoloniexExchangeClerk implements ExchangeClerk {
+public class PoloniexExchangeAdapter implements ExchangeAdapter {
     
     private Exchange exchange;
     
@@ -70,6 +78,46 @@ public class PoloniexExchangeClerk implements ExchangeClerk {
     
     private final Tick translateTo(String symbol, PoloniexMarketData chartData) {
         return tickSupplier.apply(symbol, chartData);
+    }
+
+    @Override
+    public List<Bar> getHistoricalBars(Security security, Instant startDate, Instant endDate, Duration duration) {
+        return Arrays.stream(getPoloniexChartData(security, startDate, endDate, duration))
+        .map(c -> new Bar(
+                        c.getDate().toInstant().toEpochMilli(),
+                        TradingUtils.toSymbol(security.getSymbol(), TickerType.POLONIEX),
+                        duration, 
+                        c.getOpen().doubleValue(), 
+                        c.getHigh().doubleValue(), 
+                        c.getLow().doubleValue(), 
+                        c.getClose().doubleValue(), 
+                        c.getVolume().intValue()))
+        .collect(Collectors.toList());
+    }
+    
+    private PoloniexChartDataPeriodType getPoloPeriodType(Duration duration) {
+        PoloniexChartDataPeriodType poloPeriodType = PoloniexChartDataPeriodType.PERIOD_86400;
+        int seconds = (int) duration.get(ChronoUnit.SECONDS);
+        for(PoloniexChartDataPeriodType type : PoloniexChartDataPeriodType.values()) {
+            if(type.getPeriod() == seconds) {
+                poloPeriodType = type;
+            }
+        }
+        return poloPeriodType;
+    }
+    
+    private PoloniexChartData[] getPoloniexChartData(Security security, Instant startTime, Instant endTime, Duration duration) {
+        PoloniexChartData[] chartData = null;
+        try {
+            CurrencyPair pair = new CurrencyPair(security.getSymbol());
+            long start = startTime.getEpochSecond();
+            long end = endTime.getEpochSecond();
+            PoloniexChartDataPeriodType periodType = getPoloPeriodType(duration);
+            chartData = marketDataService.getPoloniexChartData(pair, start, end, periodType);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return chartData;
     }
 
 }

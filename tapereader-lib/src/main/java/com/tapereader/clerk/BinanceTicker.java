@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.event.MarketDataHandler;
 
 public class BinanceTicker implements Ticker, Runnable {
@@ -18,7 +19,7 @@ public class BinanceTicker implements Ticker, Runnable {
 
     @Inject
     @Named("bncExchangeClerk")
-    private ExchangeClerk clerk;
+    private ExchangeAdapter clerk;
 
     @Inject(optional = true)
     @Named("bnc.throttle")

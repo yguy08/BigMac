@@ -12,7 +12,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 
@@ -179,8 +181,8 @@ public class TapeReaderGuiMain implements Clerk {
         leftPanel.setPreferredSize(new Dimension(1000, 600));
         
         int lookback = trRoleLogic.getConfiguration().getLookback();
-        LocalDateTime start = LocalDateTime.now().minusDays(lookback);
-        trRoleLogic.storeHistoricalBars(security, start, LocalDateTime.now(), trRoleLogic.getConfiguration().getBarSize());
+        Instant start = Instant.now().minus(lookback, ChronoUnit.DAYS);
+        trRoleLogic.storeHistoricalBars(security, start, Instant.now(), trRoleLogic.getConfiguration().getBarSize());
         
         List<Bar> bars = trRoleLogic.getBars(security);
         int ignoreDays = trRoleLogic.getConfiguration().getIgnoreBarDays();
@@ -233,7 +235,7 @@ public class TapeReaderGuiMain implements Clerk {
             ImageIO.write(image, "png", outputfile);
             System.out.println("Wrote Chart!");
         } catch (Exception e) {
-            
+            e.printStackTrace();
         }
     }
     

@@ -7,7 +7,6 @@ import com.tapereader.clerk.MarketDataClerk;
 import com.tapereader.clerk.RecordClerk;
 import com.tapereader.config.Configuration;
 import com.tapereader.marketdata.Tick;
-import com.tapereader.marketdata.historical.HistoricalDataClerk;
 import com.tapereader.marketdata.historical.Newspaper;
 import com.tapereader.model.Tip;
 import com.tapereader.wire.Receiver;
@@ -19,8 +18,6 @@ public class TapeReader implements Clerk {
     private LookupClerk lookupClerk;
     
     private RecordClerk recordClerk;
-    
-    private HistoricalDataClerk historicalDataClerk;
     
     private Newspaper newspaper;
     
@@ -84,15 +81,6 @@ public class TapeReader implements Clerk {
     @Inject(optional=true)
     public void setRecordClerk(RecordClerk recordClerk) {
         this.recordClerk = recordClerk;
-    }
-
-    public HistoricalDataClerk getHistoricalDataClerk() {
-        return historicalDataClerk;
-    }
-
-    @Inject(optional=true)
-    public void setHistoricalDataClerk(HistoricalDataClerk historicalDataClerk) {
-        this.historicalDataClerk = historicalDataClerk;
     }
     
     public Newspaper getNewspaper() {

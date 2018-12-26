@@ -9,10 +9,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Names;
-import com.tapereader.adapter.BinanceExchangeClerk;
-import com.tapereader.adapter.PoloniexExchangeClerk;
+import com.tapereader.adapter.BinanceExchangeAdapter;
+import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.adapter.PoloniexExchangeAdapter;
 import com.tapereader.clerk.BinanceTicker;
-import com.tapereader.clerk.ExchangeClerk;
 import com.tapereader.clerk.PoloniexTicker;
 import com.tapereader.clerk.Ticker;
 import com.tapereader.enumeration.TickerType;
@@ -65,14 +65,14 @@ public class TickerServerModule extends AbstractModule {
 
     @Named("bncExchangeClerk")
     @Provides
-    public ExchangeClerk bncExchange() {
-        return new BinanceExchangeClerk();
+    public ExchangeAdapter bncExchange() {
+        return new BinanceExchangeAdapter();
     }
 
     @Named("poloExchangeClerk")
     @Provides
-    public ExchangeClerk poloExchange() {
-        return new PoloniexExchangeClerk();
+    public ExchangeAdapter poloExchange() {
+        return new PoloniexExchangeAdapter();
     }
 
 }
