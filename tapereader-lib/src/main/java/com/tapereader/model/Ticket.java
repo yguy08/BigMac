@@ -7,8 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.tapereader.enumeration.TransactionType;
-
 @Entity
 public class Ticket {
     
@@ -30,8 +28,6 @@ public class Ticket {
     
     private long timestamp;
     
-    private TransactionType transactionType;
-    
     private double quantity;
     
     private double price;
@@ -46,14 +42,6 @@ public class Ticket {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
     }
 
     public double getQuantity() {

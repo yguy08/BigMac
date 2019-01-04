@@ -9,9 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import com.tapereader.enumeration.Side;
-
 @Entity
 @Table(name = "ORDERS")
 public class Order {
@@ -35,8 +32,6 @@ public class Order {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="BUCKETSHOP_ID")
     private BucketShop bucketShop;
-    
-    private Side side;
     
     private BigDecimal quantity;
 
@@ -74,14 +69,6 @@ public class Order {
 
     public void setTip(Tip tip) {
         this.tip = tip;
-    }
-
-    public Side getSide() {
-        return side;
-    }
-
-    public void setSide(Side side) {
-        this.side = side;
     }
     
     public BigDecimal getQuantity() {

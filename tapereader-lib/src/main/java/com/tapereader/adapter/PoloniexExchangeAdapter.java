@@ -33,10 +33,6 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
     private Exchange exchange;
     
     private PoloniexMarketDataService marketDataService;
-    
-    @Inject
-    @Named("poloniex.throttle.seconds")
-    private String throttle = "3600";
 
     @Override
     public void init() {

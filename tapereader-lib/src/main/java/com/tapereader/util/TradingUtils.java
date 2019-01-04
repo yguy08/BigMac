@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Map;
-import com.tapereader.enumeration.Side;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.model.Security;
@@ -115,30 +114,6 @@ public class TradingUtils {
     
     public static String toTickerTypeStr(String symbol, String tickerSeparator) {
         return symbol.split(tickerSeparator)[1];
-    }
-
-    /**
-     * Calculates the take profit price for a given trade based on the number of
-     * pips desired for profit. When going long, the distance is calculated from
-     * the ask price and from bid price when going short.
-     * 
-     * @param tickSize
-     * @param signal
-     * @param bidPrice
-     * @param askPrice
-     * @param pipsDesired
-     * @return takeProfit price
-     */
-    public static double calculateTakeProfitPrice(double tickSize, Side signal, double bidPrice,
-            double askPrice, int pipsDesired) {
-        switch (signal) {
-        case LONG:
-            return askPrice + tickSize * pipsDesired;
-        case SHORT:
-            return bidPrice - tickSize * pipsDesired;
-        default:
-            return 0.0;
-        }
     }
 
     /**

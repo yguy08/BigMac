@@ -50,17 +50,6 @@ public class LookupClerkImpl implements LookupClerk {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Bar getCurrentBar(Security security) {
-        List<Bar> bars = em.createQuery("SELECT b FROM MarketData b WHERE TYPE(b) = Bar AND symbol like :symbol "
-                + "ORDER BY timestamp DESC")
-                .setParameter("symbol", TradingUtils.toSymbol(security))
-                .setMaxResults(1)
-                .getResultList();
-        return !TradingUtils.isEmpty(bars) ? bars.get(0) : null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
     public List<Bar> getBars(Security security) {
         List<Bar> bars = em.createQuery("SELECT b FROM MarketData b WHERE TYPE(b) = Bar AND symbol like :symbol "
                 + "ORDER BY timestamp ASC")
@@ -77,12 +66,6 @@ public class LookupClerkImpl implements LookupClerk {
         List<BucketShop> shops = em.createQuery("SELECT b FROM BucketShop b")
                 .getResultList();
         return shops;
-    }
-
-    @Override
-    public List<Line> getAllLines() {
-        List<Line> lines = new ArrayList<>();
-        return lines;
     }
 
     @Override
@@ -113,15 +96,6 @@ public class LookupClerkImpl implements LookupClerk {
         List<Tip> tips = em.createQuery("SELECT t FROM Tip t")
                 .getResultList();
         return tips;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<MarketData> getMarketData(int max) {
-        List<MarketData> marketData = em.createQuery("SELECT m FROM MarketData m")
-                .setMaxResults(max)
-                .getResultList();
-        return marketData;
     }
 
     @Override

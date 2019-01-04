@@ -30,11 +30,9 @@ import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.MarketData;
 import com.tapereader.marketdata.Tick;
 import com.tapereader.model.BucketShop;
-import com.tapereader.model.Line;
 import com.tapereader.model.Security;
 import com.tapereader.model.Tip;
 import com.tapereader.tip.TapeReader;
-import com.tapereader.util.TradingUtils;
 
 public class TrRoleLogic extends TapeReader {
     
@@ -49,14 +47,6 @@ public class TrRoleLogic extends TapeReader {
         for (Tick t : ticks) {
             tickMap.put(t.getSymbol(), t);
         }
-    }
-
-    public List<Line> getAllLines() {
-        return getLookupClerk().getAllLines();
-    }
-
-    public void updatePosition(Line line) {
-        getRecordClerk().updateLine(line);
     }
 
     public List<Tick> getCurrentTicks() {

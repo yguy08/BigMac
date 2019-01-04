@@ -22,7 +22,7 @@ public class PoloniexTicker implements Ticker, Runnable {
     private ExchangeAdapter clerk;
 
     @Inject(optional = true)
-    @Named("poloniex.throttle")
+    @Named("polo.throttle")
     private String throttle = "3600";
     
     @Inject

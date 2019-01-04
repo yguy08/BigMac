@@ -2,7 +2,6 @@ package com.tapereader.adapter;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -34,11 +33,7 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
     private BinanceMarketDataService marketDataService;
     
     @Inject(optional = true)
-    @Named("binance.throttle.seconds")
-    private String throttle = "3600";
-    
-    @Inject(optional = true)
-    @Named("binance.volume.filter")
+    @Named("bnc.volume.filter")
     private String minVol = "50";
 
     @Override

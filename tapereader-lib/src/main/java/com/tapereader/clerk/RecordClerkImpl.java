@@ -3,14 +3,11 @@ package com.tapereader.clerk;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
-import com.tapereader.model.Line;
 import com.tapereader.model.Security;
 import com.tapereader.util.TradingUtils;
 
@@ -39,11 +36,6 @@ public class RecordClerkImpl implements RecordClerk {
             em.persist(b);
         }
         em.getTransaction().commit();
-    }
-
-    @Override
-    public void updateLine(Line line) {
-
     }
 
     @Override

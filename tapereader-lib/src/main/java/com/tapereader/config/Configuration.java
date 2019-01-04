@@ -19,10 +19,6 @@ public class Configuration {
     @Named("ignorebardays")
     private String ignoreBarDays;
     
-    @Inject(optional = true)
-    @Named("refdatastartup")
-    private String refDataStartup;
-    
     public int getLookback() {
         try {
             return Integer.parseInt(lookback);
@@ -44,14 +40,6 @@ public class Configuration {
             return Integer.parseInt(ignoreBarDays);
         } catch (Exception e) {
             return 0;
-        }
-    }
-    
-    public boolean getRefDataStartup() {
-        try {
-            return Boolean.parseBoolean(refDataStartup);
-        } catch (Exception e) {
-            return false;
         }
     }
 

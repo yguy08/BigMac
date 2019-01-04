@@ -11,8 +11,6 @@ public interface RecordClerk extends Clerk {
     
     void updateBars(Security security, List<Bar> bars);
     
-    void updateLine(Line line);
-    
     void persist(Object object);
     
     void saveTicks(List<Tick> ticks);
