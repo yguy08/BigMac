@@ -1,6 +1,4 @@
-package com.tapereader.ticker;
-
-import com.tapereader.clerk.Clerk;
+package com.tapereader.clerk;
 
 /**
  * The Quotron consists of a storage unit that records data from the ticker line
@@ -9,7 +7,7 @@ import com.tapereader.clerk.Clerk;
  * @author wendre01
  *
  */
-public interface Quotron extends Clerk {
+public interface MarketDataStreamingClerk extends Clerk {
 
     void startRecording();
 

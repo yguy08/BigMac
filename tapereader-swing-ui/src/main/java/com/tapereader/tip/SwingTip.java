@@ -1,4 +1,4 @@
-package com.tapereader.bus;
+package com.tapereader.tip;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -34,7 +34,7 @@ import com.tapereader.model.Security;
 import com.tapereader.model.Tip;
 import com.tapereader.tip.TapeReader;
 
-public class TrRoleLogic extends TapeReader {
+public class SwingTip extends TapeReader {
     
     private Map<String, Tick> tickMap = new ConcurrentHashMap<>();
 

@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -33,11 +32,11 @@ import org.ta4j.core.Strategy;
 import org.ta4j.core.TimeSeries;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.tapereader.bus.TrRoleLogic;
 import com.tapereader.clerk.Clerk;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.gui.chart.ChartUtils;
+import com.tapereader.gui.chart.TRChart;
 import com.tapereader.gui.marketdata.MarketDataPanel;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
@@ -45,6 +44,7 @@ import com.tapereader.model.BucketShop;
 import com.tapereader.model.Security;
 import com.tapereader.model.Tip;
 import com.tapereader.tip.TapeReader;
+import com.tapereader.tip.SwingTip;
 
 public class TapeReaderGuiMain implements Clerk {
     
@@ -68,7 +68,7 @@ public class TapeReaderGuiMain implements Clerk {
     
     private MarketDataPanel marketDataPanel;
     
-    private TrRoleLogic trRoleLogic;
+    private SwingTip trRoleLogic;
     
     private JComboBox<BucketShop> shopCombo;
     
@@ -78,7 +78,7 @@ public class TapeReaderGuiMain implements Clerk {
     
     @Inject
     private TapeReaderGuiMain(TapeReader tapeReader) {
-        this.trRoleLogic = (TrRoleLogic) tapeReader;
+        this.trRoleLogic = (SwingTip) tapeReader;
         trGui = this;
     }
     
@@ -178,7 +178,7 @@ public class TapeReaderGuiMain implements Clerk {
     public void buildChartPanel(Security security) {
         leftPanel = new JPanel();
         leftPanel.setLayout(new BorderLayout());
-        leftPanel.setPreferredSize(new Dimension(1000, 600));
+        leftPanel.setPreferredSize(new Dimension(900, 700));
         
         int lookback = trRoleLogic.getConfiguration().getLookback();
         Instant start = Instant.now().minus(lookback, ChronoUnit.DAYS);

@@ -19,8 +19,6 @@ import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataServiceRaw;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;

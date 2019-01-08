@@ -2,12 +2,12 @@ package com.tapereader.tip;
 
 import com.google.inject.Inject;
 import com.tapereader.clerk.Clerk;
-import com.tapereader.clerk.LookupClerk;
 import com.tapereader.clerk.MarketDataClerk;
-import com.tapereader.clerk.RecordClerk;
+import com.tapereader.clerk.Newspaper;
 import com.tapereader.config.Configuration;
+import com.tapereader.dao.LookupClerk;
+import com.tapereader.dao.RecordClerk;
 import com.tapereader.marketdata.Tick;
-import com.tapereader.marketdata.historical.Newspaper;
 import com.tapereader.model.Tip;
 import com.tapereader.wire.Receiver;
 

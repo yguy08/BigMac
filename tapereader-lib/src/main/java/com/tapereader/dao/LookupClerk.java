@@ -1,7 +1,8 @@
-package com.tapereader.clerk;
+package com.tapereader.dao;
 
 import java.util.List;
 
+import com.tapereader.clerk.Clerk;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;

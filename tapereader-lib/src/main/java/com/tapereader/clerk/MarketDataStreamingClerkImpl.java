@@ -1,16 +1,15 @@
-package com.tapereader.ticker;
+package com.tapereader.clerk;
 
 import java.util.Map;
 
 import com.google.inject.Inject;
-import com.tapereader.clerk.Ticker;
 
-public class QuotronImpl implements Quotron {
+public class MarketDataStreamingClerkImpl implements MarketDataStreamingClerk {
     
     private Map<String, Ticker> tickerMap;
     
     @Inject
-    private QuotronImpl(Map<String, Ticker> tickerMap) {
+    private MarketDataStreamingClerkImpl(Map<String, Ticker> tickerMap) {
         this.tickerMap = tickerMap;
     }
 

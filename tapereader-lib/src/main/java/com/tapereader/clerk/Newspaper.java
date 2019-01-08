@@ -1,11 +1,10 @@
-package com.tapereader.marketdata.historical;
+package com.tapereader.clerk;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.tapereader.clerk.Clerk;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.model.Security;
 

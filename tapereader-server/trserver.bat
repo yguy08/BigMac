@@ -9,7 +9,7 @@ REM The TR-server 'fat' jar
 SET trserver_jar=tapereader-server-0.0.1.jar
 
 REM Start Class
-SET start_class=com.tapereader.Application
+SET start_class=com.tapereader.ServerApplication
 
 :start
 SET START_TIME=%time%

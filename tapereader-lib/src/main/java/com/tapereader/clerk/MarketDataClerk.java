@@ -8,4 +8,6 @@ public interface MarketDataClerk extends Clerk {
 
     List<Tick> getCurrentTicks();
 
+    void startStreaming();
+
 }

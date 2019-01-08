@@ -11,9 +11,12 @@ public class MarketDataClerkImpl implements MarketDataClerk {
     
     private Map<String, ExchangeAdapter> exchangeMap;
     
+    private Map<String, Ticker> tickerMap;
+    
     @Inject
-    private MarketDataClerkImpl(Map<String, ExchangeAdapter> exchangeMap) {
+    private MarketDataClerkImpl(Map<String, ExchangeAdapter> exchangeMap, Map<String, Ticker> tickerMap) {
         this.exchangeMap = exchangeMap;
+        this.tickerMap = tickerMap;
     }
 
     @Override
@@ -28,11 +31,17 @@ public class MarketDataClerkImpl implements MarketDataClerk {
     @Override
     public void init() {
         exchangeMap.values().stream().forEach(t -> t.init());
+        tickerMap.values().stream().forEach(t -> t.init());
     }
 
     @Override
     public void terminate() {
-        
+        tickerMap.values().stream().forEach(t -> t.terminate());
+    }
+
+    @Override
+    public void startStreaming() {
+        tickerMap.values().stream().forEach(t -> t.startTicker());
     }
 
 }

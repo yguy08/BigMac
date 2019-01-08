@@ -1,4 +1,4 @@
-package com.tapereader.clerk;
+package com.tapereader.dao;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.name.Named;
+import com.tapereader.clerk.JPAClerk;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 import com.tapereader.model.Security;

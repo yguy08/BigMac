@@ -1,4 +1,4 @@
-package com.tapereader.marketdata.historical;
+package com.tapereader.clerk;
 
 import com.google.inject.AbstractModule;
 

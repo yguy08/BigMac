@@ -1,4 +1,4 @@
-package com.tapereader.clerk;
+package com.tapereader.dao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.tapereader.clerk.JPAClerk;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.MarketData;
