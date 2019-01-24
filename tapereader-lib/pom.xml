@@ -15,7 +15,7 @@
  </parent>
 
  <properties>
-  <xchange.plugin.version>4.3.6</xchange.plugin.version>
+  <xchange.plugin.version>4.3.13</xchange.plugin.version>
  </properties>
 
  <dependencies>
@@ -36,7 +36,7 @@
   </dependency>
   <dependency>
    <groupId>org.knowm.xchange</groupId>
-   <artifactId>xchange-gdax</artifactId>
+   <artifactId>xchange-coinbasepro</artifactId>
    <version>${xchange.plugin.version}</version>
   </dependency>
   <dependency>
