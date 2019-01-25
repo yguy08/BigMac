@@ -62,8 +62,6 @@ public class TRGuiMain implements Clerk {
     
     private JComboBox<Tip> tipCombo;
     
-    private TRChartPanel trChartPanel;
-    
     private JComboBox<BucketShop> shopCombo;
     
     private JComboBox<MarketType> marketCombo;
@@ -99,7 +97,7 @@ public class TRGuiMain implements Clerk {
         tipCombo = new JComboBox<>(tips.toArray(new Tip[tips.size()]));
         tipCombo.addActionListener(comboListener);
         
-        trChartPanel = initChartPanel();
+        jfreeChartPanel = initChartPanel();
         
         JLabel shopLbl = new JLabel("Shop: ");
         List<BucketShop> shops = swingTip.getAllBucketShops();
@@ -143,15 +141,14 @@ public class TRGuiMain implements Clerk {
         
         Container container = getContainer();
         container.setLayout(new BorderLayout());
-        //container.setBorder(new EmptyBorder(5, 5, 5, 5 ));
-        //container.add(headerPanel, BorderLayout.PAGE_START);
-        container.add(trChartPanel, BorderLayout.CENTER);
+        container.add(headerPanel, BorderLayout.PAGE_START);
+        container.add(jfreeChartPanel, BorderLayout.CENTER);
         container.add(marketFeedPanel, BorderLayout.LINE_END);
     }
     
     public void runGui() {
         createBaseGui();
-        getMainJFrame().setPreferredSize(new Dimension(1200, 800));
+        getMainJFrame().setPreferredSize(new Dimension(1400, 800));
         getMainJFrame().pack();
         getMainJFrame().setVisible(true);
         UIUtils.centerFrameOnScreen(getMainJFrame());
@@ -174,7 +171,7 @@ public class TRGuiMain implements Clerk {
         
     }
     
-    private TRChartPanel initChartPanel() {
+    private ChartPanel initChartPanel() {
         Security security = swingTip.getSecurity("BTC/USDT", TickerType.BINANCE);
         int lookback = swingTip.getConfiguration().getLookback();
         Instant start = Instant.now().minus(lookback, ChronoUnit.DAYS);
@@ -206,9 +203,7 @@ public class TRGuiMain implements Clerk {
         
         writeChartImage(chart);
         
-        trChartPanel = new TRChartPanel();
-        trChartPanel.add(jfreeChartPanel);
-        return trChartPanel;
+        return jfreeChartPanel;
     }
     
     /**
@@ -256,8 +251,6 @@ public class TRGuiMain implements Clerk {
     }
     
     public void buildChartPanel(Security security) {
-        trChartPanel = new TRChartPanel();
-        
         int lookback = swingTip.getConfiguration().getLookback();
         Instant start = Instant.now().minus(lookback, ChronoUnit.DAYS);
         swingTip.storeHistoricalBars(security, start, Instant.now(), swingTip.getConfiguration().getBarSize());
@@ -287,8 +280,6 @@ public class TRGuiMain implements Clerk {
         jfreeChartPanel = ChartUtils.newJFreeAppFrame(chart);
         
         writeChartImage(chart);
-        
-        trChartPanel.add(jfreeChartPanel);
     }
     
     public void writeChartImage(JFreeChart chart) {
@@ -316,7 +307,7 @@ public class TRGuiMain implements Clerk {
         SwingUtilities.invokeLater(() -> {
             Container container = getContainer();
             String[] split = symbol.split(":");
-            container.remove(trChartPanel);
+            container.remove(jfreeChartPanel);
             buildChartPanel(swingTip.getSecurity(split[0], TickerType.valueOf(split[1])));
             addComponentsToPane();
             container.revalidate();
@@ -326,7 +317,7 @@ public class TRGuiMain implements Clerk {
     public void addComponentsToPane() {
         Container container = getContainer();
         container.setLayout(new BorderLayout());
-        container.add(trChartPanel, BorderLayout.CENTER);
+        container.add(jfreeChartPanel, BorderLayout.CENTER);
         container.add(rightPanel, BorderLayout.LINE_END);
     }
     
