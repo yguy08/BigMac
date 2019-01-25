@@ -3,6 +3,7 @@ package com.tapereader.tip;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,13 @@ import org.ta4j.core.trading.rules.IsLowestRule;
 import org.ta4j.core.trading.rules.StopLossRule;
 
 import com.google.common.eventbus.Subscribe;
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
+import com.tapereader.clerk.HistoricalDataClerk;
+import com.tapereader.clerk.MarketDataClerk;
+import com.tapereader.config.Configuration;
+import com.tapereader.dao.LookupClerk;
+import com.tapereader.dao.RecordClerk;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.gui.chart.ChartUtils;
@@ -33,17 +41,102 @@ import com.tapereader.model.BucketShop;
 import com.tapereader.model.Security;
 import com.tapereader.model.Tip;
 import com.tapereader.tip.TapeReader;
+import com.tapereader.wire.Receiver;
 
-public class SwingTip extends TapeReader {
+public class SwingTip {
 
     private Map<String, Tick> tickMap = new ConcurrentHashMap<>();
+    
+    private Security security;
+    
+    private Configuration configuration;
+    
+    private LookupClerk lookupClerk;
+    
+    private RecordClerk recordClerk;
+    
+    private HistoricalDataClerk newspaper;
+    
+    private Receiver receiver;
+    
+    @Inject
+    @Named("tip")
+    private String tipName;
+    
+    private MarketDataClerk marketDataClerk;
 
-    @Override
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+    
+    @Inject(optional=true)
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public Tip getTip() {
+        return lookupClerk.findTipByName(getTipName());
+    }
+    
+    @Inject(optional=true)
+    public void setTipName(String tipName) {
+        this.tipName = tipName;
+    }
+    
+    public String getTipName() {
+        return tipName;
+    }
+
+    public LookupClerk getLookupClerk() {
+        return lookupClerk;
+    }
+
+    @Inject(optional=true)
+    public void setLookupClerk(LookupClerk lookupClerk) {
+        this.lookupClerk = lookupClerk;
+    }
+
+    public MarketDataClerk getMarketDataClerk() {
+        return marketDataClerk;
+    }
+    
+    @Inject(optional=true)
+    public void setMarketDataClerk(MarketDataClerk marketDataClerk) {
+        this.marketDataClerk = marketDataClerk;
+    }
+
+    public RecordClerk getRecordClerk() {
+        return recordClerk;
+    }
+
+    @Inject(optional=true)
+    public void setRecordClerk(RecordClerk recordClerk) {
+        this.recordClerk = recordClerk;
+    }
+    
+    public HistoricalDataClerk getHistoricalDataClerk() {
+        return newspaper;
+    }
+
+    @Inject(optional=true)
+    public void setHistoricalDataClerk(HistoricalDataClerk newspaper) {
+        this.newspaper = newspaper;
+    }
+    
+    public void readTheTape() {
+        
+    }
+    
+    public void onTick(Tick tick) {
+        
+    }
+
     public void init() {
         List<Tick> ticks = getMarketDataClerk().getCurrentTicks();
         for (Tick t : ticks) {
             tickMap.put(t.getSymbol(), t);
         }
+        security = getSecurity("BTC/USDT", TickerType.BINANCE);
     }
 
     public List<Tick> getCurrentTicks() {
@@ -63,15 +156,27 @@ public class SwingTip extends TapeReader {
     }
 
     public List<Bar> getBars(Security security) {
-        return getLookupClerk().getBars(security);
+        int ignoreDays = getConfiguration().getIgnoreBarDays();
+        List<Bar> bars = getLookupClerk().getBars(security);
+        int barSize = bars.size();
+        if (ignoreDays > 0 && barSize < getConfiguration().getLookback()) {
+            return bars.subList(ignoreDays, barSize);
+        }
+        return bars;
     }
 
     public List<Tip> getAllTips() {
-        return getLookupClerk().getAllTips();
+        List<Tip> tips = getLookupClerk().getAllTips();
+        if (tips == null) {
+            tips = new ArrayList<>();
+            tips.add(new Tip("BuyHigh"));
+        }
+        return tips;
     }
 
     public Security getSecurity(String symbol, TickerType tickerType) {
-        return getLookupClerk().findSecurity(symbol, tickerType);
+        Security security = getLookupClerk().findSecurity(symbol, tickerType);
+        return security != null ? security : new Security(symbol, new BucketShop(tickerType.toString()));
     }
 
     public List<BucketShop> getAllBucketShops() {
@@ -92,7 +197,7 @@ public class SwingTip extends TapeReader {
             throw new IllegalArgumentException("Series cannot be null");
         }
         ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
-        String tipName = getTip().getName();
+        String tipName = "Buy High";
 
         // Going long if the close price goes above the max
         Rule entryRule;
@@ -100,18 +205,18 @@ public class SwingTip extends TapeReader {
         Rule exitRule;
 
         switch (tipName) {
-        case "Buy High":
-            entryRule = new IsHighestRule(closePrices, 25);
-            exitRule = new IsLowestRule(closePrices, 11).or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
-            break;
-        case "Sell Low":
-            entryRule = new IsLowestRule(closePrices, 25);
-            exitRule = new IsHighestRule(closePrices, 11);
-            break;
-        default:
-            entryRule = new IsHighestRule(closePrices, 25);
-            exitRule = new IsLowestRule(closePrices, 11).or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
-            break;
+            case "Buy High":
+                entryRule = new IsHighestRule(closePrices, 25);
+                exitRule = new IsLowestRule(closePrices, 11).or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
+                break;
+            case "Sell Low":
+                entryRule = new IsLowestRule(closePrices, 25);
+                exitRule = new IsHighestRule(closePrices, 11);
+                break;
+            default:
+                entryRule = new IsHighestRule(closePrices, 25);
+                exitRule = new IsLowestRule(closePrices, 11).or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
+                break;
         }
         return new BaseStrategy(tipName, entryRule, exitRule, 25);
     }

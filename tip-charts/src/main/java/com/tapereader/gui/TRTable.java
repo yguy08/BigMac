@@ -12,14 +12,24 @@ import javax.swing.SwingConstants;
 import javax.swing.table.TableModel;
 
 
-public class TrTable extends JTable {
+public class TRTable extends JTable {
 
     /**
      * Generated Serial Version UID
      */
     private static final long serialVersionUID = -6947325578748586330L;
     
-    public TrTable(TableModel tableModel) {
+    public TRTable() {
+        super();
+        setFillsViewportHeight(true);
+        setAutoCreateRowSorter(true);
+        getTableHeader().setReorderingAllowed(true);
+        getTableHeader().setResizingAllowed(true);
+        getTableHeader().setEnabled(true);
+        ((JLabel)getTableHeader().getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+    }
+    
+    public TRTable(TableModel tableModel) {
         super(tableModel);
         setFillsViewportHeight(true);
         setAutoCreateRowSorter(true);

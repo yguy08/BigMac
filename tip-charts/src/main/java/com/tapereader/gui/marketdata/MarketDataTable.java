@@ -11,11 +11,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import com.tapereader.gui.TapeReaderGuiMain;
-import com.tapereader.gui.TrTable;
+import com.tapereader.gui.TRGuiMain;
+import com.tapereader.gui.TRTable;
 import com.tapereader.marketdata.Tick;
 
-public class MarketDataTable extends TrTable {
+public class MarketDataTable extends TRTable {
     
     /**
      * Default Serial UID
@@ -69,7 +69,7 @@ public class MarketDataTable extends TrTable {
                 List<Tick> ticks = ((MarketDataTableModel) getModel()).getTicks();
                 int i = convertRowIndexToModel(getSelectedRow());
                 Tick tick = ticks.get(i);
-                TapeReaderGuiMain.getTrGui().rebuildChart(tick.getSymbol());
+                TRGuiMain.getTrGui().rebuildChart(tick.getSymbol());
             }
         }
     }

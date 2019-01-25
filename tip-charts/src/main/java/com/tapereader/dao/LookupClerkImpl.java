@@ -80,9 +80,13 @@ public class LookupClerkImpl implements LookupClerk {
     @SuppressWarnings("unchecked")
     @Override
     public List<Tip> getAllTips() {
-        List<Tip> tips = em.createQuery("SELECT t FROM Tip t")
-                .getResultList();
-        return tips;
+        try {
+            List<Tip> tips = em.createQuery("SELECT t FROM Tip t")
+                    .getResultList();
+            return tips;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

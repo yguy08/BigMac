@@ -27,6 +27,11 @@ public class Security {
     public Security(String symbol) {
         this.symbol = symbol;
     }
+    
+    public Security(String symbol, BucketShop shop) {
+        setSymbol(symbol);
+        setBucketShop(shop);
+    }
 
     public Long getId() {
         return id;

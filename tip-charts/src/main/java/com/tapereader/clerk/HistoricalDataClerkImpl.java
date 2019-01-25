@@ -28,7 +28,7 @@ public class HistoricalDataClerkImpl implements HistoricalDataClerk {
 
     @Override
     public void init() {
-        clerkMap.entrySet().stream().forEach(h -> h.getValue().init());
+        
     }
 
     @Override

@@ -19,6 +19,7 @@ import org.knowm.xchange.binance.service.BinanceMarketDataServiceRaw;
 import org.knowm.xchange.currency.CurrencyPair;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
@@ -26,6 +27,7 @@ import com.tapereader.marketdata.Tick;
 import com.tapereader.model.Security;
 import com.tapereader.util.TradingUtils;
 
+@Singleton
 public class BinanceExchangeAdapter implements ExchangeAdapter {
     
     private Exchange exchange;

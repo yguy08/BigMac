@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
-import com.tapereader.gui.TapeReaderGuiMain;
+import com.tapereader.gui.TRGuiMain;
 import com.tapereader.model.BucketShop;
 import com.tapereader.model.Tip;
 
@@ -75,9 +75,9 @@ public class TipPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object obj = e.getSource();
         if (obj == tipCombo) {
-            TapeReaderGuiMain.getTrGui().setTip(getTip());
+            TRGuiMain.getTrGui().setTip(getTip());
         } else {
-            TapeReaderGuiMain.getTrGui().resetFilter(getMarket(), getShop());
+            TRGuiMain.getTrGui().resetFilter(getMarket(), getShop());
         }
     }
 }

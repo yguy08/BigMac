@@ -34,6 +34,10 @@ public class Tip {
         
     }
     
+    public Tip(String name) {
+        setName(name);
+    }
+    
     public String getName() {
         return name;
     }

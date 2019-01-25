@@ -18,7 +18,7 @@ public class MarketDataTableModel extends AbstractTableModel {
 
     private List<Tick> ticks;
     
-    MarketDataTableModel(List<Tick> ticks) {
+    public MarketDataTableModel(List<Tick> ticks) {
         this.ticks = ticks;
     }
     

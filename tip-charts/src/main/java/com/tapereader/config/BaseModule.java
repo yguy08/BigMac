@@ -8,22 +8,18 @@ import javax.inject.Named;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Names;
 import com.tapereader.adapter.BinanceExchangeAdapter;
 import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.adapter.PoloniexExchangeAdapter;
-import com.tapereader.clerk.BinanceTicker;
 import com.tapereader.clerk.JPAClerk;
 import com.tapereader.clerk.JPAClerkImpl;
 import com.tapereader.clerk.MarketDataClerk;
 import com.tapereader.clerk.MarketDataClerkImpl;
 import com.tapereader.clerk.HistoricalDataClerk;
 import com.tapereader.clerk.HistoricalDataClerkImpl;
-import com.tapereader.clerk.PoloniexTicker;
-import com.tapereader.clerk.MarketDataStreamingClerk;
-import com.tapereader.clerk.MarketDataStreamingClerkImpl;
-import com.tapereader.clerk.Ticker;
 import com.tapereader.dao.LookupClerk;
 import com.tapereader.dao.LookupClerkImpl;
 import com.tapereader.dao.RecordClerk;
@@ -31,7 +27,6 @@ import com.tapereader.dao.RecordClerkImpl;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.event.DistributedMarketDataHandler;
 import com.tapereader.event.MarketDataHandler;
-import com.tapereader.wire.ActiveMQBroker;
 import com.tapereader.wire.DefaultReceiver;
 import com.tapereader.wire.DefaultTransmitter;
 import com.tapereader.wire.MarketDataMessageProtocol;
@@ -55,24 +50,22 @@ public class BaseModule extends AbstractModule {
         loadProperties(propFileName);
         
         // JPA - Clerk Module
-        bind(RecordClerk.class).to(RecordClerkImpl.class);
-        bind(LookupClerk.class).to(LookupClerkImpl.class);
+        bind(RecordClerk.class).to(RecordClerkImpl.class).in(Singleton.class);;
+        bind(LookupClerk.class).to(LookupClerkImpl.class).in(Singleton.class);;
         
         // Historical Data Clerk
-        bind(HistoricalDataClerk.class).to(HistoricalDataClerkImpl.class);
+        bind(HistoricalDataClerk.class).to(HistoricalDataClerkImpl.class).in(Singleton.class);;
         
         // Wire - JMS
-        bind(Receiver.class).to(DefaultReceiver.class);
-        bind(Transmitter.class).to(DefaultTransmitter.class);
-        bind(MessageProtocol.class).to(MarketDataMessageProtocol.class);
+        bind(Receiver.class).to(DefaultReceiver.class).in(Singleton.class);;
+        bind(Transmitter.class).to(DefaultTransmitter.class).in(Singleton.class);;
+        bind(MessageProtocol.class).to(MarketDataMessageProtocol.class).in(Singleton.class);;
         bind(EventBus.class).toInstance(eventBus);
         
         // Market Data
-        bind(MarketDataHandler.class).to(DistributedMarketDataHandler.class);
-        bind(MarketDataStreamingClerk.class).to(MarketDataStreamingClerkImpl.class);
-        bind(MarketDataClerk.class).to(MarketDataClerkImpl.class);
-
-        MapBinder<String, Ticker> mapBinder = MapBinder.newMapBinder(binder(), String.class, Ticker.class);
+        bind(MarketDataHandler.class).to(DistributedMarketDataHandler.class).in(Singleton.class);;
+        bind(MarketDataClerk.class).to(MarketDataClerkImpl.class).in(Singleton.class);;
+        
         MapBinder<String, ExchangeAdapter> exchangeBinder 
         = MapBinder.newMapBinder(binder(), String.class, ExchangeAdapter.class);
 
@@ -84,11 +77,9 @@ public class BaseModule extends AbstractModule {
         String[] profiles = profile.split(",");
         for (String p : profiles) {
             if (p.trim().equalsIgnoreCase("BNC")) {
-                mapBinder.addBinding(TickerType.BINANCE.toString()).to(BinanceTicker.class);
-                exchangeBinder.addBinding(TickerType.BINANCE.toString()).to(BinanceExchangeAdapter.class);
+                exchangeBinder.addBinding(TickerType.BINANCE.toString()).to(BinanceExchangeAdapter.class).in(Singleton.class);
             } else if (p.trim().equalsIgnoreCase("POLO")) {
-                mapBinder.addBinding(TickerType.POLONIEX.toString()).to(PoloniexTicker.class);
-                exchangeBinder.addBinding(TickerType.POLONIEX.toString()).to(PoloniexExchangeAdapter.class);
+                exchangeBinder.addBinding(TickerType.POLONIEX.toString()).to(PoloniexExchangeAdapter.class).in(Singleton.class);
             }
         }
     }
@@ -108,11 +99,6 @@ public class BaseModule extends AbstractModule {
     @Provides
     public JPAClerk provideJPAClerk() {
         return JPAClerkImpl.INSTANCE;
-    }
-    
-    @Provides
-    public ActiveMQBroker activeMQBroker(@Named("mqbrokerurl") String brokerUrl) {
-        return new ActiveMQBroker(brokerUrl);
     }
     
     @Named("bncExchangeClerk")

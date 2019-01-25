@@ -1,6 +1,7 @@
 package com.tapereader.tip;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.tapereader.clerk.Clerk;
 import com.tapereader.clerk.MarketDataClerk;
 import com.tapereader.clerk.HistoricalDataClerk;
@@ -23,6 +24,8 @@ public class TapeReader implements Clerk {
     
     private Receiver receiver;
     
+    @Inject
+    @Named("tip")
     private String tipName;
     
     private MarketDataClerk marketDataClerk;
@@ -83,15 +86,6 @@ public class TapeReader implements Clerk {
     @Inject(optional=true)
     public void setHistoricalDataClerk(HistoricalDataClerk newspaper) {
         this.newspaper = newspaper;
-    }
-
-    public Receiver getReceiver() {
-        return receiver;
-    }
-
-    @Inject(optional=true)
-    public void setReceiver(Receiver receiver) {
-        this.receiver = receiver;
     }
     
     public void readTheTape() {

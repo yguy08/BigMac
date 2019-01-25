@@ -19,6 +19,7 @@ import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataServiceRaw;
 
+import com.google.inject.Singleton;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
@@ -26,6 +27,7 @@ import com.tapereader.model.Security;
 import com.tapereader.util.TradingUtils;
 import com.tapereader.util.UniqueTimeMicros;
 
+@Singleton
 public class PoloniexExchangeAdapter implements ExchangeAdapter {
     
     private Exchange exchange;
