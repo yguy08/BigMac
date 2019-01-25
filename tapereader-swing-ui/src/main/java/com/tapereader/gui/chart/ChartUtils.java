@@ -3,6 +3,7 @@ package com.tapereader.gui.chart;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -200,7 +201,8 @@ public class ChartUtils {
         // ATR
         // Want to put this on the legend
         ATRIndicator atr = new ATRIndicator(series, 14);
-        System.out.println("ATR: " + atr.getValue(series.getBarCount()-1));
+        BigDecimal bd = new BigDecimal(atr.getValue(series.getBarCount()-1).doubleValue());
+        System.out.println("ATR: " + bd.toPlainString());
     }
     
     public static void addBuySellSignals(TimeSeries series, Strategy strategy, JFreeChart chart, OrderType type) {
