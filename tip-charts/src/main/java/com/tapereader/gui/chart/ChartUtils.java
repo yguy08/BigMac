@@ -26,12 +26,9 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.Day;
-import org.jfree.data.time.Hour;
-import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.OHLCDataset;
 import org.ta4j.core.Bar;
-import org.ta4j.core.Indicator;
 import org.ta4j.core.Order;
 import org.ta4j.core.Order.OrderType;
 import org.ta4j.core.Strategy;
@@ -51,15 +48,16 @@ import org.ta4j.core.analysis.criteria.RewardRiskRatioCriterion;
 import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
 import org.ta4j.core.analysis.criteria.VersusBuyAndHoldCriterion;
 import org.ta4j.core.indicators.ATRIndicator;
-import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.PrecisionNum;
 
 public class ChartUtils {
 
     public static final Stroke FATLINE = new BasicStroke(.9f);
 
-    public static JFreeChart newCandleStickChart(String title, OHLCDataset ohlcDataset) {
+    public static JFreeChart newCandleStickChart(String title, TimeSeries timeseries) {
+        OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "", "", ohlcDataset, false);
+        chart.setBackgroundPaint(Color.BLUE);
         // Candlestick rendering
         CandlestickRenderer renderer = new CandlestickRenderer();
         renderer.setUseOutlinePaint(true);
@@ -132,38 +130,7 @@ public class ChartUtils {
             closes[i] = bar.getClosePrice().doubleValue();
             volumes[i] = bar.getVolume().doubleValue();
         }
-
         return new DefaultHighLowDataset(security, dates, highs, lows, opens, closes, volumes);
-    }
-
-    public static org.jfree.data.time.TimeSeries buildHourlyChartTimeSeries(TimeSeries barseries,
-            Indicator<PrecisionNum> indicator, String name) {
-        org.jfree.data.time.TimeSeries chartTimeSeries = new org.jfree.data.time.TimeSeries(name);
-        for (int i = 0; i < barseries.getBarCount(); i++) {
-            Bar bar = barseries.getBar(i);
-            chartTimeSeries.add(new Hour(Date.from(bar.getEndTime().toInstant())), indicator.getValue(i).doubleValue());
-        }
-        return chartTimeSeries;
-    }
-
-    /**
-     * Builds an additional JFreeChart dataset from a ta4j time series.
-     * 
-     * @param series
-     *            a time series
-     * @return an additional dataset
-     */
-    public static TimeSeriesCollection createAdditionalDataset(TimeSeries series) {
-        ClosePriceIndicator indicator = new ClosePriceIndicator(series);
-        TimeSeriesCollection dataset = new TimeSeriesCollection();
-        org.jfree.data.time.TimeSeries chartTimeSeries = new org.jfree.data.time.TimeSeries("Btc price");
-        for (int i = 0; i < series.getBarCount(); i++) {
-            Bar bar = series.getBar(i);
-            chartTimeSeries.add(new Day(new Date(bar.getEndTime().toEpochSecond() * 1000)),
-                    indicator.getValue(i).doubleValue());
-        }
-        dataset.addSeries(chartTimeSeries);
-        return dataset;
     }
 
     public static void prtStrategyAnalysis(TimeSeries series, TradingRecord tradingRecord) {

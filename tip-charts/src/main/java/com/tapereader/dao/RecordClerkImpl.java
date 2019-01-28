@@ -17,10 +17,6 @@ public class RecordClerkImpl implements RecordClerk {
     private EntityManager em;
     
     private JPAClerk jpaClerk;
-
-    @Inject(optional = true)
-    @Named("cleanmarketdata")
-    private String cleanMarketData;
     
     @Inject
     private RecordClerkImpl(Provider<JPAClerk> jpaClerk) {
@@ -41,16 +37,6 @@ public class RecordClerkImpl implements RecordClerk {
     @Override
     public void init() {
         em = jpaClerk.getEntityManager();
-        cleanMarketData();
-    }
-
-    private void cleanMarketData() {
-        if (Boolean.valueOf(cleanMarketData)) {
-            em.getTransaction().begin();
-            int del = em.createNamedQuery("MarketData.clean").executeUpdate();
-            em.getTransaction().commit();
-            System.out.println(del);
-        }
     }
 
     @Override

@@ -9,21 +9,6 @@ import com.tapereader.enumeration.MessageType;
 
 @Entity
 @DiscriminatorValue(value="TICK")
-@NamedQueries(value = {
-        @NamedQuery(
-                name = "Tick.findLatest",
-                query = "SELECT t1 FROM MarketData t1 WHERE TYPE(t1) = Tick "
-                        + "AND timestamp = (SELECT MAX(timestamp) FROM MarketData t2 "
-                        + "WHERE t1.symbol = t2.symbol AND TYPE(t1) = TYPE(t2)) "
-                + "GROUP BY symbol "
-                + "ORDER BY symbol ASC"),
-        @NamedQuery(
-                name = "Tick.findBySecurity",
-                query = "SELECT t FROM MarketData t "
-                        + "WHERE t.symbol = :symbol "
-                        + "AND TYPE(t) = TICK "
-                        + "ORDER BY timestamp DESC")
-})
 public class Tick extends MarketData {
 
     private double last;

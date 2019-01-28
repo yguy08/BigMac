@@ -10,7 +10,6 @@ import com.tapereader.dao.LookupClerk;
 import com.tapereader.dao.RecordClerk;
 import com.tapereader.marketdata.Tick;
 import com.tapereader.model.Tip;
-import com.tapereader.wire.Receiver;
 
 public class TapeReader implements Clerk {
     
@@ -22,13 +21,11 @@ public class TapeReader implements Clerk {
     
     private HistoricalDataClerk newspaper;
     
-    private Receiver receiver;
+    private MarketDataClerk marketDataClerk;
     
     @Inject
     @Named("tip")
     private String tipName;
-    
-    private MarketDataClerk marketDataClerk;
 
     public Configuration getConfiguration() {
         return configuration;
@@ -42,7 +39,7 @@ public class TapeReader implements Clerk {
     public Tip getTip() {
         return lookupClerk.findTipByName(getTipName());
     }
-    
+
     @Inject(optional=true)
     public void setTipName(String tipName) {
         this.tipName = tipName;

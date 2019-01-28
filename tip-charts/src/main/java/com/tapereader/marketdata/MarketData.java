@@ -8,17 +8,13 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
 @Table(
 name="MARKET_DATA", 
 indexes = { @Index(name = "IDX_TICKIDX1", columnList = "symbol,type") })
-@NamedQuery(
-        name = "MarketData.clean",
-        query = "DELETE FROM MarketData")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DiscriminatorColumn(name = "TYPE", discriminatorType=DiscriminatorType.STRING)
 public abstract class MarketData {
 
@@ -26,7 +22,7 @@ public abstract class MarketData {
     @GeneratedValue
     private Long id;
 
-    // unix time in microseconds
+    // unix time in millis
     protected long timestamp;
     
     protected String symbol;
