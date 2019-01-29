@@ -1,56 +1,44 @@
 package com.tapereader;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import com.tapereader.adapter.BinanceExchangeAdapter;
-import com.tapereader.adapter.PoloniexExchangeAdapter;
-import com.tapereader.clerk.JPAClerk;
-import com.tapereader.config.BaseModule;
-import com.tapereader.dao.LookupClerk;
-import com.tapereader.dao.RecordClerk;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.enumeration.TickerType;
+import com.tapereader.enumeration.TipType;
 import com.tapereader.gui.TRGuiMain;
-import com.tapereader.tip.SwingTip;
-import com.tapereader.tip.buyhigh.BuyHigh;
+import com.tapereader.marketdata.MarketDataClerk;
+import com.tapereader.marketdata.MarketDataClerkImpl;
+import com.tapereader.marketdata.historical.HistoricalDataClerk;
+import com.tapereader.marketdata.historical.HistoricalDataClerkImpl;
+import com.tapereader.tip.Tip;
+import com.tapereader.tip.TipClerk;
 
 public class SwingApplication {
 
     public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new BaseModule("application.properties"), new AppModule());
-        JPAClerk clerk = injector.getInstance(JPAClerk.class);
-        clerk.init();
-        
-        BinanceExchangeAdapter bncAdapter = injector.getInstance(BinanceExchangeAdapter.class);
+        ExchangeAdapter bncAdapter = ExchangeAdapter.makeFactory(TickerType.BINANCE);
         bncAdapter.init();
         
-        PoloniexExchangeAdapter poloAdapter = injector.getInstance(PoloniexExchangeAdapter.class);
+        ExchangeAdapter poloAdapter = ExchangeAdapter.makeFactory(TickerType.POLONIEX);
         poloAdapter.init();
         
-        LookupClerk lookupClerk = injector.getInstance(LookupClerk.class);
-        lookupClerk.init();
+        Map<String, ExchangeAdapter> adapterMap = new HashMap<>();
+        adapterMap.put(TickerType.BINANCE.toString(), bncAdapter);
+        adapterMap.put(TickerType.POLONIEX.toString(), poloAdapter);
         
-        RecordClerk recordClerk = injector.getInstance(RecordClerk.class);
-        recordClerk.init();
+        MarketDataClerk marketDataClerk = new MarketDataClerkImpl(adapterMap);
+        HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap);
         
-        SwingTip tip = injector.getInstance(SwingTip.class);
-        tip.init();
+        TipClerk tipClerk = new TipClerk(marketDataClerk, historicalDataClerk, Tip.makeFactory(TipType.BUY_HIGH));
         
-        TRGuiMain app = injector.getInstance(TRGuiMain.class);
+        TRGuiMain app = new TRGuiMain(tipClerk);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 app.runGui();
             }
         });
-    }
-
-    private static class AppModule extends AbstractModule {
-
-        @Override
-        public void configure() {
-            bind(SwingTip.class).to(BuyHigh.class).in(Singleton.class);
-            bind(TRGuiMain.class).in(Singleton.class);
-        }
     }
 
 }

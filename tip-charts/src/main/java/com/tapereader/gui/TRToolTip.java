@@ -1,10 +1,10 @@
-package com.tapereader.gui.chart;
+package com.tapereader.gui;
 
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.XYDataset;
 
-public class TrToolTipGenerator implements XYToolTipGenerator {
+public class TRToolTip implements XYToolTipGenerator {
 
     @Override
     public String generateToolTip(XYDataset dataset, int series, int item) {

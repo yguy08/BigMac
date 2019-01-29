@@ -1,4 +1,4 @@
-package com.tapereader.adapter;
+package com.tapereader.adapter.polo;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -19,15 +19,14 @@ import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataServiceRaw;
 
-import com.google.inject.Singleton;
+import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
-import com.tapereader.model.Security;
+import com.tapereader.reference.Security;
 import com.tapereader.util.TradingUtils;
 import com.tapereader.util.UniqueTimeMicros;
 
-@Singleton
 public class PoloniexExchangeAdapter implements ExchangeAdapter {
     
     private Exchange exchange;
@@ -77,11 +76,11 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
     }
 
     @Override
-    public List<Bar> getHistoricalBars(Security security, Instant startDate, Instant endDate, Duration duration) {
+    public List<Bar> getHistoricalBars(String security, Instant startDate, Instant endDate, Duration duration) {
         return Arrays.stream(getPoloniexChartData(security, startDate, endDate, duration))
         .map(c -> new Bar(
                         c.getDate().toInstant().toEpochMilli(),
-                        TradingUtils.toSymbol(security.getSymbol(), TickerType.POLONIEX),
+                        TradingUtils.toSymbol(security, TickerType.POLONIEX),
                         duration, 
                         c.getOpen().doubleValue(), 
                         c.getHigh().doubleValue(), 
@@ -102,10 +101,10 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
         return poloPeriodType;
     }
     
-    private PoloniexChartData[] getPoloniexChartData(Security security, Instant startTime, Instant endTime, Duration duration) {
+    private PoloniexChartData[] getPoloniexChartData(String security, Instant startTime, Instant endTime, Duration duration) {
         PoloniexChartData[] chartData = null;
         try {
-            CurrencyPair pair = new CurrencyPair(security.getSymbol());
+            CurrencyPair pair = new CurrencyPair(security);
             long start = startTime.getEpochSecond();
             long end = endTime.getEpochSecond();
             PoloniexChartDataPeriodType periodType = getPoloPeriodType(duration);

@@ -4,15 +4,28 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
+import com.tapereader.adapter.bnc.BinanceExchangeAdapter;
+import com.tapereader.adapter.polo.PoloniexExchangeAdapter;
 import com.tapereader.clerk.Clerk;
+import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
-import com.tapereader.model.Security;
 
 public interface ExchangeAdapter extends Clerk {
+    
+    public static ExchangeAdapter makeFactory(TickerType type) {
+        switch (type) {
+        case POLONIEX:
+            return new PoloniexExchangeAdapter();
+        case BINANCE:
+            return new BinanceExchangeAdapter();
+        default:
+            throw new IllegalArgumentException("TickerType not supported.");
+        }
+    }
 
     List<Tick> getCurrentTicks();
 
-    List<Bar> getHistoricalBars(Security security, Instant startDate, Instant endDate, Duration duration);
+    List<Bar> getHistoricalBars(String symbol, Instant startDate, Instant endDate, Duration duration);
 
 }

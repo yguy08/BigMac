@@ -7,8 +7,6 @@ import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceExchange;
 
-import com.tapereader.model.Security;
-
 public class BinanceReferenceDataClerk implements ReferenceDataClerk {
 
     private Exchange exchange;

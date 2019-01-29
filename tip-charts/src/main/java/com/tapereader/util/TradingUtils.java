@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Map;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
-import com.tapereader.model.Security;
+import com.tapereader.reference.Security;
 
 public class TradingUtils {
 
@@ -102,10 +102,6 @@ public class TradingUtils {
     
     public static String toSymbol(String symbol, TickerType tickerType) {
         return symbol + ":" + tickerType.toString();
-    }
-    
-    public static String toSymbol(Security security) {
-        return security.getSymbol() + ":" + security.getBucketShop().getName();
     }
     
     public static String toMarket(String symbol, String currencySeparator) {

@@ -1,21 +1,23 @@
-package com.tapereader.gui.marketdata;
+package com.tapereader.gui;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.DefaultRowSorter;
+import javax.swing.JLabel;
+import javax.swing.JTable;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import com.tapereader.gui.TRGuiMain;
-import com.tapereader.gui.TRTable;
 import com.tapereader.marketdata.Tick;
 
-public class MarketDataTable extends TRTable {
+public class MarketDataTable extends JTable {
     
     /**
      * Default Serial UID
@@ -26,6 +28,12 @@ public class MarketDataTable extends TRTable {
 
     public MarketDataTable(MarketDataTableModel tableModel) {
         super(tableModel);
+        setFillsViewportHeight(true);
+        setAutoCreateRowSorter(true);
+        getTableHeader().setReorderingAllowed(true);
+        getTableHeader().setResizingAllowed(true);
+        getTableHeader().setEnabled(true);
+        ((JLabel)getTableHeader().getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
         addMouseListener(new MarketDataTableListener());
         sorter = new TableRowSorter<MarketDataTableModel>(tableModel);
         setRowSorter(sorter);
@@ -49,6 +57,13 @@ public class MarketDataTable extends TRTable {
         sortTable(2, SortOrder.DESCENDING);
     }
     
+    public void sortTable(int columnIndex, SortOrder sortOrder) {
+        List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
+        sortKeys.add(new RowSorter.SortKey(columnIndex, sortOrder));
+        this.getRowSorter().setSortKeys(sortKeys);
+        ((DefaultRowSorter) this.getRowSorter()).sort();
+    }
+    
     public void updateTicks(List<Tick> ticks) {
         SwingUtilities.invokeLater(() -> {
             ((MarketDataTableModel) getModel()).setTicks(ticks);
@@ -56,12 +71,7 @@ public class MarketDataTable extends TRTable {
         });
     }
     
-    private class MarketDataTableListener extends MouseAdapter implements ListSelectionListener {
-
-        @Override
-        public void valueChanged(ListSelectionEvent e) {
-            
-        }
+    private class MarketDataTableListener extends MouseAdapter {
         
         @Override
         public void mouseReleased(MouseEvent e) {
@@ -69,7 +79,7 @@ public class MarketDataTable extends TRTable {
                 List<Tick> ticks = ((MarketDataTableModel) getModel()).getTicks();
                 int i = convertRowIndexToModel(getSelectedRow());
                 Tick tick = ticks.get(i);
-                TRGuiMain.getTrGui().rebuildChart(tick.getSymbol());
+                //TRGuiMain.getTrGui().rebuildChartPanel(tick.getSymbol());
             }
         }
     }

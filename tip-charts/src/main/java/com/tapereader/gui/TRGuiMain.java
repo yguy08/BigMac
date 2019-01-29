@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -17,50 +18,46 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
-import com.google.inject.Inject;
-import com.tapereader.clerk.Clerk;
+import org.ta4j.core.BaseTimeSeries;
+import org.ta4j.core.TimeSeries;
+
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
-import com.tapereader.gui.chart.ChartUtils;
-import com.tapereader.gui.marketdata.MarketDataPanel;
-import com.tapereader.gui.marketdata.MarketDataTableModel;
+import com.tapereader.enumeration.TipType;
+import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
-import com.tapereader.model.Security;
-import com.tapereader.model.Tip;
-import com.tapereader.tip.SwingTip;
+import com.tapereader.tip.Tip;
+import com.tapereader.tip.TipClerk;
 
-public class TRGuiMain implements Clerk {
+public class TRGuiMain {
     
     private final JFrame mainFrame;
     
-    private JPanel chartWrapperPanel;
-    
-    private JComboBox<Tip> tipCombo;
+    private JComboBox<TipType> tipCombo;
     
     private JComboBox<TickerType> tickerCombo;
     
     private JComboBox<MarketType> marketCombo;
     
-    private TRTable trTable;
+    private MarketDataTable trTable;
     
     private static TRGuiMain trGui;
     
     private ChartPanel jfreeChartPanel;
     
-    private MarketDataPanel marketDataPanel;
+    private TipClerk tipClerk;
     
-    private SwingTip swingTip;
-    
-    @Inject
-    private TRGuiMain(SwingTip swingTip) {
+    public TRGuiMain(TipClerk tipClerk) {
         this.mainFrame = new JFrame("Bucketshop");
-        this.swingTip = (SwingTip) swingTip;
+        this.tipClerk = tipClerk;
         trGui = this;
     }
+    
     
     private void createBaseGui() {
         getMainJFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -68,13 +65,11 @@ public class TRGuiMain implements Clerk {
         JLabel tipLbl = new JLabel("Tip");
         
         ActionListener comboListener = new TRComboBoxListener();
-        List<Tip> tips = swingTip.getLookupClerk().getAllTips();
-        tipCombo = new JComboBox<>(tips.toArray(new Tip[tips.size()]));
+        List<TipType> tips = Arrays.asList(TipType.values()).stream().collect(Collectors.toList());
+        tipCombo = new JComboBox<>(tips.toArray(new TipType[tips.size()]));
         tipCombo.addActionListener(comboListener);
         
-        //jfreeChartPanel = initChartPanel();
-        chartWrapperPanel = new JPanel();
-        chartWrapperPanel.setLayout(new BorderLayout());
+        jfreeChartPanel = initChartPanel();
         
         JLabel shopLbl = new JLabel("Shop: ");
         List<TickerType> tickers = Arrays.asList(TickerType.values()).stream().collect(Collectors.toList());
@@ -86,8 +81,12 @@ public class TRGuiMain implements Clerk {
         marketCombo = new JComboBox<MarketType>(markets.toArray(new MarketType[markets.size()]));
         marketCombo.addActionListener(comboListener);
         
-        List<Tick> ticks = swingTip.getMarketDataClerk().getCurrentTicks();
-        marketDataPanel = new MarketDataPanel(ticks);
+        List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks();
+        JPanel marketDataPanel = new JPanel();
+        marketDataPanel.setLayout(new BorderLayout(5, 5));
+        trTable = new MarketDataTable(new MarketDataTableModel(ticks));
+        JScrollPane scrollPane = new JScrollPane(trTable);
+        marketDataPanel.add(scrollPane, BorderLayout.CENTER);
         
         JPanel tipPanel = new JPanel();
         tipPanel.setLayout(new FlowLayout());
@@ -106,14 +105,14 @@ public class TRGuiMain implements Clerk {
         marketDataComboPanel.add(marketCombo);
         
         JPanel marketFeedPanel = new JPanel();
-        marketFeedPanel.setLayout(new BorderLayout());
+        marketFeedPanel.setLayout(new BorderLayout(5, 5));
         marketFeedPanel.add(marketDataComboPanel, BorderLayout.PAGE_START);
         marketFeedPanel.add(marketDataPanel, BorderLayout.CENTER);
         
         Container container = getContainer();
-        container.setLayout(new BorderLayout());
+        container.setLayout(new BorderLayout(5, 5));
         container.add(headerPanel, BorderLayout.PAGE_START);
-        container.add(chartWrapperPanel, BorderLayout.CENTER);
+        container.add(jfreeChartPanel, BorderLayout.CENTER);
         container.add(marketFeedPanel, BorderLayout.LINE_END);
     }
     
@@ -139,44 +138,40 @@ public class TRGuiMain implements Clerk {
     }
 
     public void init() {
-        jfreeChartPanel = initChartPanel();
-        chartWrapperPanel.add(jfreeChartPanel, BorderLayout.CENTER);
-        chartWrapperPanel.validate();
+        
     }
     
     private ChartPanel initChartPanel() {
-        Security security = swingTip.getLookupClerk().findSecurity("BTC/USDT", TickerType.BINANCE);
-        int lookback = swingTip.getConfiguration().getLookback();
-        Instant start = Instant.now().minus(lookback, ChronoUnit.DAYS);
+        Instant start = Instant.now().minus(100, ChronoUnit.DAYS);
+        
+        TimeSeries series = new BaseTimeSeries.SeriesBuilder().build();
+        List<Bar> bars = tipClerk.getHistoricalDataClerk()
+                .getHistoricalBars("BTC/USDT", TickerType.BINANCE, start, Instant.now(), Duration.ofDays(1));
+        for (Bar b : bars) {
+            series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
+                    b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
+        }
         
         //Building chart datasets
-        JFreeChart chart = swingTip.buildJFreeChart(security, start, Duration.ofDays(1));
+        JFreeChart chart = tipClerk.getTip().buildJFreeChart("BTC/USDT", series);
         
         // Set the chart
         jfreeChartPanel = ChartUtils.newJFreeAppFrame(chart);
         return jfreeChartPanel;
     }
     
-    public void rebuildChart(String symbol) {
-        SwingUtilities.invokeLater(() -> {
-            Container container = getContainer();
-            String[] split = symbol.split(":");
-            container.remove(jfreeChartPanel);
-            container.revalidate();
-        });
-    }
-    
     public void setTip(String tip) {
-        swingTip.setTipName(tip);
+        tipClerk.setTip(Tip.makeFactory(TipType.valueOf(tip)));
     }
     
     public void resetFilter(String market, String shop) {
-        marketDataPanel.filterSecurities(market, shop);
+        SwingUtilities.invokeLater(() -> {
+            ((MarketDataTable) trTable).setFilter(market, shop);
+        });
     }
-
-    @Override
-    public void terminate() {
-        
+    
+    public void updateTable(List<Tick> ticks) {
+        ((MarketDataTable) trTable).updateTicks(ticks);
     }
     
     private static class TRComboBoxListener implements ActionListener {
@@ -186,5 +181,5 @@ public class TRGuiMain implements Clerk {
             
         }
     }
-
+    
 }

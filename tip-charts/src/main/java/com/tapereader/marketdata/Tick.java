@@ -1,14 +1,5 @@
 package com.tapereader.marketdata;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-
-import com.tapereader.enumeration.MessageType;
-
-@Entity
-@DiscriminatorValue(value="TICK")
 public class Tick extends MarketData {
 
     private double last;
@@ -23,14 +14,6 @@ public class Tick extends MarketData {
         super(timestamp, security);
         this.last = last;
         this.volume = volume;
-    }
-    
-    public Tick set(Tick t) {
-        setTimestamp(t.timestamp);
-        setSymbol(t.symbol);
-        setLast(t.last);
-        setVolume(t.volume);
-        return this;
     }
 
     public void setLast(double last) {
@@ -51,8 +34,7 @@ public class Tick extends MarketData {
     
     @Override
     public String toString() {
-        return MessageType.TICK 
-                + " " + timestamp 
+        return timestamp 
                 + " " + symbol
                 + " " + last 
                 + " " + volume;

@@ -7,8 +7,6 @@ import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.poloniex.PoloniexExchange;
 
-import com.tapereader.model.Security;
-
 public class PoloniexReferenceDataClerk implements ReferenceDataClerk {
 
     private Exchange exchange;

@@ -1,4 +1,4 @@
-package com.tapereader.gui.marketdata;
+package com.tapereader.gui;
 
 import java.util.List;
 import java.util.function.Function;
@@ -87,7 +87,7 @@ public class MarketDataTableModel extends AbstractTableModel {
      * data can change.
      */
     public void setValueAt(Object value, int row, int col) {
-        ticks.get(row).set((Tick) value);
+        //ticks.get(row).set((Tick) value);
         fireTableCellUpdated(row, col);
     }
     

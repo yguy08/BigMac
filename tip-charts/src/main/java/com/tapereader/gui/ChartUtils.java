@@ -1,4 +1,4 @@
-package com.tapereader.gui.chart;
+package com.tapereader.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -57,14 +57,13 @@ public class ChartUtils {
     public static JFreeChart newCandleStickChart(String title, TimeSeries timeseries) {
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "", "", ohlcDataset, false);
-        chart.setBackgroundPaint(Color.LIGHT_GRAY);
         // Candlestick rendering
         CandlestickRenderer renderer = new CandlestickRenderer();
         renderer.setUseOutlinePaint(true);
         renderer.setAutoWidthFactor(0.5);
         renderer.setAutoWidthGap(0.5);
         renderer.setVolumePaint(ChartColor.WHITE);
-        renderer.setDefaultToolTipGenerator(new TrToolTipGenerator());
+        renderer.setDefaultToolTipGenerator(new TRToolTip());
         XYPlot plot = chart.getXYPlot();
         plot.setRenderer(renderer);
 
@@ -98,7 +97,7 @@ public class ChartUtils {
         ChartPanel panel = new ChartPanel(chart);
         panel.setFillZoomRectangle(true);
         panel.setMouseWheelEnabled(true);
-        panel.setOpaque(true);
+        panel.setOpaque(false);
         panel.setZoomOutlinePaint(Color.GREEN);
         panel.setDisplayToolTips(true);
         return panel;

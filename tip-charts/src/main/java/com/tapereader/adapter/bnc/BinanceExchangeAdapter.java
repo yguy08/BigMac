@@ -1,4 +1,4 @@
-package com.tapereader.adapter;
+package com.tapereader.adapter.bnc;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -18,24 +18,18 @@ import org.knowm.xchange.binance.service.BinanceMarketDataService;
 import org.knowm.xchange.binance.service.BinanceMarketDataServiceRaw;
 import org.knowm.xchange.currency.CurrencyPair;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.google.inject.name.Named;
+import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
-import com.tapereader.model.Security;
 import com.tapereader.util.TradingUtils;
 
-@Singleton
 public class BinanceExchangeAdapter implements ExchangeAdapter {
     
     private Exchange exchange;
     
     private BinanceMarketDataService marketDataService;
     
-    @Inject(optional = true)
-    @Named("bnc.volume.filter")
     private String minVol = "50";
 
     @Override
@@ -72,10 +66,10 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
     };
 
     @Override
-    public List<Bar> getHistoricalBars(Security security, Instant startDate, Instant endDate, Duration duration) {
-        return getBinanceKlines(security.getSymbol(), startDate, endDate, duration).stream()
+    public List<Bar> getHistoricalBars(String security, Instant startDate, Instant endDate, Duration duration) {
+        return getBinanceKlines(security, startDate, endDate, duration).stream()
                 .map(c -> new Bar(c.getCloseTime(), 
-                        TradingUtils.toSymbol(security.getSymbol(), TickerType.BINANCE), duration,
+                        TradingUtils.toSymbol(security, TickerType.BINANCE), duration,
                         c.getOpenPrice().doubleValue(), c.getHighPrice().doubleValue(), c.getLowPrice().doubleValue(),
                         c.getClosePrice().doubleValue(), c.getVolume().intValue()))
                 .collect(Collectors.toList());

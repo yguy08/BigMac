@@ -2,13 +2,6 @@ package com.tapereader.marketdata;
 
 import java.time.Duration;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-
-import com.tapereader.enumeration.MessageType;
-
-@Entity
-@DiscriminatorValue(value="BAR")
 public class Bar extends MarketData {
     
     private double open;
@@ -84,8 +77,7 @@ public class Bar extends MarketData {
     
     @Override
     public String toString() {
-        return MessageType.BAR 
-                + " " + timestamp
+        return timestamp
                 + " " + symbol
                 + " " + duration
                 + " " + open
