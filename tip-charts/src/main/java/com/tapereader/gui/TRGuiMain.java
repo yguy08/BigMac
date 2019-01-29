@@ -87,7 +87,7 @@ public class TRGuiMain implements Clerk {
         marketCombo.addActionListener(comboListener);
         
         List<Tick> ticks = swingTip.getMarketDataClerk().getCurrentTicks();
-        trTable = new TRTable(new MarketDataTableModel(ticks));
+        marketDataPanel = new MarketDataPanel(ticks);
         
         JPanel tipPanel = new JPanel();
         tipPanel.setLayout(new FlowLayout());
@@ -108,7 +108,7 @@ public class TRGuiMain implements Clerk {
         JPanel marketFeedPanel = new JPanel();
         marketFeedPanel.setLayout(new BorderLayout());
         marketFeedPanel.add(marketDataComboPanel, BorderLayout.PAGE_START);
-        marketFeedPanel.add(trTable, BorderLayout.CENTER);
+        marketFeedPanel.add(marketDataPanel, BorderLayout.CENTER);
         
         Container container = getContainer();
         container.setLayout(new BorderLayout());
