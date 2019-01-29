@@ -12,6 +12,7 @@ import com.tapereader.dao.LookupClerk;
 import com.tapereader.dao.RecordClerk;
 import com.tapereader.gui.TRGuiMain;
 import com.tapereader.tip.SwingTip;
+import com.tapereader.tip.buyhigh.BuyHigh;
 
 public class SwingApplication {
 
@@ -47,7 +48,7 @@ public class SwingApplication {
 
         @Override
         public void configure() {
-            bind(SwingTip.class).in(Singleton.class);
+            bind(SwingTip.class).to(BuyHigh.class).in(Singleton.class);
             bind(TRGuiMain.class).in(Singleton.class);
         }
     }

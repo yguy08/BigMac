@@ -10,7 +10,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,16 +21,14 @@ import javax.swing.SwingUtilities;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
-import org.ta4j.core.Strategy;
-import org.ta4j.core.TimeSeries;
 import com.google.inject.Inject;
 import com.tapereader.clerk.Clerk;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.gui.chart.ChartUtils;
 import com.tapereader.gui.marketdata.MarketDataPanel;
-import com.tapereader.marketdata.Bar;
-import com.tapereader.model.BucketShop;
+import com.tapereader.gui.marketdata.MarketDataTableModel;
+import com.tapereader.marketdata.Tick;
 import com.tapereader.model.Security;
 import com.tapereader.model.Tip;
 import com.tapereader.tip.SwingTip;
@@ -89,7 +86,8 @@ public class TRGuiMain implements Clerk {
         marketCombo = new JComboBox<MarketType>(markets.toArray(new MarketType[markets.size()]));
         marketCombo.addActionListener(comboListener);
         
-        trTable = new TRTable();
+        List<Tick> ticks = swingTip.getMarketDataClerk().getCurrentTicks();
+        trTable = new TRTable(new MarketDataTableModel(ticks));
         
         JPanel tipPanel = new JPanel();
         tipPanel.setLayout(new FlowLayout());

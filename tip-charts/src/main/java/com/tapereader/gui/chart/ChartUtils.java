@@ -57,7 +57,7 @@ public class ChartUtils {
     public static JFreeChart newCandleStickChart(String title, TimeSeries timeseries) {
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "", "", ohlcDataset, false);
-        chart.setBackgroundPaint(Color.BLUE);
+        chart.setBackgroundPaint(Color.LIGHT_GRAY);
         // Candlestick rendering
         CandlestickRenderer renderer = new CandlestickRenderer();
         renderer.setUseOutlinePaint(true);

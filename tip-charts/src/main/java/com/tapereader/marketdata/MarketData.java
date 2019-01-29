@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Table(
 name="MARKET_DATA", 
-indexes = { @Index(name = "IDX_TICKIDX1", columnList = "symbol,type") })
+indexes = { @Index(name = "IDX_TICKIDX1", columnList = "symbol") })
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DiscriminatorColumn(name = "TYPE", discriminatorType=DiscriminatorType.STRING)
 public abstract class MarketData {

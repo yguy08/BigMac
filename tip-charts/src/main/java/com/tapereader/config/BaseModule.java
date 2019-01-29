@@ -25,14 +25,8 @@ import com.tapereader.dao.LookupClerkImpl;
 import com.tapereader.dao.RecordClerk;
 import com.tapereader.dao.RecordClerkImpl;
 import com.tapereader.enumeration.TickerType;
-import com.tapereader.event.DistributedMarketDataHandler;
+import com.tapereader.event.LocalMarketDataHandler;
 import com.tapereader.event.MarketDataHandler;
-import com.tapereader.wire.DefaultReceiver;
-import com.tapereader.wire.DefaultTransmitter;
-import com.tapereader.wire.MarketDataMessageProtocol;
-import com.tapereader.wire.MessageProtocol;
-import com.tapereader.wire.Receiver;
-import com.tapereader.wire.Transmitter;
 
 public class BaseModule extends AbstractModule {
     
@@ -56,14 +50,11 @@ public class BaseModule extends AbstractModule {
         // Historical Data Clerk
         bind(HistoricalDataClerk.class).to(HistoricalDataClerkImpl.class).in(Singleton.class);;
         
-        // Wire - JMS
-        bind(Receiver.class).to(DefaultReceiver.class).in(Singleton.class);;
-        bind(Transmitter.class).to(DefaultTransmitter.class).in(Singleton.class);;
-        bind(MessageProtocol.class).to(MarketDataMessageProtocol.class).in(Singleton.class);;
+        // EventBus
         bind(EventBus.class).toInstance(eventBus);
         
         // Market Data
-        bind(MarketDataHandler.class).to(DistributedMarketDataHandler.class).in(Singleton.class);;
+        bind(MarketDataHandler.class).to(LocalMarketDataHandler.class).in(Singleton.class);;
         bind(MarketDataClerk.class).to(MarketDataClerkImpl.class).in(Singleton.class);;
         
         MapBinder<String, ExchangeAdapter> exchangeBinder 

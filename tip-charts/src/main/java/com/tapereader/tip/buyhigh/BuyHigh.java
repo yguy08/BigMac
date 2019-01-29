@@ -25,6 +25,10 @@ import com.tapereader.tip.SwingTip;
 
 public class BuyHigh extends SwingTip {
     
+    public BuyHigh() {
+        setTipName("Buy High");
+    }
+    
     public JFreeChart buildJFreeChart(Security security, Instant start, Duration barSize) {
         TimeSeries series = new BaseTimeSeries.SeriesBuilder().build();
         List<Bar> bars = getHistoricalDataClerk()
@@ -34,12 +38,11 @@ public class BuyHigh extends SwingTip {
                     b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
         }
         ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
-        String tipName = "Buy High";
         // Going long if the close price goes above the max
         Rule entryRule = new IsHighestRule(closePrices, 25);
         // Exit if the close price goes below the min or stop loss
         Rule exitRule = new IsLowestRule(closePrices, 11).or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
-        Strategy strategy = new BaseStrategy(tipName, entryRule, exitRule, 25);
+        Strategy strategy = new BaseStrategy(getTipName(), entryRule, exitRule, 25);
         
         //Building chart datasets
         JFreeChart chart = ChartUtils.newCandleStickChart(security.getSymbol(), series);
