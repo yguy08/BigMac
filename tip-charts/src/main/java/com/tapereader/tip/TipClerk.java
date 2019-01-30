@@ -1,9 +1,12 @@
 package com.tapereader.tip;
 
+import com.tapereader.config.Config;
 import com.tapereader.marketdata.MarketDataClerk;
 import com.tapereader.marketdata.historical.HistoricalDataClerk;
 
 public class TipClerk {
+    
+    private final Config config;
     
     private final MarketDataClerk marketDataClerk;
     
@@ -11,10 +14,18 @@ public class TipClerk {
     
     private Tip tip;
     
-    public TipClerk(MarketDataClerk marketDataClerk, HistoricalDataClerk historicalDataClerk, Tip tip) {
+    public TipClerk(Config config, MarketDataClerk marketDataClerk, HistoricalDataClerk historicalDataClerk, Tip tip) {
+        this.config = config;
         this.marketDataClerk = marketDataClerk;
         this.historicalDataClerk = historicalDataClerk;
         this.tip = tip;
+    }
+
+    /**
+     * @return the config
+     */
+    public Config getConfig() {
+        return config;
     }
 
     /**

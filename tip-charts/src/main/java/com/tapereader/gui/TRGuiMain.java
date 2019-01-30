@@ -1,6 +1,7 @@
 package com.tapereader.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -20,6 +21,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
@@ -60,10 +63,7 @@ public class TRGuiMain {
     
     
     private void createBaseGui() {
-        getMainJFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        JLabel tipLbl = new JLabel("Tip");
-        
+        JLabel tipLbl = new JLabel("Tip: ");
         ActionListener comboListener = new TRComboBoxListener();
         List<TipType> tips = Arrays.asList(TipType.values()).stream().collect(Collectors.toList());
         tipCombo = new JComboBox<>(tips.toArray(new TipType[tips.size()]));
@@ -82,8 +82,7 @@ public class TRGuiMain {
         marketCombo.addActionListener(comboListener);
         
         List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks();
-        JPanel marketDataPanel = new JPanel();
-        marketDataPanel.setLayout(new BorderLayout(5, 5));
+        JPanel marketDataPanel = new JPanel(new BorderLayout(5, 5));
         trTable = new MarketDataTable(new MarketDataTableModel(ticks));
         JScrollPane scrollPane = new JScrollPane(trTable);
         marketDataPanel.add(scrollPane, BorderLayout.CENTER);
@@ -93,8 +92,7 @@ public class TRGuiMain {
         tipPanel.add(tipLbl);
         tipPanel.add(tipCombo);
         
-        JPanel headerPanel = new JPanel();
-        headerPanel.setLayout(new BorderLayout(5,5));
+        JPanel headerPanel = new JPanel(new BorderLayout(5, 5));
         headerPanel.add(tipPanel, BorderLayout.LINE_END);
         
         JPanel marketDataComboPanel = new JPanel();
@@ -104,20 +102,21 @@ public class TRGuiMain {
         marketDataComboPanel.add(marketLbl);
         marketDataComboPanel.add(marketCombo);
         
-        JPanel marketFeedPanel = new JPanel();
-        marketFeedPanel.setLayout(new BorderLayout(5, 5));
+        JPanel marketFeedPanel = new JPanel(new BorderLayout(5, 5));
         marketFeedPanel.add(marketDataComboPanel, BorderLayout.PAGE_START);
         marketFeedPanel.add(marketDataPanel, BorderLayout.CENTER);
         
-        Container container = getContainer();
-        container.setLayout(new BorderLayout(5, 5));
-        container.add(headerPanel, BorderLayout.PAGE_START);
-        container.add(jfreeChartPanel, BorderLayout.CENTER);
-        container.add(marketFeedPanel, BorderLayout.LINE_END);
+        JPanel contentPane = new JPanel(new BorderLayout(5, 5));
+        contentPane.setBorder(new EmptyBorder(2, 2, 2, 2));
+        contentPane.add(headerPanel, BorderLayout.PAGE_START);
+        contentPane.add(jfreeChartPanel, BorderLayout.CENTER);
+        contentPane.add(marketFeedPanel, BorderLayout.LINE_END);
+        getMainJFrame().setContentPane(contentPane);
     }
     
     public void runGui() {
         createBaseGui();
+        getMainJFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getMainJFrame().setPreferredSize(new Dimension(1200, 600));
         getMainJFrame().pack();
         getMainJFrame().setVisible(true);
@@ -142,8 +141,8 @@ public class TRGuiMain {
     }
     
     private ChartPanel initChartPanel() {
+        // tip clerk get config
         Instant start = Instant.now().minus(100, ChronoUnit.DAYS);
-        
         TimeSeries series = new BaseTimeSeries.SeriesBuilder().build();
         List<Bar> bars = tipClerk.getHistoricalDataClerk()
                 .getHistoricalBars("BTC/USDT", TickerType.BINANCE, start, Instant.now(), Duration.ofDays(1));
@@ -151,13 +150,28 @@ public class TRGuiMain {
             series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
                     b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
         }
-        
         //Building chart datasets
         JFreeChart chart = tipClerk.getTip().buildJFreeChart("BTC/USDT", series);
-        
         // Set the chart
-        jfreeChartPanel = ChartUtils.newJFreeAppFrame(chart);
+        jfreeChartPanel = buildChartPanel(chart);
         return jfreeChartPanel;
+    }
+    
+    /**
+     * Displays a chart in a frame.
+     * 
+     * @param chart
+     *            the chart to be displayed
+     */
+    private ChartPanel buildChartPanel(JFreeChart chart) {
+        // Chart panel
+        ChartPanel panel = new ChartPanel(chart);
+        panel.setFillZoomRectangle(true);
+        panel.setMouseWheelEnabled(true);
+        panel.setOpaque(false);
+        panel.setZoomOutlinePaint(Color.GREEN);
+        panel.setDisplayToolTips(true);
+        return panel;
     }
     
     public void setTip(String tip) {

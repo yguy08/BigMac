@@ -87,23 +87,6 @@ public class ChartUtils {
     }
 
     /**
-     * Displays a chart in a frame.
-     * 
-     * @param chart
-     *            the chart to be displayed
-     */
-    public static ChartPanel newJFreeAppFrame(JFreeChart chart) {
-        // Chart panel
-        ChartPanel panel = new ChartPanel(chart);
-        panel.setFillZoomRectangle(true);
-        panel.setMouseWheelEnabled(true);
-        panel.setOpaque(false);
-        panel.setZoomOutlinePaint(Color.GREEN);
-        panel.setDisplayToolTips(true);
-        return panel;
-    }
-
-    /**
      * Builds a JFreeChart OHLC dataset from a ta4j time series.
      * 
      * @param series

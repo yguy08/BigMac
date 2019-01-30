@@ -12,7 +12,7 @@ import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 
 public interface ExchangeAdapter extends Clerk {
-    
+
     public static ExchangeAdapter makeFactory(TickerType type) {
         switch (type) {
         case POLONIEX:
@@ -20,7 +20,7 @@ public interface ExchangeAdapter extends Clerk {
         case BINANCE:
             return new BinanceExchangeAdapter();
         default:
-            throw new IllegalArgumentException("TickerType not supported.");
+            throw new IllegalArgumentException("Exchange Adapter for " + type + " not supported.");
         }
     }
 

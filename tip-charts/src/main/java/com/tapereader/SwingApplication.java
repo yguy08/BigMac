@@ -1,10 +1,10 @@
 package com.tapereader;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.config.Config;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
 import com.tapereader.gui.TRGuiMain;
@@ -30,8 +30,9 @@ public class SwingApplication {
         
         MarketDataClerk marketDataClerk = new MarketDataClerkImpl(adapterMap);
         HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap);
+        Config config = new Config();
         
-        TipClerk tipClerk = new TipClerk(marketDataClerk, historicalDataClerk, Tip.makeFactory(TipType.BUY_HIGH));
+        TipClerk tipClerk = new TipClerk(config, marketDataClerk, historicalDataClerk, Tip.makeFactory(TipType.BUY_HIGH));
         
         TRGuiMain app = new TRGuiMain(tipClerk);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
