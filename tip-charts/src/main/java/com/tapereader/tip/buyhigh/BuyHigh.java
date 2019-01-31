@@ -13,7 +13,7 @@ import org.ta4j.core.trading.rules.IsLowestRule;
 import org.ta4j.core.trading.rules.StopLossRule;
 
 import com.tapereader.enumeration.TipType;
-import com.tapereader.gui.ChartUtils;
+import com.tapereader.gui.utils.ChartUtils;
 import com.tapereader.tip.Tip;
 
 public class BuyHigh implements Tip {

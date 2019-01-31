@@ -1,22 +1,17 @@
-package com.tapereader.gui;
+package com.tapereader.gui.utils;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Stroke;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -52,21 +47,30 @@ import org.ta4j.core.num.PrecisionNum;
 
 public class ChartUtils {
 
-    public static final Stroke FATLINE = new BasicStroke(.9f);
+    private static final Stroke FATLINE = new BasicStroke(.9f);
+    
+    private static final CandlestickRenderer CANDLESTICK_RENDERER;
+    
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd");
+    
+    private static final TimeZone TIME_ZONE = TimeZone.getTimeZone(ZoneId.of("UTC"));
+    
+    private static final RectangleInsets INSETS = new RectangleInsets(2, 2, 2, 2);
+    
+    static {
+        CANDLESTICK_RENDERER = new CandlestickRenderer();
+        CANDLESTICK_RENDERER.setUseOutlinePaint(true);
+        CANDLESTICK_RENDERER.setAutoWidthFactor(0.5);
+        CANDLESTICK_RENDERER.setAutoWidthGap(0.5);
+        CANDLESTICK_RENDERER.setVolumePaint(ChartColor.WHITE);
+        CANDLESTICK_RENDERER.setDefaultToolTipGenerator(new TRToolTip());
+    }
 
     public static JFreeChart newCandleStickChart(String title, TimeSeries timeseries) {
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "", "", ohlcDataset, false);
-        // Candlestick rendering
-        CandlestickRenderer renderer = new CandlestickRenderer();
-        renderer.setUseOutlinePaint(true);
-        renderer.setAutoWidthFactor(0.5);
-        renderer.setAutoWidthGap(0.5);
-        renderer.setVolumePaint(ChartColor.WHITE);
-        renderer.setDefaultToolTipGenerator(new TRToolTip());
         XYPlot plot = chart.getXYPlot();
-        plot.setRenderer(renderer);
-
+        plot.setRenderer(CANDLESTICK_RENDERER);
         // Misc
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
         numberAxis.setAutoRangeIncludesZero(false);
@@ -78,11 +82,11 @@ public class ChartUtils {
         plot.setRangeGridlinesVisible(false);
         // Chart
         DateAxis axis = (DateAxis) plot.getDomainAxis();
-        axis.setDateFormatOverride(new SimpleDateFormat("MM/dd"));
-        axis.setTimeZone(TimeZone.getTimeZone(ZoneId.of("UTC")));
+        axis.setDateFormatOverride(DATE_FORMAT);
+        axis.setTimeZone(TIME_ZONE);
         axis.setLowerMargin(0.04);
         axis.setUpperMargin(0.04);
-        chart.setPadding(new RectangleInsets(2, 2, 2, 2));
+        chart.setPadding(INSETS);
         return chart;
     }
 
@@ -200,12 +204,6 @@ public class ChartUtils {
         double maxSignal = max.getClose();
         Marker buyMarker = new ValueMarker(maxSignal, ChartColor.GREEN, ChartUtils.FATLINE);
         plot.addRangeMarker(buyMarker);
-    }
-
-    public static String millisToDateString(long millis) {
-        String ret = LocalDateTime.ofEpochSecond(millis / 1000, 0, ZoneOffset.UTC)
-                .format(DateTimeFormatter.ISO_LOCAL_DATE);
-        return ret;
     }
 
 }
