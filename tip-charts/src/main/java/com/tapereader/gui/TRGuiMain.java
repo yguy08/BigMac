@@ -98,14 +98,12 @@ public class TRGuiMain {
         toolBar.add(marketCombo);
         toolBarPanel.add(toolBar);
         
-        JPanel marketFeedPanel = new JPanel(new BorderLayout(5, 5));
-        marketFeedPanel.add(marketDataPanel, BorderLayout.CENTER);
-        
         JPanel contentPane = new JPanel(new BorderLayout(5, 5));
         contentPane.setBorder(new EmptyBorder(2, 2, 2, 2));
         contentPane.add(toolBarPanel, BorderLayout.PAGE_START);
         contentPane.add(jfreeChartPanel, BorderLayout.CENTER);
-        contentPane.add(marketFeedPanel, BorderLayout.LINE_END);
+        contentPane.add(marketDataPanel, BorderLayout.LINE_END);
+        
         getMainJFrame().setContentPane(contentPane);
     }
     
@@ -167,7 +165,7 @@ public class TRGuiMain {
         jfreeChartPanel.setChart(chart);
         chart.fireChartChanged();
     }
-    
+
     /**
      * Displays a chart in a frame.
      * 
