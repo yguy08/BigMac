@@ -35,6 +35,7 @@ import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
 import com.tapereader.gui.utils.ListTableModel;
 import com.tapereader.gui.utils.MarketDataTableMapper;
+import com.tapereader.gui.utils.TRChartPanel;
 import com.tapereader.gui.utils.TRTable;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
@@ -107,83 +108,39 @@ public class TRGuiMain {
         getMainJFrame().setContentPane(contentPane);
     }
     
-    public void runGui() {
+    public void createAndShowGui() {
         createBaseGui();
         getMainJFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         getMainJFrame().setPreferredSize(new Dimension(1200, 600));
         getMainJFrame().pack();
         getMainJFrame().setVisible(true);
         UIUtils.centerFrameOnScreen(getMainJFrame());
-        init();
+        resetFilter();
     }
     
-    public JFrame getMainJFrame() {
+    private JFrame getMainJFrame() {
         return mainFrame;
     }
     
     private Container getContainer() {
         return mainFrame.getContentPane();
     }
-
-    public void init() {
-        resetFilter();
-    }
     
     private ChartPanel initChartPanel() {
-        // tip clerk get config
-        Config config = tipClerk.getConfig();
-        Instant start = Instant.now().minusSeconds(config.getLookback() * config.getBarSize().getSeconds());
-        TimeSeries series = new BaseTimeSeries.SeriesBuilder().build();
-        List<Bar> bars = tipClerk.getHistoricalDataClerk()
-                .getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(), start, Instant.now(), config.getBarSize());
-        for (Bar b : bars) {
-            series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
-                    b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
-        }
-        //Building chart datasets
-        JFreeChart chart = tipClerk.getTip().buildJFreeChart(config.getDefaultSymbol(), series);
-        
+        JFreeChart chart = tipClerk.getTip().buildChart(tipClerk.buildTimeSeries());
         // Set the chart
-        jfreeChartPanel = buildChartPanel(chart);
+        jfreeChartPanel = new TRChartPanel(chart);
         return jfreeChartPanel;
     }
     
     private void rebuildChart() {
-        // tip clerk get config
-        Config config = tipClerk.getConfig();
-        Instant start = Instant.now().minusSeconds(config.getLookback() * config.getBarSize().getSeconds());
-        TimeSeries series = new BaseTimeSeries.SeriesBuilder().build();
-        List<Bar> bars = tipClerk.getHistoricalDataClerk()
-                .getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(), start, Instant.now(), config.getBarSize());
-        for (Bar b : bars) {
-            series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
-                    b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
-        }
-        //Building chart datasets
-        JFreeChart chart = tipClerk.getTip().buildJFreeChart(config.getDefaultSymbol(), series);
+        JFreeChart chart = tipClerk.getTip().buildChart(tipClerk.buildTimeSeries());
         chart.addChangeListener(jfreeChartPanel);
         jfreeChartPanel.setChart(chart);
         chart.fireChartChanged();
     }
-
-    /**
-     * Displays a chart in a frame.
-     * 
-     * @param chart
-     *            the chart to be displayed
-     */
-    private ChartPanel buildChartPanel(JFreeChart chart) {
-        // Chart panel
-        ChartPanel panel = new ChartPanel(chart);
-        panel.setFillZoomRectangle(true);
-        panel.setMouseWheelEnabled(true);
-        panel.setOpaque(false);
-        panel.setZoomOutlinePaint(Color.GREEN);
-        panel.setDisplayToolTips(true);
-        return panel;
-    }
     
-    public void resetFilter() {
+    private void resetFilter() {
         SwingUtilities.invokeLater(() -> {
             trTable.setFilter(tipClerk.getConfig().getMarketType().toString());
         });
@@ -194,7 +151,7 @@ public class TRGuiMain {
         ((ListTableModel) trTable.getModel()).fireTableDataChanged();
     }
     
-    public void newTicker() {
+    private void newTicker() {
         getContainer().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingUtilities.invokeLater(() -> {
             updateTable(tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType()));

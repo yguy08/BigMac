@@ -46,7 +46,7 @@ public class SwingApplication {
         TRGuiMain app = new TRGuiMain(tipClerk);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                app.runGui();
+                app.createAndShowGui();
             }
         });
     }

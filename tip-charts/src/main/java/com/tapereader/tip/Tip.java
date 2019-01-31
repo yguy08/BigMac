@@ -7,7 +7,7 @@ import com.tapereader.enumeration.TipType;
 import com.tapereader.tip.buyhigh.BuyHigh;
 
 public interface Tip {
-    
+
     public static Tip makeFactory(TipType type) {
         switch (type) {
         case BUY_HIGH:
@@ -16,7 +16,7 @@ public interface Tip {
             throw new IllegalArgumentException("TipType not supported.");
         }
     }
-    
-    JFreeChart buildJFreeChart(String symbol, TimeSeries series);
-    
+
+    public JFreeChart buildChart(TimeSeries series);
+
 }

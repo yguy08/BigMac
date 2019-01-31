@@ -47,7 +47,7 @@ import org.ta4j.core.num.PrecisionNum;
 
 public class ChartUtils {
 
-    private static final Stroke FATLINE = new BasicStroke(.9f);
+    public static final Stroke FATLINE = new BasicStroke(.9f);
     
     private static final CandlestickRenderer CANDLESTICK_RENDERER;
     

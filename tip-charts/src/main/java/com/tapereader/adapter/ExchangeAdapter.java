@@ -24,8 +24,8 @@ public interface ExchangeAdapter extends Clerk {
         }
     }
 
-    List<Tick> getCurrentTicks();
+    public List<Tick> getCurrentTicks();
 
-    List<Bar> getHistoricalBars(String symbol, Instant startDate, Instant endDate, Duration duration);
+    public List<Bar> getHistoricalBars(String symbol, Instant startDate, Instant endDate, Duration duration);
 
 }
