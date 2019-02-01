@@ -10,7 +10,7 @@ import org.jfree.data.xy.XYDataset;
 
 public class TRToolTip implements XYToolTipGenerator {
     
-    public String millisToDateString(long millis) {
+    private String millisToDateString(long millis) {
         String ret = LocalDateTime.ofEpochSecond(millis / 1000, 0, ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_LOCAL_DATE);
         return ret;
@@ -19,23 +19,27 @@ public class TRToolTip implements XYToolTipGenerator {
     @Override
     public String generateToolTip(XYDataset dataset, int series, int item) {
         try {
-            Number open = ((DefaultHighLowDataset) dataset).getOpen(series, item);
-            Number high = ((DefaultHighLowDataset) dataset).getHigh(series, item);
-            Number low = ((DefaultHighLowDataset) dataset).getLow(series, item);
-            Number close = ((DefaultHighLowDataset) dataset).getClose(series, item);
-            Number date = dataset.getX(series, item);
+            DefaultHighLowDataset defaultDataSet = ((DefaultHighLowDataset) dataset);
             StringBuilder stringBuilder = new StringBuilder();
+            
+            double open = defaultDataSet.getOpen(series, item).doubleValue();
+            double high = defaultDataSet.getHigh(series, item).doubleValue();
+            double low = defaultDataSet.getLow(series, item).doubleValue();
+            double close = defaultDataSet.getClose(series, item).doubleValue();
+            
+            Number date = dataset.getX(series, item);
             String key = dataset.getSeriesKey(series).toString();
             String f = key.contains("USDT") ? "%.2f" : "%.8f";
+            
             stringBuilder.append(String.format("<html><p style='color:#0000ff;'> %s </p>", dataset.getSeriesKey(series)));
             stringBuilder.append("Date: " + millisToDateString(date.longValue())+ "<br/>");
-            stringBuilder.append(String.format("Open: " + f + "<br/>", open.doubleValue()));
-            stringBuilder.append(String.format("High: " + f + "<br/>", high.doubleValue()));
-            stringBuilder.append(String.format("Low: " + f + "<br/>", low.doubleValue()));
-            stringBuilder.append(String.format("Close: " + f + "<br/>", close.doubleValue()));
+            stringBuilder.append(String.format("Open: " + f + "<br/>", open));
+            stringBuilder.append(String.format("High: " + f + "<br/>", high));
+            stringBuilder.append(String.format("Low: " + f + "<br/>", low));
+            stringBuilder.append(String.format("Close: " + f + "<br/>", close));
             stringBuilder.append("</html>");
             return stringBuilder.toString();
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             return "ERROR";
         }
     }

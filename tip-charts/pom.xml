@@ -51,16 +51,6 @@
    <artifactId>xchange-coinbasepro</artifactId>
    <version>${xchange.plugin.version}</version>
   </dependency>
-  <dependency>
-   <groupId>com.h2database</groupId>
-   <artifactId>h2</artifactId>
-   <version>1.4.196</version>
-  </dependency>
-  <dependency>
-   <groupId>com.google.guava</groupId>
-   <artifactId>guava</artifactId>
-   <version>25.1-jre</version>
-  </dependency>
     <dependency>
    <groupId>org.ta4j</groupId>
    <artifactId>ta4j-core</artifactId>
@@ -81,16 +71,6 @@
 
  <reporting>
   <plugins>
-   <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-site-plugin</artifactId>
-    <version>3.3</version>
-   </plugin>
-   <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-project-info-reports-plugin</artifactId>
-    <version>2.7</version>
-   </plugin>
    <plugin>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>findbugs-maven-plugin</artifactId>

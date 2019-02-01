@@ -66,7 +66,8 @@ public class ChartUtils {
         CANDLESTICK_RENDERER.setDefaultToolTipGenerator(new TRToolTip());
     }
 
-    public static JFreeChart newCandleStickChart(String title, TimeSeries timeseries) {
+    public static JFreeChart newCandleStickChart(TimeSeries timeseries) {
+        String title = timeseries.getName();
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "", "", ohlcDataset, false);
         XYPlot plot = chart.getXYPlot();
@@ -97,7 +98,7 @@ public class ChartUtils {
      *            a time series
      * @return an Open-High-Low-Close dataset
      */
-    public static OHLCDataset createOHLCDataset(String security, TimeSeries series) {
+    private static OHLCDataset createOHLCDataset(String title, TimeSeries series) {
         final int nbBars = series.getBarCount();
 
         Date[] dates = new Date[nbBars];
@@ -116,7 +117,7 @@ public class ChartUtils {
             closes[i] = bar.getClosePrice().doubleValue();
             volumes[i] = bar.getVolume().doubleValue();
         }
-        return new DefaultHighLowDataset(security, dates, highs, lows, opens, closes, volumes);
+        return new DefaultHighLowDataset(title, dates, highs, lows, opens, closes, volumes);
     }
 
     public static void prtStrategyAnalysis(TimeSeries series, TradingRecord tradingRecord) {
@@ -190,20 +191,6 @@ public class ChartUtils {
             plot.addDomainMarker(sellMarker);
         }
         ChartUtils.prtStrategyAnalysis(series, tradingRecord);
-    }
-    
-    public static void addMinMax(JFreeChart chart, com.tapereader.marketdata.Bar min, com.tapereader.marketdata.Bar max) {
-        XYPlot plot = chart.getXYPlot();
-        
-        // Sell signal
-        double minSignal = min.getClose();
-        Marker sellMarker = new ValueMarker(minSignal, ChartColor.RED, ChartUtils.FATLINE);
-        plot.addRangeMarker(sellMarker);
-        
-        // Buy signal
-        double maxSignal = max.getClose();
-        Marker buyMarker = new ValueMarker(maxSignal, ChartColor.GREEN, ChartUtils.FATLINE);
-        plot.addRangeMarker(buyMarker);
     }
 
 }

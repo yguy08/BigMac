@@ -71,7 +71,7 @@ public class BuyHigh implements Tip {
         strategy = new BaseStrategy(TipType.BUY_HIGH.toString(), entryRule, exitRule, 25);
         
         //Building chart datasets
-        chart = ChartUtils.newCandleStickChart(series.getName(), series);
+        chart = ChartUtils.newCandleStickChart(series);
         
         // ADD SIGNALS
         seriesManager = new TimeSeriesManager(series);
