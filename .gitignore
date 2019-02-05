@@ -9,7 +9,6 @@ target/
 javadoc/
 bin/
 classes/
-activemq-data/
 dependency-reduced-pom.xml
 
 # Misc.
@@ -19,6 +18,7 @@ dependency-reduced-pom.xml
 
 # externalized configuration file for keys
 *.exchange.properties
+*.properties
 
 #logs
 *.log
