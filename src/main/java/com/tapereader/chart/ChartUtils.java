@@ -1,8 +1,7 @@
-package com.tapereader.gui.utils;
+package com.tapereader.chart;
 
 import java.awt.BasicStroke;
 import java.awt.Stroke;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -32,40 +31,21 @@ import org.ta4j.core.TimeSeries;
 import org.ta4j.core.TimeSeriesManager;
 import org.ta4j.core.Trade;
 import org.ta4j.core.TradingRecord;
-import org.ta4j.core.analysis.CashFlow;
-import org.ta4j.core.analysis.criteria.AverageProfitCriterion;
-import org.ta4j.core.analysis.criteria.AverageProfitableTradesCriterion;
-import org.ta4j.core.analysis.criteria.BuyAndHoldCriterion;
-import org.ta4j.core.analysis.criteria.LinearTransactionCostCriterion;
-import org.ta4j.core.analysis.criteria.MaximumDrawdownCriterion;
-import org.ta4j.core.analysis.criteria.NumberOfBarsCriterion;
-import org.ta4j.core.analysis.criteria.NumberOfTradesCriterion;
-import org.ta4j.core.analysis.criteria.RewardRiskRatioCriterion;
-import org.ta4j.core.analysis.criteria.TotalProfitCriterion;
-import org.ta4j.core.analysis.criteria.VersusBuyAndHoldCriterion;
-import org.ta4j.core.indicators.ATRIndicator;
 import org.ta4j.core.num.PrecisionNum;
+
+import com.tapereader.gui.utils.TRCandlestickRenderer;
 
 public class ChartUtils {
 
     public static final Stroke FATLINE = new BasicStroke(.9f);
     
-    private static final CandlestickRenderer CANDLESTICK_RENDERER;
+    private static final CandlestickRenderer CANDLESTICK_RENDERER = new TRCandlestickRenderer();
     
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd");
     
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone(ZoneId.of("UTC"));
     
     private static final RectangleInsets INSETS = new RectangleInsets(2, 2, 2, 2);
-    
-    static {
-        CANDLESTICK_RENDERER = new CandlestickRenderer();
-        CANDLESTICK_RENDERER.setUseOutlinePaint(true);
-        CANDLESTICK_RENDERER.setAutoWidthFactor(0.5);
-        CANDLESTICK_RENDERER.setAutoWidthGap(0.5);
-        CANDLESTICK_RENDERER.setVolumePaint(ChartColor.WHITE);
-        CANDLESTICK_RENDERER.setDefaultToolTipGenerator(new TRToolTip());
-    }
 
     public static JFreeChart newCandleStickChart(TimeSeries timeseries) {
         String title = timeseries.getName();
@@ -88,6 +68,7 @@ public class ChartUtils {
         axis.setTimeZone(TIME_ZONE);
         axis.setLowerMargin(0.04);
         axis.setUpperMargin(0.04);
+        
         chart.setPadding(INSETS);
         return chart;
     }
@@ -119,44 +100,6 @@ public class ChartUtils {
             volumes[i] = bar.getVolume().doubleValue();
         }
         return new DefaultHighLowDataset(title, dates, highs, lows, opens, closes, volumes);
-    }
-
-    public static void prtStrategyAnalysis(TimeSeries series, TradingRecord tradingRecord) {
-        // CASH FLOW
-        CashFlow cashFlow = new CashFlow(series, tradingRecord);
-        System.out.println("START CASH: " + cashFlow.getValue(series.getBeginIndex()));
-        // Total profit
-        TotalProfitCriterion totalProfit = new TotalProfitCriterion();
-        System.out.println("Total profit: " + totalProfit.calculate(series, tradingRecord));
-        // Number of bars
-        System.out.println("Number of bars: " + new NumberOfBarsCriterion().calculate(series, tradingRecord));
-        // Average profit (per bar)
-        System.out
-                .println("Average profit (per bar): " + new AverageProfitCriterion().calculate(series, tradingRecord));
-        // Number of trades
-        System.out.println("Number of trades: " + new NumberOfTradesCriterion().calculate(series, tradingRecord));
-        // Profitable trades ratio
-        System.out.println(
-                "Profitable trades ratio: " + new AverageProfitableTradesCriterion().calculate(series, tradingRecord));
-        // Maximum drawdown
-        System.out.println("Maximum drawdown: " + new MaximumDrawdownCriterion().calculate(series, tradingRecord));
-        // Reward-risk ratio
-        System.out.println("Reward-risk ratio: " + new RewardRiskRatioCriterion().calculate(series, tradingRecord));
-        // Total transaction cost
-        System.out.println("Total transaction cost (from $1000): "
-                + new LinearTransactionCostCriterion(5, 0.005).calculate(series, tradingRecord));
-        // Buy-and-hold
-        System.out.println("Buy-and-hold: " + new BuyAndHoldCriterion().calculate(series, tradingRecord));
-        // Total profit vs buy-and-hold
-        System.out.println("Custom strategy profit vs buy-and-hold strategy profit: "
-                + new VersusBuyAndHoldCriterion(totalProfit).calculate(series, tradingRecord));
-        // End cash
-        System.out.println("END CASH: " + cashFlow.getValue(series.getEndIndex()));
-        // ATR
-        // Want to put this on the legend
-        ATRIndicator atr = new ATRIndicator(series, 14);
-        BigDecimal bd = new BigDecimal(atr.getValue(series.getBarCount()-1).doubleValue());
-        System.out.println("ATR: " + bd.toPlainString());
     }
     
     public static void addBuySellSignals(TimeSeries series, Strategy strategy, JFreeChart chart, OrderType type) {
@@ -192,7 +135,6 @@ public class ChartUtils {
             sellMarker.setStroke(ChartUtils.FATLINE);
             plot.addDomainMarker(sellMarker);
         }
-        ChartUtils.prtStrategyAnalysis(series, tradingRecord);
     }
 
 }

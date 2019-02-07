@@ -17,6 +17,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tapereader.Property;
 import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
@@ -29,6 +30,7 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
     
     private BinanceMarketDataService marketDataService;
     
+    @Property(value="bnc.minVol")
     private String minVol = "50";
     
     public BinanceExchangeAdapter() {
@@ -101,11 +103,6 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
     public void init() {
         exchange = (BinanceExchange) ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class.getName());
         marketDataService = (BinanceMarketDataService) exchange.getMarketDataService();
-    }
-
-    @Override
-    public void terminate() {
-        
     }
 
 }

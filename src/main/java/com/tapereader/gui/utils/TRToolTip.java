@@ -9,12 +9,6 @@ import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.XYDataset;
 
 public class TRToolTip implements XYToolTipGenerator {
-    
-    private String millisToDateString(long millis) {
-        String ret = LocalDateTime.ofEpochSecond(millis / 1000, 0, ZoneOffset.UTC)
-                .format(DateTimeFormatter.ISO_LOCAL_DATE);
-        return ret;
-    }
 
     @Override
     public String generateToolTip(XYDataset dataset, int series, int item) {
@@ -32,7 +26,7 @@ public class TRToolTip implements XYToolTipGenerator {
             String f = key.contains("USDT") ? "%.2f" : "%.8f";
             
             stringBuilder.append(String.format("<html><p style='color:#0000ff;'> %s </p>", dataset.getSeriesKey(series)));
-            stringBuilder.append("Date: " + millisToDateString(date.longValue())+ "<br/>");
+            stringBuilder.append("Date: " + TRToolTip.millisToDateString(date.longValue())+ "<br/>");
             stringBuilder.append(String.format("Open: " + f + "<br/>", open));
             stringBuilder.append(String.format("High: " + f + "<br/>", high));
             stringBuilder.append(String.format("Low: " + f + "<br/>", low));
@@ -42,5 +36,11 @@ public class TRToolTip implements XYToolTipGenerator {
         } catch (RuntimeException e) {
             return "ERROR";
         }
+    }
+    
+    private static String millisToDateString(long millis) {
+        String ret = LocalDateTime.ofEpochSecond(millis / 1000, 0, ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_LOCAL_DATE);
+        return ret;
     }
 }

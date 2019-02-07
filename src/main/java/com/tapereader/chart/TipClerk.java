@@ -1,4 +1,4 @@
-package com.tapereader.tip;
+package com.tapereader.chart;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -7,6 +7,7 @@ import java.util.List;
 import org.ta4j.core.BaseTimeSeries;
 import org.ta4j.core.TimeSeries;
 
+import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.config.Config;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.MarketDataClerk;
@@ -20,13 +21,17 @@ public class TipClerk {
     
     private final HistoricalDataClerk historicalDataClerk;
     
-    private Tip tip;
+    private ChartManager chartManager;
     
-    public TipClerk(Config config, MarketDataClerk marketDataClerk, HistoricalDataClerk historicalDataClerk, Tip tip) {
+    private ChartStrategy chartStrategy;
+    
+    public TipClerk(Config config, MarketDataClerk marketDataClerk, HistoricalDataClerk historicalDataClerk, 
+            ChartManager chartManager, ChartStrategy chartStrategy) {
         this.config = config;
         this.marketDataClerk = marketDataClerk;
         this.historicalDataClerk = historicalDataClerk;
-        this.tip = tip;
+        this.chartManager = chartManager;
+        this.chartStrategy = chartStrategy;
     }
 
     /**
@@ -34,20 +39,6 @@ public class TipClerk {
      */
     public Config getConfig() {
         return config;
-    }
-
-    /**
-     * @return the tipName
-     */
-    public Tip getTip() {
-        return tip;
-    }
-
-    /**
-     * @param tipName the tipName to set
-     */
-    public void setTip(Tip tip) {
-        this.tip = tip;
     }
 
     /**
@@ -64,6 +55,34 @@ public class TipClerk {
         return historicalDataClerk;
     }
     
+    /**
+     * @return the chartManager
+     */
+    public ChartManager getChartManager() {
+        return chartManager;
+    }
+
+    /**
+     * @param chartManager the chartManager to set
+     */
+    public void setChartManager(ChartManager chartManager) {
+        this.chartManager = chartManager;
+    }
+
+    /**
+     * @return the chartStrategy
+     */
+    public ChartStrategy getChartStrategy() {
+        return chartStrategy;
+    }
+
+    /**
+     * @param chartStrategy the chartStrategy to set
+     */
+    public void setChartStrategy(ChartStrategy chartStrategy) {
+        this.chartStrategy = chartStrategy;
+    }
+
     public TimeSeries buildTimeSeries() {
         // tip clerk get config
         Config config = getConfig();

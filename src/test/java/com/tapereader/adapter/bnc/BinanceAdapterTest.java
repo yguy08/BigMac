@@ -11,7 +11,6 @@ import java.util.List;
 import org.junit.Test;
 
 import com.tapereader.adapter.ExchangeAdapter;
-import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 
@@ -19,7 +18,7 @@ public class BinanceAdapterTest {
     
     @Test
     public void binanceAdapterTest() {
-        ExchangeAdapter bncAdapter = ExchangeAdapter.makeFactory(TickerType.BINANCE);
+        ExchangeAdapter bncAdapter = new BinanceExchangeAdapter();
         bncAdapter.init();
         
         List<Tick> ticks = bncAdapter.getCurrentTicks();

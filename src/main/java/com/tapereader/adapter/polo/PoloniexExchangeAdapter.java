@@ -98,9 +98,4 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
         marketDataService = (PoloniexMarketDataService) exchange.getMarketDataService();
     }
 
-    @Override
-    public void terminate() {
-        
-    }
-
 }

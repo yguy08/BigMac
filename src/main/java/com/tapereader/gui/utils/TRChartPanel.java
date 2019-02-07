@@ -2,6 +2,8 @@ package com.tapereader.gui.utils;
 
 import java.awt.Color;
 
+import javax.swing.UIManager;
+
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
@@ -11,9 +13,16 @@ public class TRChartPanel extends ChartPanel {
         super(chart);
         setFillZoomRectangle(true);
         setMouseWheelEnabled(true);
-        setOpaque(false);
+        setOpaque(true);
+        setBackground(UIManager.getColor("Panel.background"));
         setZoomOutlinePaint(Color.GREEN);
         setDisplayToolTips(true);
+        chart.addChangeListener(this);
+    }
+    
+    public void rebuildChart(JFreeChart chart) {
+        setChart(chart);
+        chart.fireChartChanged();
     }
 
 }
