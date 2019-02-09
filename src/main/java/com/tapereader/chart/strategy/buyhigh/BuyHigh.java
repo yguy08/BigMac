@@ -8,6 +8,7 @@ import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.time.Day;
+import org.jfree.data.time.FixedMillisecond;
 import org.ta4j.core.BaseStrategy;
 import org.ta4j.core.Order;
 import org.ta4j.core.Rule;
@@ -58,25 +59,25 @@ public class BuyHigh implements ChartStrategy {
         // Adding markers to plot
         for (Trade trade : trades) {
             // Buy signal
-            double buySignalBarTime = new Day(
+            double buySignalBarTime = new FixedMillisecond(
                     Date.from(series.getBar(trade.getEntry().getIndex()).getEndTime().toInstant()))
                             .getLastMillisecond();
             Marker buyMarker = new ValueMarker(buySignalBarTime, ChartColor.GREEN, ChartUtils.FATLINE);
             plot.addDomainMarker(buyMarker);
             // Sell signal
-            double sellSignalBarTime = new Day(
+            double sellSignalBarTime = new FixedMillisecond(
                     Date.from(series.getBar(trade.getExit().getIndex()).getEndTime().toInstant())).getLastMillisecond();
             Marker sellMarker = new ValueMarker(sellSignalBarTime, ChartColor.RED, ChartUtils.FATLINE);
             plot.addDomainMarker(sellMarker);
         }
         Order last = tradingRecord.getLastOrder();
         if (last != null && (type == OrderType.BUY && last.isBuy())) {
-            double buySignalBarTime = new Day(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant()))
+            double buySignalBarTime = new FixedMillisecond(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant()))
                     .getLastMillisecond();
             Marker buyMarker = new ValueMarker(buySignalBarTime, ChartColor.GREEN, ChartUtils.FATLINE);
             plot.addDomainMarker(buyMarker);
         } else if (last != null && (type == OrderType.SELL && last.isSell())) {
-            double sellSignalBarTime = new Day(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant())).getLastMillisecond();
+            double sellSignalBarTime = new FixedMillisecond(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant())).getLastMillisecond();
             Marker sellMarker = new ValueMarker(sellSignalBarTime);
             sellMarker.setPaint(ChartColor.GREEN);
             sellMarker.setStroke(ChartUtils.FATLINE);

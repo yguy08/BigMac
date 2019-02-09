@@ -55,7 +55,7 @@ public class ChartUtils {
         plot.setRenderer(CANDLESTICK_RENDERER);
         // Misc
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
-        numberAxis.setAutoRangeIncludesZero(false);
+        //numberAxis.setAutoRangeIncludesZero(false);
         NumberFormat format = title.contains("USDT") ? new DecimalFormat("#") : new DecimalFormat("#.########");
         numberAxis.setNumberFormatOverride(format);
         plot.setDomainPannable(true);

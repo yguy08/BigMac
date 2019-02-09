@@ -43,7 +43,8 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
                 long millis = Instant.now().toEpochMilli();
                 double last = marketData.getLast().doubleValue();
                 int vol = marketData.getBaseVolume().intValue();
-                ticks.add(new Tick(millis, symbol, last, vol));
+                double percent = marketData.getPercentChange().doubleValue();
+                ticks.add(new Tick(millis, symbol, last, vol, percent));
             }
         } catch (Exception e) {
             LOGGER.error("PoloniexExchangeAdapter.getCurrentTicks: Error getting current ticks.");

@@ -64,29 +64,11 @@ public class MainHelper {
         config.setBarSize(Duration.ofDays(1));
         config.setDefaultSymbol("BTC/USDT");
         config.setDefaultTip(TipType.BUY_HIGH);
-        config.setLookback(100);
+        config.setLookback(150);
         config.setTickerType(TickerType.BINANCE);
         config.setMarketType(MarketType.BTC);
         
         TipClerk tipClerk = new TipClerk(config, marketDataClerk, historicalDataClerk, new ChartManager(), new BuyHigh());
-        
-        /* Parse properties and set value annotation */
-        try {
-            ClassPath classpath = ClassPath.from(MainHelper.class.getClassLoader());
-            for (ClassPath.ClassInfo classInfo : classpath.getTopLevelClassesRecursive("com.tapereader")) {
-                Class<?> clazz = classInfo.load();
-                System.out.println("Class: " + clazz.getSimpleName());
-                for (Field field : clazz.getDeclaredFields()) {
-                    if (field.getDeclaredAnnotation(Property.class) != null) {
-                        Property property = field.getDeclaredAnnotation(Property.class);
-                        Object o = properties.getProperty(property.value());
-                        System.out.println(o);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         
         TRGuiMain app = new TRGuiMain(tipClerk);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

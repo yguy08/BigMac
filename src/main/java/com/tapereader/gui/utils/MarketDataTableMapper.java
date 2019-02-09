@@ -6,7 +6,7 @@ import com.tapereader.marketdata.Tick;
 
 public class MarketDataTableMapper implements TableModelMapper {
 
-    public String[] columnNames = {"Symbol","Last","Volume"};
+    public String[] columnNames = {"Symbol","Last","Volume", "%"};
     
     public int getColumnCount() {
         return columnNames.length;
@@ -27,6 +27,8 @@ public class MarketDataTableMapper implements TableModelMapper {
                 return DECIMALFUNC.apply(tick);
             case 2:
                 return tick.getVolume();
+            case 3:
+                return (int) tick.getPriceChangePercent();
             default:
                 return "ERROR";
             }
@@ -49,6 +51,8 @@ public class MarketDataTableMapper implements TableModelMapper {
             case 1:
                 return Number.class;
             case 2:
+                return Integer.class;
+            case 3:
                 return Integer.class;
             default:
                 return String.class;

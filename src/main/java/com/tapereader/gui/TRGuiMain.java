@@ -8,23 +8,30 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
+import org.knowm.xchange.binance.dto.marketdata.KlineInterval;
 import org.ta4j.core.TimeSeries;
 
 import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.TipClerk;
 import com.tapereader.chart.strategy.buyhigh.BuyHigh;
+import com.tapereader.enumeration.BarSize;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
@@ -34,7 +41,7 @@ import com.tapereader.gui.utils.TRChartPanel;
 import com.tapereader.gui.utils.TRTable;
 import com.tapereader.marketdata.Tick;
 
-public class TRGuiMain {
+public class TRGuiMain implements ChangeListener {
     
     private final JFrame mainFrame;
     
@@ -43,6 +50,10 @@ public class TRGuiMain {
     private JComboBox<TickerType> tickerCombo;
     
     private JComboBox<MarketType> marketCombo;
+    
+    private JComboBox<BarSize> barSize;
+    
+    private JSlider lookBackSlider;
     
     private JTextArea textArea;
     
@@ -72,6 +83,19 @@ public class TRGuiMain {
         marketCombo.setSelectedItem(tipClerk.getConfig().getMarketType());
         marketCombo.addActionListener(comboListener);
         
+        barSize = new JComboBox<BarSize>(BarSize.values());
+        barSize.setSelectedItem(BarSize.d1);
+        barSize.addActionListener(comboListener);
+        
+        lookBackSlider = new JSlider(JSlider.HORIZONTAL,
+                1, 1000, 150);
+        //Turn on labels at major tick marks.
+        lookBackSlider.setMajorTickSpacing(100);
+        lookBackSlider.setMinorTickSpacing(50);
+        lookBackSlider.setPaintTicks(true);
+        lookBackSlider.setPaintLabels(true);
+        lookBackSlider.addChangeListener(this);
+        
         ChartManager chartManager = tipClerk.getChartManager();
         TimeSeries series = tipClerk.buildTimeSeries();
         chartManager.setTimeSeries(series);
@@ -98,6 +122,8 @@ public class TRGuiMain {
         toolBar.add(tipCombo);
         toolBar.add(tickerCombo);
         toolBar.add(marketCombo);
+        toolBar.add(barSize);
+        toolBar.add(lookBackSlider);
         toolBarPanel.add(toolBar);
         
         JPanel contentPane = new JPanel(new BorderLayout(5, 5));
@@ -165,6 +191,17 @@ public class TRGuiMain {
         });
     }
     
+    /** Listen to the slider. */
+    public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider)e.getSource();
+        if (!source.getValueIsAdjusting()) {
+            int fps = (int)source.getValue();
+            tipClerk.getConfig().setLookback(fps);
+            buildChart();
+            setStrategyAnalysis();
+        }
+    }
+    
     private class TRComboBoxListener implements ActionListener {
 
         @Override
@@ -180,8 +217,11 @@ public class TRGuiMain {
             } else if (cb == marketCombo){
                 tipClerk.getConfig().setMarketType(MarketType.valueOf(marketCombo.getSelectedItem().toString()));
                 resetFilter();
-            } else {
-                
+            } else if (cb == barSize){
+                BarSize barSize = ((BarSize) cb.getSelectedItem());
+                tipClerk.getConfig().setBarSize(Duration.ofMillis(barSize.getMillis()));
+                buildChart();
+                setStrategyAnalysis();
             }
         }
     }

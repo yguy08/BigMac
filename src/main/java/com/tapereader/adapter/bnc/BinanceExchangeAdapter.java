@@ -17,7 +17,6 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tapereader.Property;
 import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
@@ -30,7 +29,6 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
     
     private BinanceMarketDataService marketDataService;
     
-    @Property(value="bnc.minVol")
     private String minVol = "50";
     
     public BinanceExchangeAdapter() {
@@ -47,11 +45,11 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
                 String symbol = BinanceAdapters.adaptSymbol(bncTick.getSymbol()).toString();
                 double last = bncTick.getLastPrice().doubleValue();
                 int vol = bncTick.getQuoteVolume().intValue();
-                
+                double percent = bncTick.getPriceChangePercent().doubleValue();
                 if (Instant.ofEpochMilli(millis).isBefore(Instant.now().minus(1, ChronoUnit.DAYS))) {
                     continue;
                 }
-                ticks.add(new Tick(millis, symbol, last, vol));
+                ticks.add(new Tick(millis, symbol, last, vol, percent));
             }
         } catch (IOException e) {
             LOGGER.error("BinanceExchangeAdapter.getCurrentTicks: Error connecting to Binance Exchange.", e);
