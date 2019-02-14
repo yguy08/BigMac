@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 
@@ -49,7 +50,7 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
                 if (Instant.ofEpochMilli(millis).isBefore(Instant.now().minus(1, ChronoUnit.DAYS))) {
                     continue;
                 }
-                ticks.add(new Tick(millis, symbol, last, vol, percent));
+                ticks.add(new Tick(millis, symbol, TickerType.BINANCE, last, vol, percent));
             }
         } catch (IOException e) {
             LOGGER.error("BinanceExchangeAdapter.getCurrentTicks: Error connecting to Binance Exchange.", e);

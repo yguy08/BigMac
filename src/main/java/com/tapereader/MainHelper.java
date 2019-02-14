@@ -2,20 +2,28 @@ package com.tapereader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.google.common.reflect.ClassPath;
+import javax.sql.DataSource;
+
+import org.h2.jdbcx.JdbcDataSource;
+
 import com.tapereader.adapter.ExchangeAdapter;
-import com.tapereader.adapter.bnc.BinanceExchangeAdapter;
+import com.tapereader.adapter.cpro.CProExchangeAdapter;
 import com.tapereader.adapter.polo.PoloniexExchangeAdapter;
 import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.TipClerk;
 import com.tapereader.chart.strategy.buyhigh.BuyHigh;
 import com.tapereader.config.Config;
+import com.tapereader.dao.TickDao;
+import com.tapereader.dao.TickDaoImpl;
+import com.tapereader.dao.TickSchemaSql;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
@@ -31,9 +39,14 @@ public class MainHelper {
     
     private final String propertiesFileName;
     
-    public MainHelper(String[] args, String propertiesFileName) {
+    private final ExchangeAdapter bncAdapter;
+    
+    private final static String DB_URL = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
+    
+    public MainHelper(String[] args, String propertiesFileName, ExchangeAdapter bncAdapter) {
         this.args = args;
         this.propertiesFileName = propertiesFileName;
+        this.bncAdapter = bncAdapter;
     }
     
     public void run() {
@@ -47,17 +60,28 @@ public class MainHelper {
             throw new RuntimeException("Unable to load properties file.");
         }
         
-        ExchangeAdapter bncAdapter = new BinanceExchangeAdapter();
         bncAdapter.init();
         
         ExchangeAdapter poloAdapter = new PoloniexExchangeAdapter();
         poloAdapter.init();
         
+        ExchangeAdapter cproAdapter = new CProExchangeAdapter();
+        cproAdapter.init();
+        
         Map<String, ExchangeAdapter> adapterMap = new HashMap<>();
         adapterMap.put(TickerType.BINANCE.toString(), bncAdapter);
         adapterMap.put(TickerType.POLONIEX.toString(), poloAdapter);
+        adapterMap.put(TickerType.CPRO.toString(), cproAdapter);
         
-        MarketDataClerk marketDataClerk = new MarketDataClerkImpl(adapterMap);
+        final DataSource dataSource = createDataSource();
+        try {
+            createSchema(dataSource);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        TickDao tickDao = new TickDaoImpl(dataSource);
+        
+        MarketDataClerk marketDataClerk = new MarketDataClerkImpl(adapterMap, tickDao);
         HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap);
         
         Config config = new Config();
@@ -77,5 +101,19 @@ public class MainHelper {
             }
         });
     }
+    
+    private static void createSchema(DataSource dataSource) throws SQLException {
+        try (Connection connection = dataSource.getConnection();
+            Statement statement = connection.createStatement()) {
+            statement.execute("DROP TABLE TICKS");
+          statement.execute(TickSchemaSql.CREATE_SCHEMA_SQL);
+        }
+      }
+    
+    private static DataSource createDataSource() {
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setURL(DB_URL);
+        return dataSource;
+      }
 
 }

@@ -40,7 +40,10 @@ public class ListTableModel extends AbstractTableModel {
     }
     
     public void setElements(List<?> elements) {
-        this.elements = elements;
+        if (this.elements != elements) {
+            this.elements = elements;
+            fireTableStructureChanged();
+        }
     }
     
     public List<?> getElements() {

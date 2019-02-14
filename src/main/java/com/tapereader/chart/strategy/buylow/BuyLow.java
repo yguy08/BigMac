@@ -1,4 +1,4 @@
-package com.tapereader.chart.strategy.buyhigh;
+package com.tapereader.chart.strategy.buylow;
 
 import java.util.Date;
 import java.util.List;
@@ -28,7 +28,7 @@ import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.enumeration.TipType;
 import com.tapereader.util.StrategyAnalysis;
 
-public class BuyHigh implements ChartStrategy {
+public class BuyLow implements ChartStrategy {
 
     private TimeSeries series;
     
@@ -41,11 +41,10 @@ public class BuyHigh implements ChartStrategy {
         this.series = series;
         ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
         // Going long if the close price goes above the max
-        Rule entryRule = new IsHighestRule(closePrices, 25);
+        Rule entryRule = new IsLowestRule(closePrices, 55);
         // Exit if the close price goes below the min or stop loss
-        Rule exitRule = new IsLowestRule(closePrices, 11)
-                .or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
-        Strategy strategy = new BaseStrategy(TipType.BUY_HIGH.toString(), entryRule, exitRule, 25);
+        Rule exitRule = new IsHighestRule(closePrices, 55).or(new StopLossRule(closePrices, PrecisionNum.valueOf(50)));
+        Strategy strategy = new BaseStrategy(TipType.BUY_LOW.toString(), entryRule, exitRule, 25);
         
         //Building chart datasets
         JFreeChart chart = ChartUtils.newCandleStickChart(series);
@@ -93,7 +92,6 @@ public class BuyHigh implements ChartStrategy {
 
     @Override
     public void addBuySellSignalsToChart() {
-        // TODO Auto-generated method stub
         
     }
 

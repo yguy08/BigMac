@@ -50,7 +50,7 @@ public class TRTable extends JTable {
         sort(2, SortOrder.DESCENDING);
     }
     
-    public void sort(int columnIndex, SortOrder sortOrder) {
+    private void sort(int columnIndex, SortOrder sortOrder) {
         List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
         sortKeys.add(new RowSorter.SortKey(columnIndex, sortOrder));
         this.getRowSorter().setSortKeys(sortKeys);

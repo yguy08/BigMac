@@ -2,7 +2,8 @@ package com.tapereader.enumeration;
 
 public enum TipType {
     
-    BUY_HIGH("Buy High");
+    BUY_HIGH("Buy High"),
+    BUY_LOW("Buy Low");
     
     private String displayName;
     
@@ -17,5 +18,14 @@ public enum TipType {
     @Override
     public String toString() {
         return getDisplayName();
+    }
+    
+    public static TipType findByDisplayName(String displayName) {
+        for (TipType type : TipType.values()) {
+            if (type.getDisplayName().equals(displayName)) {
+                return type;
+            }
+        }
+        return BUY_HIGH;
     }
 }

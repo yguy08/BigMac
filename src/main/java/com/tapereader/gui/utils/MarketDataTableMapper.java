@@ -28,7 +28,7 @@ public class MarketDataTableMapper implements TableModelMapper {
             case 2:
                 return tick.getVolume();
             case 3:
-                return (int) tick.getPriceChangePercent();
+                return tick.getPriceChangePercent();
             default:
                 return "ERROR";
             }
@@ -53,7 +53,7 @@ public class MarketDataTableMapper implements TableModelMapper {
             case 2:
                 return Integer.class;
             case 3:
-                return Integer.class;
+                return Double.class;
             default:
                 return String.class;
             }

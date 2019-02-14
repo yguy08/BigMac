@@ -1,6 +1,10 @@
 package com.tapereader.marketdata;
 
+import com.tapereader.enumeration.TickerType;
+
 public class Tick extends MarketData {
+    
+    private TickerType ticker;
 
     private double last;
     
@@ -21,6 +25,11 @@ public class Tick extends MarketData {
         this.last = last;
         this.volume = volume;
         this.priceChangePercent = priceChangePercent;
+    }
+    
+    public Tick(long timestamp, String security, TickerType ticker, double last, int volume, double priceChangePercent) {
+        this(timestamp, security, last, volume, priceChangePercent);
+        this.ticker = ticker;
     }
 
     public void setLast(double last) {
@@ -51,6 +60,20 @@ public class Tick extends MarketData {
      */
     public void setPriceChangePercent(double priceChangePercent) {
         this.priceChangePercent = priceChangePercent;
+    }
+
+    /**
+     * @return the ticker
+     */
+    public TickerType getTicker() {
+        return ticker;
+    }
+
+    /**
+     * @param ticker the ticker to set
+     */
+    public void setTicker(TickerType ticker) {
+        this.ticker = ticker;
     }
 
     @Override

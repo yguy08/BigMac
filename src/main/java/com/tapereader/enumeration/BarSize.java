@@ -4,9 +4,6 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-
 import org.knowm.xchange.binance.dto.marketdata.KlineInterval;
 import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
 

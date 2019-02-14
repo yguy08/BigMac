@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 
@@ -44,7 +45,7 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
                 double last = marketData.getLast().doubleValue();
                 int vol = marketData.getBaseVolume().intValue();
                 double percent = marketData.getPercentChange().doubleValue();
-                ticks.add(new Tick(millis, symbol, last, vol, percent));
+                ticks.add(new Tick(millis, symbol, TickerType.POLONIEX, last, vol, percent));
             }
         } catch (Exception e) {
             LOGGER.error("PoloniexExchangeAdapter.getCurrentTicks: Error getting current ticks.");

@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -25,12 +24,11 @@ import javax.swing.event.ChangeListener;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
-import org.knowm.xchange.binance.dto.marketdata.KlineInterval;
 import org.ta4j.core.TimeSeries;
 
 import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.TipClerk;
-import com.tapereader.chart.strategy.buyhigh.BuyHigh;
+import com.tapereader.chart.strategy.ChartStrategyFactory;
 import com.tapereader.enumeration.BarSize;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
@@ -51,7 +49,7 @@ public class TRGuiMain implements ChangeListener {
     
     private JComboBox<MarketType> marketCombo;
     
-    private JComboBox<BarSize> barSize;
+    private JComboBox<BarSize> barSizeCombo;
     
     private JSlider lookBackSlider;
     
@@ -83,12 +81,12 @@ public class TRGuiMain implements ChangeListener {
         marketCombo.setSelectedItem(tipClerk.getConfig().getMarketType());
         marketCombo.addActionListener(comboListener);
         
-        barSize = new JComboBox<BarSize>(BarSize.values());
-        barSize.setSelectedItem(BarSize.d1);
-        barSize.addActionListener(comboListener);
+        barSizeCombo = new JComboBox<BarSize>(BarSize.values());
+        barSizeCombo.setSelectedItem(BarSize.d1);
+        barSizeCombo.addActionListener(comboListener);
         
         lookBackSlider = new JSlider(JSlider.HORIZONTAL,
-                1, 1000, 150);
+                1, 1001, 150);
         //Turn on labels at major tick marks.
         lookBackSlider.setMajorTickSpacing(100);
         lookBackSlider.setMinorTickSpacing(50);
@@ -122,7 +120,7 @@ public class TRGuiMain implements ChangeListener {
         toolBar.add(tipCombo);
         toolBar.add(tickerCombo);
         toolBar.add(marketCombo);
-        toolBar.add(barSize);
+        toolBar.add(barSizeCombo);
         toolBar.add(lookBackSlider);
         toolBarPanel.add(toolBar);
         
@@ -175,11 +173,14 @@ public class TRGuiMain implements ChangeListener {
     private void resetFilter() {
         SwingUtilities.invokeLater(() -> {
             trTable.setFilter(tipClerk.getConfig().getMarketType().toString());
+            ((ListTableModel) trTable.getModel()).fireTableDataChanged();
         });
     }
     
     private void updateTable(List<?> elements) {
-        ((ListTableModel) trTable.getModel()).setElements(elements);
+        ListTableModel model = (ListTableModel) trTable.getModel();
+        model.setElements(elements);
+        trTable.setModel(model);
         ((ListTableModel) trTable.getModel()).fireTableDataChanged();
     }
     
@@ -209,15 +210,23 @@ public class TRGuiMain implements ChangeListener {
             JComboBox cb = (JComboBox)e.getSource();
             if (cb == tipCombo) {
                 String tip = cb.getSelectedItem().toString();
-                tipClerk.setChartStrategy(new BuyHigh());
+                tipClerk.setChartStrategy(ChartStrategyFactory.buildChartStrategy(TipType.findByDisplayName(tip)));
+                buildChart();
+                setStrategyAnalysis();
             } else if (cb == tickerCombo) {
                 String ticker = cb.getSelectedItem().toString();
+                if (TickerType.CPRO.equals(TickerType.valueOf(ticker))) {
+                    tipClerk.getConfig().setMarketType(MarketType.USD);
+                } else {
+                    tipClerk.getConfig().setMarketType(MarketType.BTC);
+                }
                 tipClerk.getConfig().setTickerType(TickerType.valueOf(ticker));
                 newTicker();
+                resetFilter();
             } else if (cb == marketCombo){
                 tipClerk.getConfig().setMarketType(MarketType.valueOf(marketCombo.getSelectedItem().toString()));
                 resetFilter();
-            } else if (cb == barSize){
+            } else if (cb == barSizeCombo){
                 BarSize barSize = ((BarSize) cb.getSelectedItem());
                 tipClerk.getConfig().setBarSize(Duration.ofMillis(barSize.getMillis()));
                 buildChart();

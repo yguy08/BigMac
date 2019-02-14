@@ -1,5 +1,8 @@
 package com.tapereader;
 
+import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.adapter.bnc.BinanceExchangeAdapter;
+
 public class ApplicationScope {
 
     private final String[] args;
@@ -17,6 +20,10 @@ public class ApplicationScope {
     
     public String getPropertiesFileName() {
         return propertiesFileName;
+    }
+    
+    public ExchangeAdapter getBinanceExchangeAdapter() {
+        return new BinanceExchangeAdapter();
     }
 
 }
