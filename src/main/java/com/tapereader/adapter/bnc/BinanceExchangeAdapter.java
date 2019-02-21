@@ -32,32 +32,23 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
     
     private String minVol = "50";
     
+    private boolean started = false;
+    
     public BinanceExchangeAdapter() {
 
     }
 
     @Override
-    public List<Tick> getCurrentTicks() {
-        List<Tick> ticks = new ArrayList<>();
+    public Tick getCurrentTick(String symbol) {
         try {
-            List<BinanceTicker24h> binanceTicks = marketDataService.ticker24h();
-            for (BinanceTicker24h bncTick : binanceTicks) {
-                long millis = bncTick.getCloseTime().toInstant().toEpochMilli();
-                String symbol = BinanceAdapters.adaptSymbol(bncTick.getSymbol()).toString();
-                double last = bncTick.getLastPrice().doubleValue();
-                int vol = bncTick.getQuoteVolume().intValue();
-                double percent = bncTick.getPriceChangePercent().doubleValue();
-                if (Instant.ofEpochMilli(millis).isBefore(Instant.now().minus(1, ChronoUnit.DAYS))) {
-                    continue;
-                }
-                ticks.add(new Tick(millis, symbol, TickerType.BINANCE, last, vol, percent));
-            }
+            BinanceTicker24h ticker = marketDataService.ticker24h(new CurrencyPair(symbol));
+            return binanceTicker24hToTick(ticker);
         } catch (IOException e) {
             LOGGER.error("BinanceExchangeAdapter.getCurrentTicks: Error connecting to Binance Exchange.", e);
         } catch (Exception e) {
             LOGGER.error("BinanceExchangeAdapter.getCurrentTicks: Error getting current ticks.", e);
         }
-        return ticks;
+        return null;
     }
 
     @Override
@@ -78,7 +69,7 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
                 double low = bncBar.getLowPrice().doubleValue();
                 double close = bncBar.getClosePrice().doubleValue();
                 int vol = bncBar.getVolume().intValue();
-                bars.add(new Bar(millis, symbol, open, high, low, close, vol, duration));
+                bars.add(new Bar(millis, symbol, TickerType.BINANCE, open, high, low, close, vol, duration));
             }
         } catch (Exception e) {
             LOGGER.error("BinanceExchangeAdapter.getHistoricalBars: Error getting historical bars.");
@@ -99,9 +90,42 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
     }
     
     @Override
-    public void init() {
-        exchange = (BinanceExchange) ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class.getName());
-        marketDataService = (BinanceMarketDataService) exchange.getMarketDataService();
+    public boolean init() {
+        if (!started) {
+            exchange = (BinanceExchange) ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class.getName());
+            marketDataService = (BinanceMarketDataService) exchange.getMarketDataService();
+            started = true;
+        }
+        return started;
+    }
+
+    @Override
+    public List<Tick> getCurrentTicks() {
+        List<Tick> ticks = new ArrayList<>();
+        try {
+            List<BinanceTicker24h> binanceTicks = marketDataService.ticker24h();
+            for (BinanceTicker24h bncTick : binanceTicks) {
+                Tick tick = binanceTicker24hToTick(bncTick);
+                if (Instant.ofEpochMilli(tick.getTimestamp()).isBefore(Instant.now().minus(1, ChronoUnit.DAYS))) {
+                    continue;
+                }
+                ticks.add(tick);
+            }
+        } catch (IOException e) {
+            LOGGER.error("BinanceExchangeAdapter.getCurrentTicks: Error connecting to Binance Exchange.", e);
+        } catch (Exception e) {
+            LOGGER.error("BinanceExchangeAdapter.getCurrentTicks: Error getting current ticks.", e);
+        }
+        return ticks;
+    }
+    
+    private Tick binanceTicker24hToTick(BinanceTicker24h ticker) {
+        long millis = ticker.getCloseTime().toInstant().toEpochMilli();
+        String symbol = BinanceAdapters.adaptSymbol(ticker.getSymbol()).toString();
+        double last = ticker.getLastPrice().doubleValue();
+        int vol = ticker.getQuoteVolume().intValue();
+        double percent = ticker.getPriceChangePercent().doubleValue();
+        return new Tick(millis, symbol, TickerType.BINANCE, last, vol, percent);
     }
 
 }

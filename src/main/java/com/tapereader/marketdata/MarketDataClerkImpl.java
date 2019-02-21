@@ -1,16 +1,12 @@
 package com.tapereader.marketdata;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tapereader.adapter.ExchangeAdapter;
-import com.tapereader.dao.TickDao;
+import com.tapereader.dao.tick.TickDao;
 import com.tapereader.enumeration.TickerType;
 
 public class MarketDataClerkImpl implements MarketDataClerk {
@@ -27,18 +23,13 @@ public class MarketDataClerkImpl implements MarketDataClerk {
     }
 
     @Override
-    public List<Tick> getCurrentTicks() {
-        try { 
-            Stream<Tick> tickStream = tickDao.getAll();
-            if (tickStream.findAny().isPresent()) {
-                return tickDao.getAll().collect(Collectors.toList());
-            }
-            List<Tick> ticks = new ArrayList<>();
-            for (Map.Entry<String, ExchangeAdapter> entry : adapterMap.entrySet()) {
-                ticks.addAll(entry.getValue().getCurrentTicks());
-            }
-            tickDao.add(ticks);
-            return ticks;
+    public Tick getCurrentTick(String symbol, TickerType ticker) {
+        try {
+            ExchangeAdapter adapter = adapterMap.get(ticker.toString());
+            adapter.init();
+            Tick tick = adapter.getCurrentTick(symbol);
+            tickDao.add(tick);
+            return tick;
         } catch (Exception e) {
             LOGGER.error("ERROR", e);
             return null;
@@ -48,7 +39,11 @@ public class MarketDataClerkImpl implements MarketDataClerk {
     @Override
     public List<Tick> getCurrentTicks(TickerType ticker) {
         try {
-            return tickDao.getAllByTicker(ticker.toString()).collect(Collectors.toList());
+            ExchangeAdapter adapter = adapterMap.get(ticker.toString());
+            adapter.init();
+            List<Tick> ticks = adapter.getCurrentTicks();
+            tickDao.add(ticks);
+            return ticks;
         } catch (Exception e) {
             LOGGER.error("ERROR", e);
             return null;

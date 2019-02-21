@@ -1,8 +1,6 @@
-package com.tapereader.dao;
+package com.tapereader.dao.tick;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.tapereader.marketdata.Tick;
@@ -20,4 +18,6 @@ public interface TickDao {
     boolean delete(Tick tick) throws Exception;
     
     Stream<Tick> getAllByTicker(String ticker) throws Exception;
+    
+    Tick findBySymbolAndTicker(String symbol, String ticker) throws Exception;
 }

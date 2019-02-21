@@ -9,7 +9,9 @@ import com.tapereader.marketdata.Tick;
 
 public interface ExchangeAdapter {
     
-    public void init();
+    public boolean init();
+
+    public Tick getCurrentTick(String symbol);
 
     public List<Tick> getCurrentTicks();
 

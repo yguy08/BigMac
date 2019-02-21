@@ -33,30 +33,29 @@ public class CProExchangeAdapter implements ExchangeAdapter {
     private final String[] SYMBOLS = new String[] {"BTC/USD", "ETH/USD", "LTC/USD"};
     
     private final List<Tick> ticks = new ArrayList<>();
+    
+    private boolean started = false;
 
     @Override
-    public void init() {
-        exchange = ExchangeFactory.INSTANCE.createExchange(CoinbaseProExchange.class);
-        marketDataService = (CoinbaseProMarketDataService) exchange.getMarketDataService();
+    public boolean init() {
+        if (!started) {
+            exchange = ExchangeFactory.INSTANCE.createExchange(CoinbaseProExchange.class);
+            marketDataService = (CoinbaseProMarketDataService) exchange.getMarketDataService();
+            started = true;
+        }
+        return started;
     }
 
     @Override
-    public List<Tick> getCurrentTicks() {
-        if (ticks.isEmpty()) {
-            for (String pair : SYMBOLS) {
-                try {
-                    CurrencyPair symbol = new CurrencyPair(pair);
-                    CoinbaseProProductTicker ticker = marketDataService.getCoinbaseProProductTicker(symbol);
-                    long millis = Instant.now().toEpochMilli();
-                    double last = ticker.getPrice().doubleValue();
-                    int vol = ticker.getVolume().intValue();
-                    ticks.add(new Tick(millis, symbol.toString(), TickerType.CPRO, last, vol, 0));
-                } catch (Exception e) {
-                    LOGGER.error("CProExchangeAdapter.getCurrentTicks: Error getting current ticks.");
-                }
-            }
+    public Tick getCurrentTick(String symbol) {
+        try {
+            CurrencyPair cPair = new CurrencyPair(symbol);
+            CoinbaseProProductTicker ticker = marketDataService.getCoinbaseProProductTicker(cPair);
+            return coinBaseTickerToTick(ticker, cPair);
+        } catch (Exception e) {
+            LOGGER.error("CProExchangeAdapter.getCurrentTicks: Error getting current ticks.");
         }
-        return ticks;
+        return null;
     }
 
     @Override
@@ -74,20 +73,43 @@ public class CProExchangeAdapter implements ExchangeAdapter {
                 if (firstCandle.getTime().after(lastCandle.getTime())) {
                     Collections.reverse(Arrays.asList(candles));
                 }
-            }
-            for (CoinbaseProCandle candle : candles) {
-                long timestamp = candle.getTime().toInstant().toEpochMilli();
-                double open = candle.getOpen().doubleValue();
-                double high = candle.getHigh().doubleValue();
-                double low = candle.getLow().doubleValue();
-                double close = candle.getClose().doubleValue();
-                int volume = candle.getVolume().intValue();
-                bars.add(new Bar(timestamp, symbol, open, high, low, close, volume, duration));
+                for (CoinbaseProCandle candle : candles) {
+                    long timestamp = candle.getTime().toInstant().toEpochMilli();
+                    double open = candle.getOpen().doubleValue();
+                    double high = candle.getHigh().doubleValue();
+                    double low = candle.getLow().doubleValue();
+                    double close = candle.getClose().doubleValue();
+                    int volume = candle.getVolume().intValue();
+                    bars.add(new Bar(timestamp, symbol, TickerType.CPRO, open, high, low, close, volume, duration));
+                }
             }
         } catch (IOException e) {
             LOGGER.error("CProExchangeAdapter.getHistoricalBars: Error getting current bars.");
         }
         return bars;
+    }
+
+    @Override
+    public List<Tick> getCurrentTicks() {
+        if (ticks.isEmpty()) {
+            for (String pair : SYMBOLS) {
+                try {
+                    CurrencyPair symbol = new CurrencyPair(pair);
+                    CoinbaseProProductTicker ticker = marketDataService.getCoinbaseProProductTicker(symbol);
+                    ticks.add(coinBaseTickerToTick(ticker, symbol));
+                } catch (Exception e) {
+                    LOGGER.error("CProExchangeAdapter.getCurrentTicks: Error getting current ticks.");
+                }
+            }
+        }
+        return ticks;
+    }
+    
+    private Tick coinBaseTickerToTick(CoinbaseProProductTicker ticker, CurrencyPair pair) {
+        long millis = Instant.now().toEpochMilli();
+        double last = ticker.getPrice().doubleValue();
+        int vol = ticker.getVolume().intValue();
+        return new Tick(millis, pair.toString(), TickerType.CPRO, last, vol, 0);
     }
 
 }

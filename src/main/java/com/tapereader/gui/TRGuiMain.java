@@ -10,6 +10,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.Duration;
 import java.util.List;
+
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -101,7 +103,7 @@ public class TRGuiMain implements ChangeListener {
         // Set the chart
         chartPanel = new TRChartPanel(chart);
         
-        List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks();
+        List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType());
         JPanel marketDataPanel = new JPanel(new BorderLayout(5, 5));
         ListTableModel model = new ListTableModel(new MarketDataTableMapper());
         model.setElements(ticks);
@@ -115,6 +117,19 @@ public class TRGuiMain implements ChangeListener {
         marketDataPanel.add(tblScrollPane, BorderLayout.CENTER);
         marketDataPanel.add(txtScrollPane, BorderLayout.PAGE_END);
         
+        JButton refresh = new JButton("Refresh");
+        refresh.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setBusy(true);
+                List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType());
+                updateTable(ticks);
+                setBusy(false);
+            }
+            
+        });
+        
         toolBarPanel = new JPanel(new BorderLayout(5, 5));
         JToolBar toolBar = new JToolBar();
         toolBar.add(tipCombo);
@@ -122,6 +137,7 @@ public class TRGuiMain implements ChangeListener {
         toolBar.add(marketCombo);
         toolBar.add(barSizeCombo);
         toolBar.add(lookBackSlider);
+        toolBar.add(refresh);
         toolBarPanel.add(toolBar);
         
         JPanel contentPane = new JPanel(new BorderLayout(5, 5));
@@ -178,18 +194,32 @@ public class TRGuiMain implements ChangeListener {
     }
     
     private void updateTable(List<?> elements) {
-        ListTableModel model = (ListTableModel) trTable.getModel();
-        model.setElements(elements);
-        trTable.setModel(model);
-        ((ListTableModel) trTable.getModel()).fireTableDataChanged();
+        SwingUtilities.invokeLater(() -> {
+            ListTableModel model = (ListTableModel) trTable.getModel();
+            model.setElements(elements);
+            trTable.setModel(model);
+            ((ListTableModel) trTable.getModel()).fireTableDataChanged();
+        });
     }
     
     private void newTicker() {
         getContainer().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         SwingUtilities.invokeLater(() -> {
-            updateTable(tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType()));
+            List<Tick> ticks = tipClerk.getCacheClerk().getCurrentTicks(tipClerk.getConfig().getTickerType());
+            if (ticks == null || ticks.isEmpty()) {
+                ticks = tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType());
+            }
+            updateTable(ticks);
             getContainer().setCursor(null);
         });
+    }
+    
+    private void setBusy(boolean busy) {
+        if (busy) {
+            getContainer().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        } else {
+            getContainer().setCursor(null);
+        }
     }
     
     /** Listen to the slider. */

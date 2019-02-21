@@ -2,6 +2,8 @@ package com.tapereader.marketdata;
 
 import java.time.Duration;
 
+import com.tapereader.enumeration.TickerType;
+
 public class Bar extends MarketData {
     
     private double open;
@@ -16,9 +18,9 @@ public class Bar extends MarketData {
         
     }
     
-    public Bar(long timestamp, String security, double open, double high, double low,
+    public Bar(long timestamp, String security, TickerType ticker, double open, double high, double low,
             double close, int volume, Duration duration) {
-        super(timestamp, security);
+        super(timestamp, security, ticker);
         this.open = open; 
         this.high = high; 
         this.low = low; 

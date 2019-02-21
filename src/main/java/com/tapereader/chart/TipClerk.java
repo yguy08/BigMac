@@ -11,6 +11,7 @@ import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.config.Config;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.MarketDataClerk;
+import com.tapereader.marketdata.cache.MarketDataCacheClerk;
 import com.tapereader.marketdata.historical.HistoricalDataClerk;
 
 public class TipClerk {
@@ -19,6 +20,8 @@ public class TipClerk {
     
     private final MarketDataClerk marketDataClerk;
     
+    private final MarketDataCacheClerk cacheClerk;
+    
     private final HistoricalDataClerk historicalDataClerk;
     
     private ChartManager chartManager;
@@ -26,9 +29,10 @@ public class TipClerk {
     private ChartStrategy chartStrategy;
     
     public TipClerk(Config config, MarketDataClerk marketDataClerk, HistoricalDataClerk historicalDataClerk, 
-            ChartManager chartManager, ChartStrategy chartStrategy) {
+            MarketDataCacheClerk cacheClerk, ChartManager chartManager, ChartStrategy chartStrategy) {
         this.config = config;
         this.marketDataClerk = marketDataClerk;
+        this.cacheClerk = cacheClerk;
         this.historicalDataClerk = historicalDataClerk;
         this.chartManager = chartManager;
         this.chartStrategy = chartStrategy;
@@ -46,6 +50,13 @@ public class TipClerk {
      */
     public MarketDataClerk getMarketDataClerk() {
         return marketDataClerk;
+    }
+
+    /**
+     * @return the cacheClerk
+     */
+    public MarketDataCacheClerk getCacheClerk() {
+        return cacheClerk;
     }
 
     /**
@@ -88,8 +99,13 @@ public class TipClerk {
         Config config = getConfig();
         Instant start = Instant.now().minusSeconds(config.getLookback() * config.getBarSize().getSeconds());
         TimeSeries series = new BaseTimeSeries.SeriesBuilder().withName(config.getDefaultSymbol()).build();
-        List<Bar> bars = getHistoricalDataClerk()
-                .getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(), start, Instant.now(), config.getBarSize());
+        List<Bar> bars = getCacheClerk().getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(), 
+                start, Instant.now(), config.getBarSize());
+        if (bars == null || bars.isEmpty()) {
+            bars = getHistoricalDataClerk()
+                    .getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(), 
+                            start, Instant.now(), config.getBarSize());
+        }
         for (Bar b : bars) {
             series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
                     b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());

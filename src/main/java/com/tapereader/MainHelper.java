@@ -21,15 +21,20 @@ import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.TipClerk;
 import com.tapereader.chart.strategy.buyhigh.BuyHigh;
 import com.tapereader.config.Config;
-import com.tapereader.dao.TickDao;
-import com.tapereader.dao.TickDaoImpl;
-import com.tapereader.dao.TickSchemaSql;
+import com.tapereader.dao.bar.BarDao;
+import com.tapereader.dao.bar.BarDaoImpl;
+import com.tapereader.dao.bar.BarSchemaSql;
+import com.tapereader.dao.tick.TickDao;
+import com.tapereader.dao.tick.TickDaoImpl;
+import com.tapereader.dao.tick.TickSchemaSql;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
 import com.tapereader.gui.TRGuiMain;
 import com.tapereader.marketdata.MarketDataClerk;
 import com.tapereader.marketdata.MarketDataClerkImpl;
+import com.tapereader.marketdata.cache.MarketDataCacheClerk;
+import com.tapereader.marketdata.cache.MarketDataCacheClerkImpl;
 import com.tapereader.marketdata.historical.HistoricalDataClerk;
 import com.tapereader.marketdata.historical.HistoricalDataClerkImpl;
 
@@ -60,13 +65,9 @@ public class MainHelper {
             throw new RuntimeException("Unable to load properties file.");
         }
         
-        bncAdapter.init();
-        
         ExchangeAdapter poloAdapter = new PoloniexExchangeAdapter();
-        poloAdapter.init();
         
         ExchangeAdapter cproAdapter = new CProExchangeAdapter();
-        cproAdapter.init();
         
         Map<String, ExchangeAdapter> adapterMap = new HashMap<>();
         adapterMap.put(TickerType.BINANCE.toString(), bncAdapter);
@@ -75,14 +76,19 @@ public class MainHelper {
         
         final DataSource dataSource = createDataSource();
         try {
-            createSchema(dataSource);
+            boolean createSchema = Boolean.parseBoolean(properties.getProperty("createSchema"));
+            if (createSchema) {
+                createSchema(dataSource);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         TickDao tickDao = new TickDaoImpl(dataSource);
+        BarDao barDao = new BarDaoImpl(dataSource);
         
         MarketDataClerk marketDataClerk = new MarketDataClerkImpl(adapterMap, tickDao);
-        HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap);
+        HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap, barDao);
+        MarketDataCacheClerk cacheClerk = new MarketDataCacheClerkImpl(tickDao, barDao);
         
         Config config = new Config();
         config.setBarSize(Duration.ofDays(1));
@@ -92,7 +98,8 @@ public class MainHelper {
         config.setTickerType(TickerType.BINANCE);
         config.setMarketType(MarketType.BTC);
         
-        TipClerk tipClerk = new TipClerk(config, marketDataClerk, historicalDataClerk, new ChartManager(), new BuyHigh());
+        TipClerk tipClerk = new TipClerk(config, marketDataClerk, 
+                historicalDataClerk, cacheClerk, new ChartManager(), new BuyHigh());
         
         TRGuiMain app = new TRGuiMain(tipClerk);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -103,12 +110,15 @@ public class MainHelper {
     }
     
     private static void createSchema(DataSource dataSource) throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-            Statement statement = connection.createStatement()) {
-            statement.execute("DROP TABLE TICKS");
-          statement.execute(TickSchemaSql.CREATE_SCHEMA_SQL);
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+            // TICK
+            statement.execute(TickSchemaSql.DROP_TABLE_SQL);
+            statement.execute(TickSchemaSql.CREATE_SCHEMA_SQL);
+            // BAR
+            statement.execute(BarSchemaSql.DROP_TABLE_SQL);
+            statement.execute(BarSchemaSql.CREATE_SCHEMA_SQL);
         }
-      }
+    }
     
     private static DataSource createDataSource() {
         JdbcDataSource dataSource = new JdbcDataSource();

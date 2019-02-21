@@ -53,7 +53,7 @@ public enum BarSize {
     public KlineInterval getKLineInterval() {
         KlineInterval kline = KlineInterval.d1;
         for (KlineInterval type : KlineInterval.values()) {
-            if (getMillis() == kline.getMillis()) {
+            if (getMillis().equals(kline.getMillis())) {
                 kline = type;
                 break;
             }

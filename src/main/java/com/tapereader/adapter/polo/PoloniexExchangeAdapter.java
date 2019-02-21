@@ -11,6 +11,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.poloniex.PoloniexExchange;
 import org.knowm.xchange.poloniex.dto.marketdata.PoloniexChartData;
 import org.knowm.xchange.poloniex.dto.marketdata.PoloniexMarketData;
+import org.knowm.xchange.poloniex.dto.marketdata.PoloniexTicker;
 import org.knowm.xchange.poloniex.service.PoloniexChartDataPeriodType;
 import org.knowm.xchange.poloniex.service.PoloniexMarketDataService;
 import org.slf4j.Logger;
@@ -28,29 +29,23 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
     private PoloniexExchange exchange;
     
     private PoloniexMarketDataService marketDataService;
+    
+    private boolean started = false;
 
     public PoloniexExchangeAdapter() {
         
     }
     
     @Override
-    public List<Tick> getCurrentTicks() {
-        List<Tick> ticks = new ArrayList<>();
+    public Tick getCurrentTick(String symbol) {
         try {
-            Map<String, PoloniexMarketData> tickMap = marketDataService.getAllPoloniexTickers();
-            for (Map.Entry<String, PoloniexMarketData> entry : tickMap.entrySet()) {
-                String symbol = rawSymbolToCurrencyPairStr(entry.getKey());
-                PoloniexMarketData marketData = entry.getValue();
-                long millis = Instant.now().toEpochMilli();
-                double last = marketData.getLast().doubleValue();
-                int vol = marketData.getBaseVolume().intValue();
-                double percent = marketData.getPercentChange().doubleValue();
-                ticks.add(new Tick(millis, symbol, TickerType.POLONIEX, last, vol, percent));
-            }
+            PoloniexTicker ticker = marketDataService.getPoloniexTicker(new CurrencyPair(symbol));
+            PoloniexMarketData marketData = ticker.getPoloniexMarketData();
+            return poloniexMarketDataToTick(marketData, ticker.getCurrencyPair());
         } catch (Exception e) {
             LOGGER.error("PoloniexExchangeAdapter.getCurrentTicks: Error getting current ticks.");
         }
-        return ticks;
+        return null;
     }
 
     @Override
@@ -70,7 +65,7 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
                 double low = data.getLow().doubleValue();
                 double close = data.getClose().doubleValue();
                 int vol = data.getVolume().intValue();
-                bars.add(new Bar(millis, symbol, open, high, low, close, vol, duration));
+                bars.add(new Bar(millis, symbol, TickerType.POLONIEX, open, high, low, close, vol, duration));
             }
         } catch (Exception e) {
             LOGGER.error("PoloniexExchangeAdapter.getHistoricalBars: Error getting current bars.");
@@ -95,9 +90,38 @@ public class PoloniexExchangeAdapter implements ExchangeAdapter {
     }
     
     @Override
-    public void init() {
-        exchange = ExchangeFactory.INSTANCE.createExchange(PoloniexExchange.class);
-        marketDataService = (PoloniexMarketDataService) exchange.getMarketDataService();
+    public boolean init() {
+        if (!started) {
+            exchange = ExchangeFactory.INSTANCE.createExchange(PoloniexExchange.class);
+            marketDataService = (PoloniexMarketDataService) exchange.getMarketDataService();
+            started = true;
+        }
+        return started;
+    }
+
+    @Override
+    public List<Tick> getCurrentTicks() {
+        List<Tick> ticks = new ArrayList<>();
+        try {
+            Map<String, PoloniexMarketData> tickMap = marketDataService.getAllPoloniexTickers();
+            for (Map.Entry<String, PoloniexMarketData> entry : tickMap.entrySet()) {
+                String symbol = rawSymbolToCurrencyPairStr(entry.getKey());
+                PoloniexMarketData marketData = entry.getValue();
+                ticks.add(poloniexMarketDataToTick(marketData, new CurrencyPair(symbol)));
+            }
+        } catch (Exception e) {
+            LOGGER.error("PoloniexExchangeAdapter.getCurrentTicks: Error getting current ticks.");
+        }
+        return ticks;
+    }
+    
+    private Tick poloniexMarketDataToTick(PoloniexMarketData marketData, CurrencyPair pair) {
+        String symbol = pair.toString();
+        long millis = Instant.now().toEpochMilli();
+        double last = marketData.getLast().doubleValue();
+        int vol = marketData.getBaseVolume().intValue();
+        double percent = marketData.getPercentChange().doubleValue();
+        return new Tick(millis, symbol, TickerType.POLONIEX, last, vol, percent);
     }
 
 }

@@ -6,8 +6,8 @@ import com.tapereader.enumeration.TickerType;
 
 public interface MarketDataClerk {
 
-    List<Tick> getCurrentTicks();
-    
+    Tick getCurrentTick(String symbol, TickerType ticker);
+
     List<Tick> getCurrentTicks(TickerType ticker);
 
 }
