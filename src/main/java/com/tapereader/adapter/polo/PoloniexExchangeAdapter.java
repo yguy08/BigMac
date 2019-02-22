@@ -61,7 +61,7 @@ public class PoloniexExchangeAdapter extends XchangeAdapterAbs {
                 bars.add(new Bar(millis, symbol, TickerType.POLONIEX, open, high, low, close, vol, duration));
             }
         } catch (Exception e) {
-            LOGGER.error("PoloniexExchangeAdapter.getHistoricalBars: Error getting current bars.");
+            LOGGER.error("PoloniexExchangeAdapter.getHistoricalBars: Error getting current bars.", e);
         }
         return bars;
     }

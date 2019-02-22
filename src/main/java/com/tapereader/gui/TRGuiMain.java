@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.time.Duration;
 import java.util.List;
 
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -31,6 +32,7 @@ import org.ta4j.core.TimeSeries;
 import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.strategy.ChartStrategyFactory;
 import com.tapereader.enumeration.BarSize;
+import com.tapereader.enumeration.LookbackPeriod;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
@@ -132,12 +134,22 @@ public class TRGuiMain implements ChangeListener {
         
         toolBarPanel = new JPanel(new BorderLayout(5, 5));
         JToolBar toolBar = new JToolBar();
-        toolBar.add(tipCombo);
-        toolBar.add(tickerCombo);
-        toolBar.add(marketCombo);
-        toolBar.add(barSizeCombo);
-        toolBar.add(lookBackSlider);
-        toolBar.add(refresh);
+        JPanel comboPanel = new JPanel();
+        comboPanel.add(tipCombo);
+        comboPanel.add(tickerCombo);
+        comboPanel.add(marketCombo);
+        comboPanel.add(barSizeCombo);
+        toolBar.add(comboPanel);
+        JPanel lookbackPanel = new JPanel();
+        for (LookbackPeriod period : LookbackPeriod.values()) {
+            JButton jbutton = createLookbackBtn(period);
+            lookbackPanel.add(jbutton);
+        }
+        toolBar.add(lookbackPanel);
+        //toolBar.add(lookBackSlider);
+        JPanel refreshPanel = new JPanel();
+        refreshPanel.add(refresh);
+        toolBar.add(refreshPanel);
         toolBarPanel.add(toolBar);
         
         JPanel contentPane = new JPanel(new BorderLayout(5, 5));
@@ -222,6 +234,23 @@ public class TRGuiMain implements ChangeListener {
         } else {
             getContainer().setCursor(null);
         }
+    }
+    
+    private JButton createLookbackBtn(LookbackPeriod period) {
+        JButton lBtn = new JButton(period.toString());
+        lBtn.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String periodStr = ((JButton) e.getSource()).getText();
+                LookbackPeriod period = LookbackPeriod.valueOf(periodStr);
+                tipClerk.getConfig().setLookback(period.getPeriod());
+                buildChart();
+                setStrategyAnalysis();
+            }
+            
+        });
+        return lBtn;
     }
     
     /** Listen to the slider. */
