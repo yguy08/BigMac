@@ -19,7 +19,6 @@ public class BinanceAdapterTest {
     @Test
     public void binanceAdapterTest() {
         ExchangeAdapter bncAdapter = new BinanceExchangeAdapter();
-        bncAdapter.init();
         
         List<Tick> ticks = bncAdapter.getCurrentTicks();
         assertFalse(ticks.isEmpty());

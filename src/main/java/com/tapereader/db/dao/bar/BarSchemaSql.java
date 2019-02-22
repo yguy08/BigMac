@@ -1,4 +1,4 @@
-package com.tapereader.dao.bar;
+package com.tapereader.db.dao.bar;
 
 public class BarSchemaSql {
     
@@ -8,4 +8,5 @@ public class BarSchemaSql {
     
     public static final String DROP_TABLE_SQL = "DROP TABLE IF EXISTS BARS";
     
+    public static final String BAR_IDX = "CREATE INDEX BAR_IDX ON BARS (SYMBOL, TICKER, TIMESTAMP, DURATION)";
 }

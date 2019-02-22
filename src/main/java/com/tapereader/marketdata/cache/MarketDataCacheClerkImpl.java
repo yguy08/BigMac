@@ -3,13 +3,11 @@ package com.tapereader.marketdata.cache;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tapereader.dao.bar.BarDao;
-import com.tapereader.dao.tick.TickDao;
+import com.tapereader.db.dao.bar.BarDao;
+import com.tapereader.db.dao.tick.TickDao;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.MarketDataClerkImpl;
@@ -40,7 +38,7 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
     @Override
     public List<Tick> getCurrentTicks(TickerType ticker) {
         try {
-            return tickDao.getAllByTicker(ticker.toString()).collect(Collectors.toList());
+            return tickDao.getAllByTicker(ticker.toString());
         } catch (Exception e) {
             LOGGER.error("ERROR:", e);
             return null;
@@ -52,11 +50,10 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
             Duration duration) {
         try {
             return barDao.getAllBySymbolTickerAndDuration(symbol, ticker.toString(), 
-                    startDate.toEpochMilli(), endDate.toEpochMilli(), duration.toMillis()).collect(Collectors.toList());
+                    startDate.toEpochMilli(), endDate.toEpochMilli(), duration.toMillis());
         } catch (Exception e) {
             LOGGER.error("ERROR:", e);
             return null;
         }
     }
-
 }

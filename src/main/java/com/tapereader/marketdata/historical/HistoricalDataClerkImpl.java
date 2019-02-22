@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tapereader.adapter.ExchangeAdapter;
-import com.tapereader.dao.bar.BarDao;
+import com.tapereader.db.dao.bar.BarDao;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 
@@ -30,14 +30,27 @@ public class HistoricalDataClerkImpl implements HistoricalDataClerk {
             Duration duration) {
         List<Bar> bars = null;
         try {
-            adapterMap.get(ticker.toString()).init();
+            adapterMap.get(ticker.toString());
             bars = adapterMap.get(ticker.toString()).getHistoricalBars(symbol, startDate, endDate, duration);
-            barDao.add(bars);
+            barDao.save(bars);
             return bars;
         } catch (Exception e) {
             LOGGER.error("ERROR", e);
         }
         return bars;
+    }
+
+    @Override
+    public void updateBars(String symbol, TickerType ticker, Instant startDate, Duration duration) {
+        List<Bar> bars = null;
+        try {
+            adapterMap.get(ticker.toString());
+            bars = adapterMap.get(ticker.toString()).getHistoricalBars(symbol, startDate, Instant.now(), duration);
+            barDao.deleteLastBarBySymbolTickerAndDuration(symbol, ticker.toString(), duration.toMillis());
+            barDao.save(bars);
+        } catch (Exception e) {
+            LOGGER.error("ERROR", e);
+        }
     }
 
 }

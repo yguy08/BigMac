@@ -1,4 +1,4 @@
-package com.tapereader.chart;
+package com.tapereader.gui.controller;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -7,6 +7,7 @@ import java.util.List;
 import org.ta4j.core.BaseTimeSeries;
 import org.ta4j.core.TimeSeries;
 
+import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.config.Config;
 import com.tapereader.marketdata.Bar;
@@ -99,12 +100,19 @@ public class TipClerk {
         Config config = getConfig();
         Instant start = Instant.now().minusSeconds(config.getLookback() * config.getBarSize().getSeconds());
         TimeSeries series = new BaseTimeSeries.SeriesBuilder().withName(config.getDefaultSymbol()).build();
-        List<Bar> bars = getCacheClerk().getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(), 
+        
+        List<Bar> bars = getCacheClerk().getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(),
                 start, Instant.now(), config.getBarSize());
         if (bars == null || bars.isEmpty()) {
-            bars = getHistoricalDataClerk()
-                    .getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(), 
-                            start, Instant.now(), config.getBarSize());
+            bars = getHistoricalDataClerk().getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(),
+                start, Instant.now(), config.getBarSize());
+        } else {
+            Instant lastTS = Instant.ofEpochMilli(bars.get(bars.size() - 1).getTimestamp());
+            if (lastTS.isBefore(Instant.now().minusSeconds(config.getOutOfDateSeconds()))) {
+                getHistoricalDataClerk().updateBars(config.getDefaultSymbol(), config.getTickerType(), start, config.getBarSize());
+                bars = getCacheClerk().getHistoricalBars(config.getDefaultSymbol(), config.getTickerType(),
+                        start, Instant.now(), config.getBarSize());
+            }
         }
         for (Bar b : bars) {
             series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),

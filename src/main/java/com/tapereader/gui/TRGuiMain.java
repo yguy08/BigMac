@@ -29,12 +29,12 @@ import org.jfree.chart.ui.UIUtils;
 import org.ta4j.core.TimeSeries;
 
 import com.tapereader.chart.ChartManager;
-import com.tapereader.chart.TipClerk;
 import com.tapereader.chart.strategy.ChartStrategyFactory;
 import com.tapereader.enumeration.BarSize;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
+import com.tapereader.gui.controller.TipClerk;
 import com.tapereader.gui.utils.ListTableModel;
 import com.tapereader.gui.utils.MarketDataTableMapper;
 import com.tapereader.gui.utils.TRChartPanel;
@@ -199,6 +199,8 @@ public class TRGuiMain implements ChangeListener {
             model.setElements(elements);
             trTable.setModel(model);
             ((ListTableModel) trTable.getModel()).fireTableDataChanged();
+            // comment out if breaks
+            resetFilter();
         });
     }
     

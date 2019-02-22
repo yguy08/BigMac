@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tapereader.adapter.ExchangeAdapter;
-import com.tapereader.dao.tick.TickDao;
+import com.tapereader.db.dao.tick.TickDao;
 import com.tapereader.enumeration.TickerType;
 
 public class MarketDataClerkImpl implements MarketDataClerk {
@@ -26,9 +26,8 @@ public class MarketDataClerkImpl implements MarketDataClerk {
     public Tick getCurrentTick(String symbol, TickerType ticker) {
         try {
             ExchangeAdapter adapter = adapterMap.get(ticker.toString());
-            adapter.init();
             Tick tick = adapter.getCurrentTick(symbol);
-            tickDao.add(tick);
+            tickDao.save(tick);
             return tick;
         } catch (Exception e) {
             LOGGER.error("ERROR", e);
@@ -40,9 +39,8 @@ public class MarketDataClerkImpl implements MarketDataClerk {
     public List<Tick> getCurrentTicks(TickerType ticker) {
         try {
             ExchangeAdapter adapter = adapterMap.get(ticker.toString());
-            adapter.init();
             List<Tick> ticks = adapter.getCurrentTicks();
-            tickDao.add(ticks);
+            tickDao.save(ticks);
             return ticks;
         } catch (Exception e) {
             LOGGER.error("ERROR", e);

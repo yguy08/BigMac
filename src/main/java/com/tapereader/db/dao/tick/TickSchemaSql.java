@@ -1,4 +1,4 @@
-package com.tapereader.dao.tick;
+package com.tapereader.db.dao.tick;
 
 public class TickSchemaSql {
     
@@ -7,4 +7,5 @@ public class TickSchemaSql {
     
     public static final String DROP_TABLE_SQL = "DROP TABLE IF EXISTS TICKS";
     
+    public static final String SYMBOL_TICKER_IDX = "CREATE INDEX SYMBOL_TICKER_IDX ON TICKS (SYMBOL, TICKER)";
 }

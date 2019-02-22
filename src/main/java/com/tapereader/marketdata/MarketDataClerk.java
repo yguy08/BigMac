@@ -1,5 +1,7 @@
 package com.tapereader.marketdata;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 import com.tapereader.enumeration.TickerType;

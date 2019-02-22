@@ -8,8 +8,6 @@ import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 
 public interface ExchangeAdapter {
-    
-    public boolean init();
 
     public Tick getCurrentTick(String symbol);
 

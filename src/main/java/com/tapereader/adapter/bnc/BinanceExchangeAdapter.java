@@ -6,42 +6,33 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.binance.dto.marketdata.BinanceKline;
 import org.knowm.xchange.binance.dto.marketdata.BinanceTicker24h;
 import org.knowm.xchange.binance.dto.marketdata.KlineInterval;
-import org.knowm.xchange.binance.service.BinanceMarketDataService;
+import org.knowm.xchange.binance.service.BinanceMarketDataServiceRaw;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.tapereader.adapter.ExchangeAdapter;
+import com.tapereader.adapter.XchangeAdapterAbs;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.marketdata.Bar;
 import com.tapereader.marketdata.Tick;
 
-public class BinanceExchangeAdapter implements ExchangeAdapter {
+public class BinanceExchangeAdapter extends XchangeAdapterAbs {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(BinanceExchangeAdapter.class);
     
-    private BinanceExchange exchange;
-    
-    private BinanceMarketDataService marketDataService;
-    
-    private String minVol = "50";
-    
-    private boolean started = false;
-    
     public BinanceExchangeAdapter() {
-
+        super(BinanceExchange.class.getName());
     }
 
     @Override
     public Tick getCurrentTick(String symbol) {
         try {
-            BinanceTicker24h ticker = marketDataService.ticker24h(new CurrencyPair(symbol));
+            BinanceTicker24h ticker = ((BinanceMarketDataServiceRaw) getMarketDataService()).ticker24h(new CurrencyPair(symbol));
             return binanceTicker24hToTick(ticker);
         } catch (IOException e) {
             LOGGER.error("BinanceExchangeAdapter.getCurrentTicks: Error connecting to Binance Exchange.", e);
@@ -59,7 +50,7 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
         List<Bar> bars = new ArrayList<>();
         KlineInterval kline = getKLineInterval(duration);
         try {
-            List<BinanceKline> chartData = marketDataService.klines(new CurrencyPair(security), kline, null,
+            List<BinanceKline> chartData = ((BinanceMarketDataServiceRaw) getMarketDataService()).klines(new CurrencyPair(security), kline, null,
                     startDate.toEpochMilli(), endDate.toEpochMilli());
             for (BinanceKline bncBar : chartData) {
                 long millis = bncBar.getCloseTime();
@@ -88,22 +79,12 @@ public class BinanceExchangeAdapter implements ExchangeAdapter {
         }
         return kline;
     }
-    
-    @Override
-    public boolean init() {
-        if (!started) {
-            exchange = (BinanceExchange) ExchangeFactory.INSTANCE.createExchange(BinanceExchange.class.getName());
-            marketDataService = (BinanceMarketDataService) exchange.getMarketDataService();
-            started = true;
-        }
-        return started;
-    }
 
     @Override
     public List<Tick> getCurrentTicks() {
         List<Tick> ticks = new ArrayList<>();
         try {
-            List<BinanceTicker24h> binanceTicks = marketDataService.ticker24h();
+            List<BinanceTicker24h> binanceTicks = ((BinanceMarketDataServiceRaw) getMarketDataService()).ticker24h();
             for (BinanceTicker24h bncTick : binanceTicks) {
                 Tick tick = binanceTicker24hToTick(bncTick);
                 if (Instant.ofEpochMilli(tick.getTimestamp()).isBefore(Instant.now().minus(1, ChronoUnit.DAYS))) {

@@ -17,4 +17,6 @@ public interface HistoricalDataClerk {
 
     List<Bar> getHistoricalBars(String symbol, TickerType ticker, Instant startDate, Instant endDate, Duration duration);
 
+    void updateBars(String symbol, TickerType ticker, Instant startDate, Duration duration);
+
 }
