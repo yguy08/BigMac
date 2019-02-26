@@ -30,8 +30,8 @@ public class HistoricalDataClerkImpl implements HistoricalDataClerk {
             Duration duration) {
         List<Bar> bars = null;
         try {
-            adapterMap.get(ticker.toString());
-            bars = adapterMap.get(ticker.toString()).getHistoricalBars(symbol, startDate, endDate, duration);
+            ExchangeAdapter adapter = adapterMap.get(ticker.toString());
+            bars = adapter.getHistoricalBars(symbol, startDate, endDate, duration);
             barDao.save(bars);
             return bars;
         } catch (Exception e) {
@@ -44,8 +44,8 @@ public class HistoricalDataClerkImpl implements HistoricalDataClerk {
     public void updateBars(String symbol, TickerType ticker, Instant startDate, Duration duration) {
         List<Bar> bars = null;
         try {
-            adapterMap.get(ticker.toString());
-            bars = adapterMap.get(ticker.toString()).getHistoricalBars(symbol, startDate, Instant.now(), duration);
+            ExchangeAdapter adapter = adapterMap.get(ticker.toString());
+            bars = adapter.getHistoricalBars(symbol, startDate, Instant.now(), duration);
             barDao.deleteLastBarBySymbolTickerAndDuration(symbol, ticker.toString(), duration.toMillis());
             barDao.save(bars);
         } catch (Exception e) {
