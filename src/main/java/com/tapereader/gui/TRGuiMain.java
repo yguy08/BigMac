@@ -16,14 +16,10 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
 import org.slf4j.Logger;
@@ -44,7 +40,7 @@ import com.tapereader.gui.utils.TRChartPanel;
 import com.tapereader.gui.utils.TRTable;
 import com.tapereader.marketdata.Tick;
 
-public class TRGuiMain implements ChangeListener {
+public class TRGuiMain {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(TRGuiMain.class);
     
@@ -57,8 +53,6 @@ public class TRGuiMain implements ChangeListener {
     private JComboBox<MarketType> marketCombo;
     
     private JComboBox<BarSize> barSizeCombo;
-    
-    private JSlider lookBackSlider;
     
     private JTextArea textArea;
     
@@ -91,15 +85,6 @@ public class TRGuiMain implements ChangeListener {
         barSizeCombo = new JComboBox<BarSize>(BarSize.values());
         barSizeCombo.setSelectedItem(BarSize.d1);
         barSizeCombo.addActionListener(comboListener);
-        
-        lookBackSlider = new JSlider(JSlider.HORIZONTAL,
-                1, 1001, 150);
-        //Turn on labels at major tick marks.
-        lookBackSlider.setMajorTickSpacing(100);
-        lookBackSlider.setMinorTickSpacing(50);
-        lookBackSlider.setPaintTicks(true);
-        lookBackSlider.setPaintLabels(true);
-        lookBackSlider.addChangeListener(this);
         
         ChartManager chartManager = tipClerk.getChartManager();
         TimeSeries series = tipClerk.buildTimeSeries();
@@ -256,17 +241,6 @@ public class TRGuiMain implements ChangeListener {
             
         });
         return lBtn;
-    }
-    
-    /** Listen to the slider. */
-    public void stateChanged(ChangeEvent e) {
-        JSlider source = (JSlider)e.getSource();
-        if (!source.getValueIsAdjusting()) {
-            int fps = (int)source.getValue();
-            tipClerk.getConfig().setLookback(fps);
-            buildChart();
-            setStrategyAnalysis();
-        }
     }
     
     private class TRComboBoxListener implements ActionListener {
