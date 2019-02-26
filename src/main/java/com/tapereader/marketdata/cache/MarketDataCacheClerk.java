@@ -15,4 +15,8 @@ public interface MarketDataCacheClerk {
     List<Tick> getCurrentTicks(TickerType ticker);
 
     List<Bar> getHistoricalBars(String symbol, TickerType ticker, Instant startDate, Instant endDate, Duration duration);
+    
+    void clearTickCache();
+    
+    void updateLastBar(Bar bar);
 }

@@ -45,7 +45,7 @@ public class StrategyAnalysis {
         sb.add("Total profit: " + nxt);
         
         // Number of bars
-        nxt = scale(new NumberOfBarsCriterion().calculate(series, tradingRecord), 5);
+        nxt = scale(new NumberOfBarsCriterion().calculate(series, tradingRecord), 2);
         sb.add("Number of bars: " + nxt);
         
         // Average profit (per bar)
@@ -56,7 +56,8 @@ public class StrategyAnalysis {
         sb.add("Number of trades: " + new NumberOfTradesCriterion().calculate(series, tradingRecord));
         
         // Profitable trades ratio
-        sb.add("Profitable trades ratio: " + new AverageProfitableTradesCriterion().calculate(series, tradingRecord));
+        nxt = scale(new AverageProfitableTradesCriterion().calculate(series, tradingRecord), 4);
+        sb.add("Profitable trades ratio: " + nxt);
         
         // Maximum drawdown
         nxt = scale(new MaximumDrawdownCriterion().calculate(series, tradingRecord), 5);
@@ -97,7 +98,7 @@ public class StrategyAnalysis {
             BigDecimal bd = new BigDecimal(num.doubleValue());
             return bd.setScale(scale, RoundingMode.HALF_UP).toPlainString();
         } else {
-            return "NaN";
+            return "0";
         }
     }
 }

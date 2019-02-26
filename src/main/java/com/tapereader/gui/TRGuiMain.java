@@ -11,7 +11,6 @@ import java.awt.event.MouseEvent;
 import java.time.Duration;
 import java.util.List;
 
-import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -27,6 +26,8 @@ import javax.swing.event.ChangeListener;
 
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ta4j.core.TimeSeries;
 
 import com.tapereader.chart.ChartManager;
@@ -44,6 +45,8 @@ import com.tapereader.gui.utils.TRTable;
 import com.tapereader.marketdata.Tick;
 
 public class TRGuiMain implements ChangeListener {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(TRGuiMain.class);
     
     private final JFrame mainFrame;
     
@@ -105,6 +108,8 @@ public class TRGuiMain implements ChangeListener {
         // Set the chart
         chartPanel = new TRChartPanel(chart);
         
+        // clear tick cache
+        tipClerk.getCacheClerk().clearTickCache();
         List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType());
         JPanel marketDataPanel = new JPanel(new BorderLayout(5, 5));
         ListTableModel model = new ListTableModel(new MarketDataTableMapper());

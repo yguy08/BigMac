@@ -56,4 +56,22 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
             return null;
         }
     }
+
+    @Override
+    public void clearTickCache() {
+        try {
+            tickDao.deleteAll();
+        } catch (Exception e) {
+            LOGGER.error("ERROR:", e);
+        }
+    }
+
+    @Override
+    public void updateLastBar(Bar bar) {
+        try {
+            barDao.update(bar);
+        } catch (Exception e) {
+            LOGGER.error("ERROR: ", e);
+        }
+    }
 }

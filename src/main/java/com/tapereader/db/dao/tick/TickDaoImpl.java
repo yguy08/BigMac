@@ -123,4 +123,17 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
                 resultSet.getInt("VOLUME"), resultSet.getDouble("CHANGE"));
     }
 
+    @Override
+    public void deleteAll() throws Exception {
+        String sql = "DELETE FROM TICKS";
+        try (Connection connection = getConnection();
+                DbAutoTransaction dbAuto = new DbAutoTransaction(connection, false);
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.executeUpdate();
+            dbAuto.commit();
+        } catch (SQLException ex) {
+            throw ex;
+        }
+    }
+
 }

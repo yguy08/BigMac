@@ -6,6 +6,8 @@ import com.tapereader.db.dao.IDao;
 import com.tapereader.marketdata.Tick;
 
 public interface TickDao extends IDao<Tick> {
+    
+    void deleteAll() throws Exception;
 
     List<Tick> getAllByTicker(String ticker) throws Exception;
 
