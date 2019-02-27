@@ -37,15 +37,22 @@ public class BuyHigh implements ChartStrategy {
     private TradingRecord tradingRecord;
 
     @Override
+    public Rule getEntryRule(TimeSeries series) {
+        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
+        return new IsHighestRule(closePrices, 25);
+    }
+
+    @Override
+    public Rule getExitRule(TimeSeries series) {
+        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
+        return new IsLowestRule(closePrices, 11)
+                .or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
+    }
+
+    @Override
     public JFreeChart buildChart(TimeSeries series) {
         this.series = series;
-        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
-        // Going long if the close price goes above the max
-        Rule entryRule = new IsHighestRule(closePrices, 25);
-        // Exit if the close price goes below the min or stop loss
-        Rule exitRule = new IsLowestRule(closePrices, 11)
-                .or(new StopLossRule(closePrices, PrecisionNum.valueOf(30)));
-        Strategy strategy = new BaseStrategy(TipType.BUY_HIGH.toString(), entryRule, exitRule, 25);
+        Strategy strategy = new BaseStrategy(TipType.BUY_HIGH.toString(), getEntryRule(series), getExitRule(series), 25);
         
         //Building chart datasets
         JFreeChart chart = ChartUtils.newCandleStickChart(series);

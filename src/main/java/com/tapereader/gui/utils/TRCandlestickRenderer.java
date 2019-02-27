@@ -5,12 +5,10 @@ import org.jfree.chart.renderer.xy.CandlestickRenderer;
 
 public class TRCandlestickRenderer extends CandlestickRenderer {
     
-    public TRCandlestickRenderer() {
+    public TRCandlestickRenderer(String dateFormat) {
         setUseOutlinePaint(true);
-        //setAutoWidthFactor(0.5);
-        //setAutoWidthGap(0.5);
         setVolumePaint(ChartColor.WHITE);
-        setDefaultToolTipGenerator(new TRToolTip());
+        setDefaultToolTipGenerator(new TRToolTip(dateFormat));
     }
 
 }

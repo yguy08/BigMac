@@ -8,8 +8,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ta4j.core.BaseBar;
 import org.ta4j.core.BaseTimeSeries;
 import org.ta4j.core.TimeSeries;
+import org.ta4j.core.num.Num;
+import org.ta4j.core.num.PrecisionNum;
 
 import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.strategy.ChartStrategy;
@@ -134,8 +137,9 @@ public class TipClerk {
             }
         }
         for (Bar b : bars) {
-            series.addBar(Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
-                    b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
+            BaseBar bar = new BaseBar(barsize, Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
+                    numOf(b.getOpen()), numOf(b.getHigh()), numOf(b.getLow()), numOf(b.getClose()), numOf(b.getVolume()), numOf(0));
+            series.addBar(bar);
         }
         return series;
     }
@@ -158,5 +162,9 @@ public class TipClerk {
         } else {
             return false;
         }
+    }
+    
+    private Num numOf(Number num) {
+        return PrecisionNum.valueOf(num);
     }
 }

@@ -5,7 +5,9 @@ import java.awt.Stroke;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -39,7 +41,7 @@ public class ChartUtils {
 
     public static final Stroke FATLINE = new BasicStroke(.9f);
     
-    private static final CandlestickRenderer CANDLESTICK_RENDERER = new TRCandlestickRenderer();
+    private static CandlestickRenderer CANDLESTICK_RENDERER;
     
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd");
     
@@ -52,6 +54,14 @@ public class ChartUtils {
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "", "", ohlcDataset, false);
         XYPlot plot = chart.getXYPlot();
+        Duration barSize = timeseries.getFirstBar().getTimePeriod();
+        String dateFormat = null;
+        if (barSize.toDays() > 0) {
+            dateFormat = "MM/dd";
+        } else {
+            dateFormat = "MM/dd HH:mm";
+        }
+        CANDLESTICK_RENDERER = new TRCandlestickRenderer(dateFormat);
         plot.setRenderer(CANDLESTICK_RENDERER);
         // Misc
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();

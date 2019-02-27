@@ -35,6 +35,18 @@ public class BuyLow implements ChartStrategy {
     private OrderType type = OrderType.BUY;
 
     private TradingRecord tradingRecord;
+    
+    @Override
+    public Rule getEntryRule(TimeSeries series) {
+        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
+        return new IsLowestRule(closePrices, 55);
+    }
+
+    @Override
+    public Rule getExitRule(TimeSeries series) {
+        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
+        return new IsHighestRule(closePrices, 55).or(new StopLossRule(closePrices, PrecisionNum.valueOf(50)));
+    }
 
     @Override
     public JFreeChart buildChart(TimeSeries series) {
@@ -44,7 +56,7 @@ public class BuyLow implements ChartStrategy {
         Rule entryRule = new IsLowestRule(closePrices, 55);
         // Exit if the close price goes below the min or stop loss
         Rule exitRule = new IsHighestRule(closePrices, 55).or(new StopLossRule(closePrices, PrecisionNum.valueOf(50)));
-        Strategy strategy = new BaseStrategy(TipType.BUY_LOW.toString(), entryRule, exitRule, 25);
+        Strategy strategy = new BaseStrategy(TipType.BUY_LOW.toString(), getEntryRule(series), getExitRule(series), 25);
         
         //Building chart datasets
         JFreeChart chart = ChartUtils.newCandleStickChart(series);
