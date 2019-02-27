@@ -43,7 +43,7 @@ public class Application {
 
     private final String propertiesFile;
 
-    private final static String DB_URL = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
+    public final static String DB_URL = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
 
     public Application(String propertiesFile) {
         this.propertiesFile = propertiesFile;
@@ -120,7 +120,7 @@ public class Application {
         }
     }
 
-    private static DataSource createDataSource() {
+    public static DataSource createDataSource() {
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setURL(DB_URL);
         return dataSource;

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<esper-configuration
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns="http://www.espertech.com/schema/esper"
+ xsi:schemaLocation="http://www.espertech.com/schema/esper/esper-configuration-7-0.xsd">
+
+ <plugin-view
+  factory-class="com.tapereader.engine.OHLCBarPlugInViewFactory"
+  name="ohlcbar"
+  namespace="custom" />
+
+ <auto-import import-name="com.tapereader.*" />
+ <event-type
+  name="TickEvent"
+  class="com.tapereader.marketdata.Tick" />
+ <event-type
+  name="BarEvent"
+  class="com.tapereader.marketdata.Bar" />
+
+ <engine-settings>
+  <defaults>
+   <threading>
+    <internal-timer
+     enabled="true"
+     msec-resolution="500" />
+   </threading>
+  </defaults>
+ </engine-settings>
+
+</esper-configuration>

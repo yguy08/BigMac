@@ -1,0 +1,6 @@
+create window OHLCWindow#unique(timestamp) as select * from BarEvent;
+
+insert into OHLCWindow select * from BarEvent#groupwin(symbol)#ohlcbar(symbol, timestamp, BarEvent.close);
+
+@Subscriber(className='com.tapereader.engine.EngineTest', methodName='sendMarketDataEvent')
+select * from OHLCWindow;

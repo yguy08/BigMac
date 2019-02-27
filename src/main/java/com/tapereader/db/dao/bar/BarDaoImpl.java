@@ -138,4 +138,26 @@ public class BarDaoImpl extends AbstractDao implements BarDao {
         }
     }
 
+    @Override
+    public List<Bar> getAllBySymbolTicker(String symbol, String ticker, long start, long end) throws Exception {
+        String sql = "SELECT * FROM BARS WHERE SYMBOL = ? AND "
+                + "TICKER = ? AND TIMESTAMP >= ? AND TIMESTAMP <= ?";
+        try (Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);){
+          statement.setString(1, symbol);
+          statement.setString(2, ticker);
+          statement.setLong(3, start);
+          statement.setLong(4, end);
+          List<Bar> bars = new ArrayList<>();
+          try (ResultSet resultSet = statement.executeQuery()) {
+              while (resultSet.next()) {
+                  bars.add(createBar(resultSet));
+              }
+          }
+          return bars;
+        } catch (SQLException e) {
+          throw new Exception(e.getMessage(), e);
+        }
+    }
+
 }
