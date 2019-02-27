@@ -109,6 +109,16 @@ public class TRGuiMain {
         marketDataPanel.add(tblScrollPane, BorderLayout.CENTER);
         marketDataPanel.add(txtScrollPane, BorderLayout.PAGE_END);
         
+        JButton open = new JButton("Open");
+        open.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setBusy(true);
+                setBusy(false);
+            }
+        });
+        
         JButton refresh = new JButton("Refresh");
         refresh.addActionListener(new ActionListener() {
 
@@ -257,7 +267,7 @@ public class TRGuiMain {
                 String ticker = cb.getSelectedItem().toString();
                 if (TickerType.CPRO.equals(TickerType.valueOf(ticker))) {
                     tipClerk.getConfig().setMarketType(MarketType.USD);
-                } else {
+                } else if (MarketType.USD.equals(MarketType.valueOf(marketCombo.getSelectedItem().toString()))) {
                     tipClerk.getConfig().setMarketType(MarketType.BTC);
                 }
                 tipClerk.getConfig().setTickerType(TickerType.valueOf(ticker));

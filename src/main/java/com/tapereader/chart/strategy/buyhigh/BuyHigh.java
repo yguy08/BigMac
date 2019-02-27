@@ -26,7 +26,7 @@ import org.ta4j.core.trading.rules.StopLossRule;
 import com.tapereader.chart.ChartUtils;
 import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.enumeration.TipType;
-import com.tapereader.util.StrategyAnalysis;
+import com.tapereader.trade.StrategyAnalysis;
 
 public class BuyHigh implements ChartStrategy {
 

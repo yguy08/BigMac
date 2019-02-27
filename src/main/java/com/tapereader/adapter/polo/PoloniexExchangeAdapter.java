@@ -103,7 +103,7 @@ public class PoloniexExchangeAdapter extends XchangeAdapterAbs {
         long millis = Instant.now().toEpochMilli();
         double last = marketData.getLast().doubleValue();
         int vol = marketData.getBaseVolume().intValue();
-        double percent = marketData.getPercentChange().doubleValue();
+        double percent = marketData.getPercentChange().doubleValue() * 100;
         return new Tick(millis, symbol, TickerType.POLONIEX, last, vol, percent);
     }
 

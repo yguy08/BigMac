@@ -120,8 +120,7 @@ public class TipClerk {
             bars = getHistoricalDataClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
         } else {
             Instant lastTS = Instant.ofEpochMilli(bars.get(bars.size() - 1).getTimestamp());
-            Instant outOfDateTS = Instant.now().minusSeconds(barsize.getSeconds());
-            if (lastTS.isBefore(outOfDateTS)) {
+            if (isOutOfDate(lastTS, barsize)) {
                 LOGGER.info("Cached bars found but out of date...Getting new bars from exchange.");
                 getHistoricalDataClerk().updateBars(symbol, ticker, start, barsize);
                 bars = getCacheClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
@@ -129,7 +128,9 @@ public class TipClerk {
                 LOGGER.info("Using cached bars. Updating last price from latest tick.");
                 Bar bar = bars.get(bars.size() - 1);
                 Tick tick = getCacheClerk().getCurrentTick(symbol, ticker);
-                bar.setClose(tick.getLast());
+                if (tick != null) {
+                    bar.setClose(tick.getLast());
+                }
             }
         }
         for (Bar b : bars) {
@@ -137,5 +138,25 @@ public class TipClerk {
                     b.getOpen(), b.getHigh(), b.getLow(), b.getClose(), b.getVolume());
         }
         return series;
+    }
+    
+    private boolean isOutOfDate(Instant lastTS, Duration barSize) {
+        Instant outOfDateTS;
+        Instant lastTrunc;
+        if (barSize.toDays() > 0) {
+            outOfDateTS = Instant.now().truncatedTo(ChronoUnit.DAYS).minus(1, ChronoUnit.DAYS);
+            lastTrunc = lastTS.truncatedTo(ChronoUnit.DAYS);
+        } else if (barSize.toHours() > 0) {
+            outOfDateTS = Instant.now().truncatedTo(ChronoUnit.HOURS).minus(1, ChronoUnit.HOURS);
+            lastTrunc = lastTS.truncatedTo(ChronoUnit.HOURS);
+        } else {
+            outOfDateTS = Instant.now().truncatedTo(ChronoUnit.MINUTES).minus(1, ChronoUnit.MINUTES);
+            lastTrunc = lastTS.truncatedTo(ChronoUnit.MINUTES);
+        }
+        if (lastTrunc.compareTo(outOfDateTS) < 1){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

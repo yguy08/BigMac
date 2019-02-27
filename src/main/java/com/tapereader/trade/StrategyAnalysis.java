@@ -1,4 +1,4 @@
-package com.tapereader.util;
+package com.tapereader.trade;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,6 +26,32 @@ public class StrategyAnalysis {
     
     private TradingRecord tradingRecord;
     
+    private BigDecimal startCash;
+    
+    private BigDecimal totalProfit;
+    
+    private int numBars;
+    
+    private BigDecimal avgProfitBar;
+    
+    private int numTrades;
+    
+    private BigDecimal winLossRate;
+    
+    private BigDecimal maxDrawDown;
+    
+    private BigDecimal riskReward;
+    
+    private BigDecimal txCost;
+    
+    private BigDecimal buyAndHold;
+    
+    private BigDecimal vsBuyAndHold;
+    
+    private BigDecimal endCash;
+    
+    private BigDecimal atr;
+    
     private StringJoiner sb;
     
     public StrategyAnalysis(TimeSeries series, TradingRecord tradingRecord) {
@@ -34,6 +60,97 @@ public class StrategyAnalysis {
         this.sb = new StringJoiner("\n");
     }
     
+    /**
+     * @return the startCash
+     */
+    public BigDecimal getStartCash() {
+        return startCash;
+    }
+
+    /**
+     * @return the totalProfit
+     */
+    public BigDecimal getTotalProfit() {
+        return totalProfit;
+    }
+
+    /**
+     * @return the numBars
+     */
+    public int getNumBars() {
+        return numBars;
+    }
+
+    /**
+     * @return the avgProfitBar
+     */
+    public BigDecimal getAvgProfitBar() {
+        return avgProfitBar;
+    }
+
+    /**
+     * @return the numTrades
+     */
+    public int getNumTrades() {
+        return numTrades;
+    }
+
+    /**
+     * @return the winLossRate
+     */
+    public BigDecimal getWinLossRate() {
+        return winLossRate;
+    }
+
+    /**
+     * @return the maxDrawDown
+     */
+    public BigDecimal getMaxDrawDown() {
+        return maxDrawDown;
+    }
+
+    /**
+     * @return the riskReward
+     */
+    public BigDecimal getRiskReward() {
+        return riskReward;
+    }
+
+    /**
+     * @return the txCost
+     */
+    public BigDecimal getTxCost() {
+        return txCost;
+    }
+
+    /**
+     * @return the buyAndHold
+     */
+    public BigDecimal getBuyAndHold() {
+        return buyAndHold;
+    }
+
+    /**
+     * @return the vsBuyAndHold
+     */
+    public BigDecimal getVsBuyAndHold() {
+        return vsBuyAndHold;
+    }
+
+    /**
+     * @return the endCash
+     */
+    public BigDecimal getEndCash() {
+        return endCash;
+    }
+
+    /**
+     * @return the atr
+     */
+    public BigDecimal getAtr() {
+        return atr;
+    }
+
     public String getStrategyAnalysis() {
         // CASH FLOW
         CashFlow cashFlow = new CashFlow(series, tradingRecord);
@@ -85,7 +202,6 @@ public class StrategyAnalysis {
         nxt = scale(cashFlow.getValue(series.getEndIndex()), 5);
         sb.add("END CASH: " + nxt);
         
-        // ATR
         ATRIndicator atr = new ATRIndicator(series, 14);
         nxt = scale(atr.getValue(series.getBarCount()-1), 8);
         sb.add("ATR: " + nxt);
