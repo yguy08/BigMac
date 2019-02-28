@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseTimeSeries;
 import org.ta4j.core.TimeSeries;
-
+import com.tapereader.chart.ChartUtils;
 import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.chart.strategy.ChartStrategyFactory;
 import com.tapereader.enumeration.BarSize;
@@ -185,7 +185,7 @@ public class TRGuiMain {
         ChartStrategy strategy = tipClerk.getChartStrategy();
         TimeSeries series = tipClerk.buildTimeSeries();
         strategy.setSeries(series);
-        JFreeChart chart = strategy.buildChart();
+        JFreeChart chart = ChartUtils.buildChart(strategy, true);
         if (chartPanel != null) {
             chartPanel.rebuildChart(chart);
         } else {

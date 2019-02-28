@@ -15,13 +15,9 @@ public interface ChartStrategy {
     
     public Rule getExitRule();
     
-    public JFreeChart buildChart();
-    
     public TimeSeries getSeries();
 
     public void setSeries(TimeSeries series);
-    
-    public List<Trade> getTrades();
     
     public OrderType getOrderType();
     
