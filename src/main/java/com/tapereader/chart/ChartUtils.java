@@ -1,6 +1,7 @@
 package com.tapereader.chart;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Stroke;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -8,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.jfree.chart.ChartColor;
@@ -20,20 +20,23 @@ import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.ui.Layer;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.FixedMillisecond;
-import org.jfree.data.time.Second;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.OHLCDataset;
 import org.ta4j.core.Bar;
+import org.ta4j.core.Indicator;
 import org.ta4j.core.Order;
 import org.ta4j.core.TimeSeries;
 import org.ta4j.core.Trade;
 import org.ta4j.core.TradingRecord;
-import org.ta4j.core.Order.OrderType;
 import org.ta4j.core.indicators.ChopIndicator;
+import org.ta4j.core.indicators.SMAIndicator;
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
+import org.ta4j.core.num.Num;
 
 import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.gui.chart.TRCandlestickRenderer;
@@ -59,6 +62,7 @@ public class ChartUtils {
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, series);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "Date", "Price", ohlcDataset, false);
         XYPlot plot = chart.getXYPlot();
+        plot.setDataset(0, ohlcDataset);
         Duration barSize = series.getFirstBar().getTimePeriod();
         String dateFormat = null;
         if (barSize.toDays() > 0) {
@@ -67,7 +71,7 @@ public class ChartUtils {
             dateFormat = "MM/dd HH:mm";
         }
         CANDLESTICK_RENDERER = new TRCandlestickRenderer(dateFormat);
-        plot.setRenderer(CANDLESTICK_RENDERER);
+        plot.setRenderer(0, CANDLESTICK_RENDERER);
         // Misc
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
         numberAxis.setAutoRangeIncludesZero(autoRangeIncludeZero);
@@ -88,13 +92,12 @@ public class ChartUtils {
         return chart;
     }
 
-    public static JFreeChart buildChart(ChartStrategy strategy, boolean autoRangeIncludeZero) {
+    public static JFreeChart buildChart(ChartStrategy strategy, boolean autoRangeIncludeZero, boolean addSMA) {
         TimeSeries series = strategy.getSeries();
         TradingRecord tradingRecord = strategy.getTradingRecord();
         //Building chart datasets
         JFreeChart chart = ChartUtils.newCandleStickChart(series, autoRangeIncludeZero);
         XYPlot plot = chart.getXYPlot();
-        
         // Adding markers to plot
         for (Trade trade : tradingRecord.getTrades()) {
             // Buy signal
@@ -102,25 +105,37 @@ public class ChartUtils {
                     Date.from(series.getBar(trade.getEntry().getIndex()).getEndTime().toInstant()))
                             .getLastMillisecond();
             Marker buyMarker = new ValueMarker(buySignalBarTime, ChartColor.GREEN, ChartUtils.FATLINE);
-            plot.addDomainMarker(buyMarker);
+            plot.addDomainMarker(0, buyMarker, Layer.FOREGROUND);
             // Sell signal
             double sellSignalBarTime = new FixedMillisecond(
                     Date.from(series.getBar(trade.getExit().getIndex()).getEndTime().toInstant())).getLastMillisecond();
-            Marker sellMarker = new ValueMarker(sellSignalBarTime, ChartColor.RED, ChartUtils.FATLINE);
-            plot.addDomainMarker(sellMarker);
+            Marker sellMarker = new ValueMarker(sellSignalBarTime, ChartColor.GREEN, ChartUtils.FATLINE);
+            plot.addDomainMarker(0, sellMarker, Layer.FOREGROUND);
         }
         Order last = tradingRecord.getLastOrder();
         if (last != null && last.isBuy()) {
             double buySignalBarTime = new FixedMillisecond(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant()))
                     .getLastMillisecond();
             Marker buyMarker = new ValueMarker(buySignalBarTime, ChartColor.GREEN, ChartUtils.FATLINE);
-            plot.addDomainMarker(buyMarker);
+            plot.addDomainMarker(0, buyMarker, Layer.FOREGROUND);
         } else if (last != null && last.isSell()) {
             double sellSignalBarTime = new FixedMillisecond(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant())).getLastMillisecond();
             Marker sellMarker = new ValueMarker(sellSignalBarTime);
             sellMarker.setPaint(ChartColor.GREEN);
             sellMarker.setStroke(ChartUtils.FATLINE);
-            plot.addDomainMarker(sellMarker);
+            plot.addDomainMarker(0, sellMarker, Layer.FOREGROUND);
+        }
+        
+        if (addSMA) {
+            TimeSeriesCollection xyDataset = buildChartTimeSeries(series, 
+                    new SMAIndicator(new ClosePriceIndicator(series), 10), "SMA");
+            // Additional dataset
+            int index = 1;
+            plot.setDataset(index, xyDataset);
+            plot.mapDatasetToRangeAxis(index, 0);
+            XYLineAndShapeRenderer renderer2 = new XYLineAndShapeRenderer(true, false);
+            renderer2.setSeriesPaint(index, ChartColor.BLUE);
+            plot.setRenderer(index, renderer2);
         }
         return chart;
     }
@@ -152,32 +167,14 @@ public class ChartUtils {
         }
         return new DefaultHighLowDataset(title, dates, highs, lows, opens, closes, volumes);
     }
-
-    /**
-     * Builds an additional JFreeChart dataset from a ta4j time series.
-     * @param series a time series
-     * @return an additional dataset
-     */
-    private static TimeSeriesCollection createAdditionalDataset(TimeSeries series) {
-        ClosePriceIndicator indicator = new ClosePriceIndicator(series);
+    
+    private static TimeSeriesCollection  buildChartTimeSeries(TimeSeries barseries, Indicator<Num> indicator, String name) {
+        org.jfree.data.time.TimeSeries chartTimeSeries = new org.jfree.data.time.TimeSeries(name);
         TimeSeriesCollection dataset = new TimeSeriesCollection();
-        org.jfree.data.time.TimeSeries chartTimeSeries = new org.jfree.data.time.TimeSeries("Btc price");
-        for (int i = 0; i < series.getBarCount(); i++) {
-            Bar bar = series.getBar(i);
-            chartTimeSeries.add(new Second(new Date(bar.getEndTime().toEpochSecond() * 1000)), indicator.getValue(i).doubleValue());
-        }
-        dataset.addSeries(chartTimeSeries);
-        return dataset;
-    }
-
-    private static TimeSeriesCollection createChopDataset(TimeSeries series) {
-        ChopIndicator indicator = new ChopIndicator( series, 14, 100 );
-        TimeSeriesCollection dataset = new TimeSeriesCollection();
-        org.jfree.data.time.TimeSeries chartTimeSeries = new org.jfree.data.time.TimeSeries("CHOP_14");
-        for (int i = 0; i < series.getBarCount(); i++) {
-            Bar bar = series.getBar(i);
-            if ( i < 14 ) continue;
-            chartTimeSeries.add(new Second(new Date(bar.getEndTime().toEpochSecond() * 1000)), indicator.getValue(i).doubleValue());
+        for (int i = 0; i < barseries.getBarCount(); i++) {
+            Bar bar = barseries.getBar(i);
+            chartTimeSeries.add(new FixedMillisecond(new Date(bar.getEndTime().toInstant().toEpochMilli())),
+                    indicator.getValue(i).doubleValue());
         }
         dataset.addSeries(chartTimeSeries);
         return dataset;

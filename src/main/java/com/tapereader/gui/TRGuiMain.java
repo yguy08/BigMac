@@ -6,12 +6,15 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.Duration;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -26,9 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseTimeSeries;
 import org.ta4j.core.TimeSeries;
+
 import com.tapereader.chart.ChartUtils;
 import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.chart.strategy.ChartStrategyFactory;
+import com.tapereader.config.ChartConfig;
 import com.tapereader.enumeration.BarSize;
 import com.tapereader.enumeration.LookbackPeriod;
 import com.tapereader.enumeration.MarketType;
@@ -41,7 +46,7 @@ import com.tapereader.gui.utils.MarketDataTableMapper;
 import com.tapereader.gui.utils.TRTable;
 import com.tapereader.marketdata.Tick;
 
-public class TRGuiMain {
+public class TRGuiMain implements ItemListener {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(TRGuiMain.class);
     
@@ -64,6 +69,10 @@ public class TRGuiMain {
     private TipClerk tipClerk;
     
     private JPanel toolBarPanel;
+    
+    // checkbox
+    JCheckBox includeZeroButton;
+    JCheckBox addSMAButton;
     
     public TRGuiMain(TipClerk tipClerk) {
         this.mainFrame = new JFrame("Bucketshop");
@@ -92,28 +101,22 @@ public class TRGuiMain {
         // clear tick cache
         tipClerk.getCacheClerk().clearTickCache();
         List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType());
+        
         JPanel marketDataPanel = new JPanel(new BorderLayout(5, 5));
+        
         ListTableModel model = new ListTableModel(new MarketDataTableMapper());
         model.setElements(ticks);
         trTable = new TRTable(model);
         trTable.addMouseListener(new MarketDataTableListener());
         JScrollPane tblScrollPane = new JScrollPane(trTable);
+        
         textArea = new JTextArea(10, 20);
         textArea.setEditable(false);
         textArea.setWrapStyleWord(true);
         JScrollPane txtScrollPane = new JScrollPane(textArea);
+        
         marketDataPanel.add(tblScrollPane, BorderLayout.CENTER);
         marketDataPanel.add(txtScrollPane, BorderLayout.PAGE_END);
-        
-        JButton open = new JButton("Open");
-        open.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setBusy(true);
-                setBusy(false);
-            }
-        });
         
         JButton refresh = new JButton("Refresh");
         refresh.addActionListener(new ActionListener() {
@@ -125,7 +128,6 @@ public class TRGuiMain {
                 updateTable(ticks);
                 setBusy(false);
             }
-            
         });
         
         toolBarPanel = new JPanel(new BorderLayout(5, 5));
@@ -136,13 +138,16 @@ public class TRGuiMain {
         comboPanel.add(marketCombo);
         comboPanel.add(barSizeCombo);
         toolBar.add(comboPanel);
+        
         JPanel lookbackPanel = new JPanel();
         for (LookbackPeriod period : LookbackPeriod.values()) {
             JButton jbutton = createLookbackBtn(period);
             lookbackPanel.add(jbutton);
         }
         toolBar.add(lookbackPanel);
-        //toolBar.add(lookBackSlider);
+        
+        toolBar.add(buildChartOptionPanel());
+        
         JPanel refreshPanel = new JPanel();
         refreshPanel.add(refresh);
         toolBar.add(refreshPanel);
@@ -185,7 +190,7 @@ public class TRGuiMain {
         ChartStrategy strategy = tipClerk.getChartStrategy();
         TimeSeries series = tipClerk.buildTimeSeries();
         strategy.setSeries(series);
-        JFreeChart chart = ChartUtils.buildChart(strategy, true);
+        JFreeChart chart = ChartUtils.buildChart(strategy, ChartConfig.getIncludeZero(), ChartConfig.isAddSMA());
         if (chartPanel != null) {
             chartPanel.rebuildChart(chart);
         } else {
@@ -253,30 +258,50 @@ public class TRGuiMain {
         return lBtn;
     }
     
+    private JPanel buildChartOptionPanel() {
+        //Create the check boxes.
+        includeZeroButton = new JCheckBox("Include 0");
+        includeZeroButton.setSelected(true);
+        
+        //Create the check boxes.
+        addSMAButton = new JCheckBox("Add SMA");
+        addSMAButton.setSelected(true);
+ 
+        //Register a listener for the check boxes.
+        includeZeroButton.addItemListener(this);
+        addSMAButton.addItemListener(this);
+ 
+        //Put the check boxes in a column in a panel
+        JPanel checkPanel = new JPanel();
+        checkPanel.add(includeZeroButton);
+        checkPanel.add(addSMAButton);
+        return checkPanel;
+    }
+    
     private class TRComboBoxListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JComboBox cb = (JComboBox)e.getSource();
+            JComboBox<?> cb = (JComboBox<?>)e.getSource();
             if (cb == tipCombo) {
-                String tipStr = cb.getSelectedItem().toString();
-                TipType tip = TipType.findByDisplayName(tipStr);
-                ChartStrategy strategy = ChartStrategyFactory.buildChartStrategy(tip, new BaseTimeSeries.SeriesBuilder().withName(tipClerk.getConfig().getDefaultSymbol()).build());
+                TipType tip = (TipType) cb.getSelectedItem();
+                ChartStrategy strategy = ChartStrategyFactory.buildChartStrategy(tip, 
+                        new BaseTimeSeries.SeriesBuilder().withName(tipClerk.getConfig().getDefaultSymbol()).build());
                 tipClerk.setChartStrategy(strategy);
                 buildChart();
                 setStrategyAnalysis();
             } else if (cb == tickerCombo) {
-                String ticker = cb.getSelectedItem().toString();
-                if (TickerType.CPRO.equals(TickerType.valueOf(ticker))) {
+                TickerType ticker = (TickerType) cb.getSelectedItem();
+                if (TickerType.CPRO.equals(ticker)) {
                     tipClerk.getConfig().setMarketType(MarketType.USD);
-                } else if (MarketType.USD.equals(MarketType.valueOf(marketCombo.getSelectedItem().toString()))) {
+                } else if (MarketType.USD.equals(marketCombo.getSelectedItem())) {
                     tipClerk.getConfig().setMarketType(MarketType.BTC);
                 }
-                tipClerk.getConfig().setTickerType(TickerType.valueOf(ticker));
+                tipClerk.getConfig().setTickerType(ticker);
                 newTicker();
                 resetFilter();
             } else if (cb == marketCombo){
-                tipClerk.getConfig().setMarketType(MarketType.valueOf(marketCombo.getSelectedItem().toString()));
+                tipClerk.getConfig().setMarketType((MarketType) marketCombo.getSelectedItem());
                 resetFilter();
             } else if (cb == barSizeCombo){
                 BarSize barSize = ((BarSize) cb.getSelectedItem());
@@ -299,6 +324,19 @@ public class TRGuiMain {
                 buildChart();
                 setStrategyAnalysis();
             }
+        }
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        Object source = e.getItemSelectable();
+        boolean selected = e.getStateChange() == ItemEvent.SELECTED;
+        if (source == includeZeroButton) {
+            ChartConfig.setIncludeZero(selected);
+            buildChart();
+        } else if (source == addSMAButton) {
+            ChartConfig.setAddSMA(selected);
+            buildChart();
         }
     }
 }
