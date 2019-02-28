@@ -1,18 +1,12 @@
 package com.tapereader.trade;
 
 import java.math.BigDecimal;
-import java.util.StringJoiner;
-
 import org.ta4j.core.TimeSeries;
 import org.ta4j.core.indicators.ATRIndicator;
 
 public class PositionAnalysis {
     
     private TimeSeries series;
-    
-    private BigDecimal atr;
-    
-    private StringJoiner sb;
     
     public PositionAnalysis(TimeSeries series) {
         this.series = series;

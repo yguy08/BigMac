@@ -51,11 +51,6 @@ public class BuyLow implements ChartStrategy {
     @Override
     public JFreeChart buildChart(TimeSeries series) {
         this.series = series;
-        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
-        // Going long if the close price goes above the max
-        Rule entryRule = new IsLowestRule(closePrices, 55);
-        // Exit if the close price goes below the min or stop loss
-        Rule exitRule = new IsHighestRule(closePrices, 55).or(new StopLossRule(closePrices, PrecisionNum.valueOf(50)));
         Strategy strategy = new BaseStrategy(TipType.BUY_LOW.toString(), getEntryRule(series), getExitRule(series), 25);
         
         //Building chart datasets
