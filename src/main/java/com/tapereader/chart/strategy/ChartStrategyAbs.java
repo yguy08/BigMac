@@ -16,7 +16,6 @@ import org.ta4j.core.TimeSeries;
 import org.ta4j.core.TimeSeriesManager;
 import org.ta4j.core.Trade;
 import org.ta4j.core.TradingRecord;
-import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.Order.OrderType;
 import org.ta4j.core.num.PrecisionNum;
 
@@ -26,14 +25,22 @@ import com.tapereader.trade.StrategyAnalysis;
 public abstract class ChartStrategyAbs implements ChartStrategy {
 
     protected TimeSeries series;
-    
-    protected ClosePriceIndicator closePrices;
 
     private TradingRecord tradingRecord;
+    
+    private List<Trade> trades;
 
     public ChartStrategyAbs(TimeSeries series) {
         this.series = series;
-        this.closePrices = new ClosePriceIndicator(series);
+        init();
+    }
+    
+    private void init() {
+        Strategy strategy = new BaseStrategy(getName(), getEntryRule(), getExitRule(), 25);
+        // ADD SIGNALS
+        TimeSeriesManager seriesManager = new TimeSeriesManager(series);
+        tradingRecord = seriesManager.run(strategy, getOrderType(), PrecisionNum.valueOf(1.0));
+        trades = tradingRecord.getTrades();
     }
 
     /**
@@ -48,21 +55,7 @@ public abstract class ChartStrategyAbs implements ChartStrategy {
      */
     public void setSeries(TimeSeries series) {
         this.series = series;
-        setClosePrices(new ClosePriceIndicator(series));
-    }
-
-    /**
-     * @return the closePrices
-     */
-    public ClosePriceIndicator getClosePrices() {
-        return closePrices;
-    }
-
-    /**
-     * @param closePrices the closePrices to set
-     */
-    public void setClosePrices(ClosePriceIndicator closePrices) {
-        this.closePrices = closePrices;
+        init();
     }
 
     public String getStrategyAnalysis() {
@@ -71,11 +64,6 @@ public abstract class ChartStrategyAbs implements ChartStrategy {
     }
 
     public List<Trade> getTrades() {
-        Strategy strategy = new BaseStrategy(getName(), getEntryRule(), getExitRule(), 25);
-        // ADD SIGNALS
-        TimeSeriesManager seriesManager = new TimeSeriesManager(series);
-        tradingRecord = seriesManager.run(strategy, getOrderType(), PrecisionNum.valueOf(1.0));
-        List<Trade> trades = tradingRecord.getTrades();
         return trades;
     }
 
@@ -84,19 +72,12 @@ public abstract class ChartStrategyAbs implements ChartStrategy {
     }
     
     public JFreeChart buildChart() {
-        Strategy strategy = new BaseStrategy(getName(), getEntryRule(), getExitRule(), 25);
-        
         //Building chart datasets
         JFreeChart chart = ChartUtils.newCandleStickChart(series);
-        
-        // ADD SIGNALS
-        TimeSeriesManager seriesManager = new TimeSeriesManager(series);
-        tradingRecord = seriesManager.run(strategy, getOrderType(), PrecisionNum.valueOf(1.0));
-        List<Trade> trades = tradingRecord.getTrades();
         XYPlot plot = chart.getXYPlot();
         
         // Adding markers to plot
-        for (Trade trade : trades) {
+        for (Trade trade : getTrades()) {
             // Buy signal
             double buySignalBarTime = new FixedMillisecond(
                     Date.from(series.getBar(trade.getEntry().getIndex()).getEndTime().toInstant()))

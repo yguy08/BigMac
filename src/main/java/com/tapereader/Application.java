@@ -20,7 +20,6 @@ import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.adapter.bnc.BinanceExchangeAdapter;
 import com.tapereader.adapter.cpro.CProExchangeAdapter;
 import com.tapereader.adapter.polo.PoloniexExchangeAdapter;
-import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.strategy.BuyHigh;
 import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.config.Config;
@@ -101,8 +100,7 @@ public class Application {
 
         TimeSeries series = new BaseTimeSeries.SeriesBuilder().withName(config.getDefaultSymbol()).build();
         ChartStrategy strategy = new BuyHigh(series);
-        TipClerk tipClerk = new TipClerk(config, marketDataClerk, historicalDataClerk, 
-                cacheClerk, new ChartManager(strategy));
+        TipClerk tipClerk = new TipClerk(config, marketDataClerk, historicalDataClerk, cacheClerk, strategy);
 
         TRGuiMain app = new TRGuiMain(tipClerk);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -50,26 +50,4 @@ public enum BarSize {
         return code();
     }
     
-    public KlineInterval getKLineInterval() {
-        KlineInterval kline = KlineInterval.d1;
-        for (KlineInterval type : KlineInterval.values()) {
-            if (getMillis().equals(kline.getMillis())) {
-                kline = type;
-                break;
-            }
-        }
-        return kline;
-    }
-    
-    public PoloniexChartDataPeriodType getPoloPeriodType() {
-        PoloniexChartDataPeriodType poloPeriodType = PoloniexChartDataPeriodType.PERIOD_86400;
-        for(PoloniexChartDataPeriodType type : PoloniexChartDataPeriodType.values()) {
-            if((getMillis() * 1000) == type.getPeriod()) {
-                poloPeriodType = type;
-                break;
-            }
-        }
-        return poloPeriodType;
-    }
-    
 }

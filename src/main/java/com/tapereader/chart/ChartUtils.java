@@ -18,10 +18,15 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.data.time.Second;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.OHLCDataset;
 import org.ta4j.core.Bar;
 import org.ta4j.core.TimeSeries;
+import org.ta4j.core.indicators.ChopIndicator;
+import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
+
 import com.tapereader.gui.chart.TRCandlestickRenderer;
 
 public class ChartUtils {
@@ -36,12 +41,16 @@ public class ChartUtils {
     
     private static final RectangleInsets INSETS = new RectangleInsets(2, 2, 2, 2);
 
-    public static JFreeChart newCandleStickChart(TimeSeries timeseries) {
-        String title = timeseries.getName();
-        OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
+    public static JFreeChart newCandleStickChart(TimeSeries series) {
+        return ChartUtils.newCandleStickChart(series, true);
+    }
+    
+    public static JFreeChart newCandleStickChart(TimeSeries series, boolean autoRangeIncludeZero) {
+        String title = series.getName();
+        OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, series);
         JFreeChart chart = ChartFactory.createCandlestickChart(title, "Date", "Price", ohlcDataset, false);
         XYPlot plot = chart.getXYPlot();
-        Duration barSize = timeseries.getFirstBar().getTimePeriod();
+        Duration barSize = series.getFirstBar().getTimePeriod();
         String dateFormat = null;
         if (barSize.toDays() > 0) {
             dateFormat = "MM/dd";
@@ -52,7 +61,7 @@ public class ChartUtils {
         plot.setRenderer(CANDLESTICK_RENDERER);
         // Misc
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
-        //numberAxis.setAutoRangeIncludesZero(false);
+        numberAxis.setAutoRangeIncludesZero(autoRangeIncludeZero);
         NumberFormat format = title.contains("USDT") ? new DecimalFormat("#") : new DecimalFormat("#.########");
         numberAxis.setNumberFormatOverride(format);
         plot.setDomainPannable(true);
@@ -97,6 +106,36 @@ public class ChartUtils {
             volumes[i] = bar.getVolume().doubleValue();
         }
         return new DefaultHighLowDataset(title, dates, highs, lows, opens, closes, volumes);
+    }
+
+    /**
+     * Builds an additional JFreeChart dataset from a ta4j time series.
+     * @param series a time series
+     * @return an additional dataset
+     */
+    private static TimeSeriesCollection createAdditionalDataset(TimeSeries series) {
+        ClosePriceIndicator indicator = new ClosePriceIndicator(series);
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        org.jfree.data.time.TimeSeries chartTimeSeries = new org.jfree.data.time.TimeSeries("Btc price");
+        for (int i = 0; i < series.getBarCount(); i++) {
+            Bar bar = series.getBar(i);
+            chartTimeSeries.add(new Second(new Date(bar.getEndTime().toEpochSecond() * 1000)), indicator.getValue(i).doubleValue());
+        }
+        dataset.addSeries(chartTimeSeries);
+        return dataset;
+    }
+
+    private static TimeSeriesCollection createChopDataset(TimeSeries series) {
+        ChopIndicator indicator = new ChopIndicator( series, 14, 100 );
+        TimeSeriesCollection dataset = new TimeSeriesCollection();
+        org.jfree.data.time.TimeSeries chartTimeSeries = new org.jfree.data.time.TimeSeries("CHOP_14");
+        for (int i = 0; i < series.getBarCount(); i++) {
+            Bar bar = series.getBar(i);
+            if ( i < 14 ) continue;
+            chartTimeSeries.add(new Second(new Date(bar.getEndTime().toEpochSecond() * 1000)), indicator.getValue(i).doubleValue());
+        }
+        dataset.addSeries(chartTimeSeries);
+        return dataset;
     }
 
 }

@@ -3,6 +3,7 @@ package com.tapereader.chart.strategy;
 import org.ta4j.core.Rule;
 import org.ta4j.core.TimeSeries;
 import org.ta4j.core.Order.OrderType;
+import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.PrecisionNum;
 import org.ta4j.core.trading.rules.IsHighestRule;
 import org.ta4j.core.trading.rules.IsLowestRule;
@@ -18,12 +19,14 @@ public class BuyLow extends ChartStrategyAbs {
 
     @Override
     public Rule getEntryRule() {
+        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
         return new IsLowestRule(closePrices, 55);
     }
 
     @Override
     public Rule getExitRule() {
-        return new IsHighestRule(getClosePrices(), 55).or(new StopLossRule(getClosePrices(), PrecisionNum.valueOf(50)));
+        ClosePriceIndicator closePrices = new ClosePriceIndicator(series);
+        return new IsHighestRule(closePrices, 55).or(new StopLossRule(closePrices, PrecisionNum.valueOf(50)));
     }
 
     @Override

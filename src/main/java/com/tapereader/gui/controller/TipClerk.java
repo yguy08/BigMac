@@ -14,7 +14,6 @@ import org.ta4j.core.TimeSeries;
 import org.ta4j.core.num.Num;
 import org.ta4j.core.num.PrecisionNum;
 
-import com.tapereader.chart.ChartManager;
 import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.config.Config;
 import com.tapereader.enumeration.TickerType;
@@ -36,17 +35,15 @@ public class TipClerk {
     
     private final HistoricalDataClerk historicalDataClerk;
     
-    private ChartManager chartManager;
-    
     private ChartStrategy chartStrategy;
     
     public TipClerk(Config config, MarketDataClerk marketDataClerk, HistoricalDataClerk historicalDataClerk, 
-            MarketDataCacheClerk cacheClerk, ChartManager chartManager) {
+            MarketDataCacheClerk cacheClerk, ChartStrategy chartStrategy) {
         this.config = config;
         this.marketDataClerk = marketDataClerk;
         this.cacheClerk = cacheClerk;
         this.historicalDataClerk = historicalDataClerk;
-        this.chartManager = chartManager;
+        this.chartStrategy = chartStrategy;
     }
 
     /**
@@ -76,33 +73,19 @@ public class TipClerk {
     public HistoricalDataClerk getHistoricalDataClerk() {
         return historicalDataClerk;
     }
-    
-    /**
-     * @return the chartManager
-     */
-    public ChartManager getChartManager() {
-        return chartManager;
-    }
-
-    /**
-     * @param chartManager the chartManager to set
-     */
-    public void setChartManager(ChartManager chartManager) {
-        this.chartManager = chartManager;
-    }
 
     /**
      * @return the chartStrategy
      */
     public ChartStrategy getChartStrategy() {
-        return chartManager.getChartStrategy();
+        return chartStrategy;
     }
 
     /**
      * @param chartStrategy the chartStrategy to set
      */
     public void setChartStrategy(ChartStrategy chartStrategy) {
-        this.chartManager.changeChartStrategy(chartStrategy);
+        this.chartStrategy = chartStrategy;
     }
 
     public TimeSeries buildTimeSeries() {
