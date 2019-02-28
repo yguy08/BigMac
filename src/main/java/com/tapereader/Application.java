@@ -13,13 +13,16 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.ta4j.core.BaseTimeSeries;
+import org.ta4j.core.TimeSeries;
 
 import com.tapereader.adapter.ExchangeAdapter;
 import com.tapereader.adapter.bnc.BinanceExchangeAdapter;
 import com.tapereader.adapter.cpro.CProExchangeAdapter;
 import com.tapereader.adapter.polo.PoloniexExchangeAdapter;
 import com.tapereader.chart.ChartManager;
-import com.tapereader.chart.strategy.buyhigh.BuyHigh;
+import com.tapereader.chart.strategy.BuyHigh;
+import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.config.Config;
 import com.tapereader.db.dao.bar.BarDao;
 import com.tapereader.db.dao.bar.BarDaoImpl;
@@ -96,8 +99,10 @@ public class Application {
         config.setMarketType(MarketType.BTC);
         config.setOutOfDateSeconds(300);
 
-        TipClerk tipClerk = new TipClerk(config, marketDataClerk, historicalDataClerk, cacheClerk, new ChartManager(),
-                new BuyHigh());
+        TimeSeries series = new BaseTimeSeries.SeriesBuilder().withName(config.getDefaultSymbol()).build();
+        ChartStrategy strategy = new BuyHigh(series);
+        TipClerk tipClerk = new TipClerk(config, marketDataClerk, historicalDataClerk, 
+                cacheClerk, new ChartManager(strategy));
 
         TRGuiMain app = new TRGuiMain(tipClerk);
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

@@ -1,4 +1,4 @@
-package com.tapereader.gui.utils;
+package com.tapereader.gui.chart;
 
 import org.jfree.chart.ChartColor;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;

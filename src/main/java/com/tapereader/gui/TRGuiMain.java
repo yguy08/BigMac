@@ -24,19 +24,21 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ui.UIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.ta4j.core.BaseTimeSeries;
 import org.ta4j.core.TimeSeries;
 
 import com.tapereader.chart.ChartManager;
+import com.tapereader.chart.strategy.ChartStrategy;
 import com.tapereader.chart.strategy.ChartStrategyFactory;
 import com.tapereader.enumeration.BarSize;
 import com.tapereader.enumeration.LookbackPeriod;
 import com.tapereader.enumeration.MarketType;
 import com.tapereader.enumeration.TickerType;
 import com.tapereader.enumeration.TipType;
+import com.tapereader.gui.chart.TRChartPanel;
 import com.tapereader.gui.controller.TipClerk;
 import com.tapereader.gui.utils.ListTableModel;
 import com.tapereader.gui.utils.MarketDataTableMapper;
-import com.tapereader.gui.utils.TRChartPanel;
 import com.tapereader.gui.utils.TRTable;
 import com.tapereader.marketdata.Tick;
 
@@ -86,12 +88,7 @@ public class TRGuiMain {
         barSizeCombo.setSelectedItem(BarSize.d1);
         barSizeCombo.addActionListener(comboListener);
         
-        ChartManager chartManager = tipClerk.getChartManager();
-        TimeSeries series = tipClerk.buildTimeSeries();
-        chartManager.setTimeSeries(series);
-        JFreeChart chart = chartManager.buildChart(tipClerk.getChartStrategy());
-        // Set the chart
-        chartPanel = new TRChartPanel(chart);
+        buildChart();
         
         // clear tick cache
         tipClerk.getCacheClerk().clearTickCache();
@@ -188,13 +185,17 @@ public class TRGuiMain {
     private void buildChart() {
         ChartManager chartManager = tipClerk.getChartManager();
         TimeSeries series = tipClerk.buildTimeSeries();
-        chartManager.setTimeSeries(series);
-        JFreeChart chart = chartManager.buildChart(tipClerk.getChartStrategy());
-        chartPanel.rebuildChart(chart);
+        chartManager.changeTimeSeries(series);
+        JFreeChart chart = chartManager.buildChart();
+        if (chartPanel != null) {
+            chartPanel.rebuildChart(chart);
+        } else {
+            chartPanel = new TRChartPanel(chart);
+        }
     }
     
     private void setStrategyAnalysis() {
-        textArea.setText(tipClerk.getChartManager().getStrategyAnalysis(tipClerk.getChartStrategy()));
+        textArea.setText(tipClerk.getChartManager().getStrategyAnalysis());
         textArea.setCaretPosition(0);
     }
     
@@ -259,8 +260,10 @@ public class TRGuiMain {
         public void actionPerformed(ActionEvent e) {
             JComboBox cb = (JComboBox)e.getSource();
             if (cb == tipCombo) {
-                String tip = cb.getSelectedItem().toString();
-                tipClerk.setChartStrategy(ChartStrategyFactory.buildChartStrategy(TipType.findByDisplayName(tip)));
+                String tipStr = cb.getSelectedItem().toString();
+                TipType tip = TipType.findByDisplayName(tipStr);
+                ChartStrategy strategy = ChartStrategyFactory.buildChartStrategy(tip, new BaseTimeSeries.SeriesBuilder().withName(tipClerk.getConfig().getDefaultSymbol()).build());
+                tipClerk.setChartStrategy(strategy);
                 buildChart();
                 setStrategyAnalysis();
             } else if (cb == tickerCombo) {

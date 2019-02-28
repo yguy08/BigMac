@@ -3,7 +3,8 @@ package com.tapereader.enumeration;
 public enum TipType {
     
     BUY_HIGH("Buy High"),
-    BUY_LOW("Buy Low");
+    BUY_LOW("Buy Low"),
+    DOUBLE_U("Double (You)");
     
     private String displayName;
     

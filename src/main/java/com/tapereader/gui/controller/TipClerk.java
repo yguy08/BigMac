@@ -41,13 +41,12 @@ public class TipClerk {
     private ChartStrategy chartStrategy;
     
     public TipClerk(Config config, MarketDataClerk marketDataClerk, HistoricalDataClerk historicalDataClerk, 
-            MarketDataCacheClerk cacheClerk, ChartManager chartManager, ChartStrategy chartStrategy) {
+            MarketDataCacheClerk cacheClerk, ChartManager chartManager) {
         this.config = config;
         this.marketDataClerk = marketDataClerk;
         this.cacheClerk = cacheClerk;
         this.historicalDataClerk = historicalDataClerk;
         this.chartManager = chartManager;
-        this.chartStrategy = chartStrategy;
     }
 
     /**
@@ -96,14 +95,14 @@ public class TipClerk {
      * @return the chartStrategy
      */
     public ChartStrategy getChartStrategy() {
-        return chartStrategy;
+        return chartManager.getChartStrategy();
     }
 
     /**
      * @param chartStrategy the chartStrategy to set
      */
     public void setChartStrategy(ChartStrategy chartStrategy) {
-        this.chartStrategy = chartStrategy;
+        this.chartManager.changeChartStrategy(chartStrategy);
     }
 
     public TimeSeries buildTimeSeries() {

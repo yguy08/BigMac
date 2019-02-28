@@ -2,31 +2,37 @@ package com.tapereader.chart;
 
 import org.jfree.chart.JFreeChart;
 import org.ta4j.core.TimeSeries;
-
 import com.tapereader.chart.strategy.ChartStrategy;
 
 public class ChartManager {
 
-    private TimeSeries series;
+    private ChartStrategy chartStrategy;
 
-    public ChartManager() {
-
+    public ChartManager(ChartStrategy chartStrategy) {
+        this.chartStrategy = chartStrategy;
     }
 
-    public void setTimeSeries(TimeSeries series) {
-        this.series = series;
+    public void changeTimeSeries(TimeSeries series) {
+        chartStrategy.setSeries(series);
     }
 
-    public JFreeChart buildChart(ChartStrategy chartStrategy) {
-        return chartStrategy.buildChart(series);
-    }
-    
-    public void addBuySellSignalsToChart(ChartStrategy chartStrategy) {
-        chartStrategy.addBuySellSignalsToChart();
+    public void changeChartStrategy(ChartStrategy chartStrategy) {
+        this.chartStrategy = chartStrategy;
     }
     
-    public String getStrategyAnalysis(ChartStrategy chartStrategy) {
+    public String getStrategyAnalysis() {
         return chartStrategy.getStrategyAnalysis();
+    }
+    
+    /**
+     * @param chartStrategy the chartStrategy to set
+     */
+    public ChartStrategy getChartStrategy() {
+        return chartStrategy;
+    }
+
+    public JFreeChart buildChart() {
+        return chartStrategy.buildChart();
     }
 
 }

@@ -1,18 +1,22 @@
 package com.tapereader.chart.strategy;
 
-import com.tapereader.chart.strategy.buyhigh.BuyHigh;
-import com.tapereader.chart.strategy.buylow.BuyLow;
+import org.ta4j.core.TimeSeries;
+
 import com.tapereader.enumeration.TipType;
 
 public class ChartStrategyFactory {
-    public static ChartStrategy buildChartStrategy(TipType tip) {
-        switch(tip) {
+    
+    public static ChartStrategy buildChartStrategy(TipType tip, TimeSeries series) {
+        switch (tip) {
         case BUY_HIGH:
-            return new BuyHigh();
+            return new BuyHigh(series);
         case BUY_LOW:
-            return new BuyLow();
+            return new BuyLow(series);
+        case DOUBLE_U:
+            return new DoubleYou(series);
         default:
-            return new BuyHigh();
+            return new BuyHigh(series);
         }
     }
+
 }

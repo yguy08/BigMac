@@ -1,4 +1,4 @@
-package com.tapereader.gui.utils;
+package com.tapereader.gui.chart;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

@@ -1,18 +1,33 @@
 package com.tapereader.chart.strategy;
 
+import java.util.List;
+
 import org.jfree.chart.JFreeChart;
 import org.ta4j.core.Rule;
 import org.ta4j.core.TimeSeries;
+import org.ta4j.core.Trade;
+import org.ta4j.core.TradingRecord;
+import org.ta4j.core.Order.OrderType;
 
 public interface ChartStrategy {
     
-    public Rule getEntryRule(TimeSeries series);
+    public Rule getEntryRule();
     
-    public Rule getExitRule(TimeSeries series);
+    public Rule getExitRule();
     
-    public JFreeChart buildChart(TimeSeries series);
+    public JFreeChart buildChart();
     
-    public void addBuySellSignalsToChart();
+    public TimeSeries getSeries();
+
+    public void setSeries(TimeSeries series);
+    
+    public List<Trade> getTrades();
+    
+    public OrderType getOrderType();
+    
+    public TradingRecord getTradingRecord();
     
     public String getStrategyAnalysis();
+    
+    public String getName();
 }

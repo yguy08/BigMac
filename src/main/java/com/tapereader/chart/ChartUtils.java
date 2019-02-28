@@ -7,9 +7,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 import org.jfree.chart.ChartColor;
@@ -17,25 +15,14 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.Marker;
-import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.chart.ui.RectangleInsets;
-import org.jfree.data.time.Day;
 import org.jfree.data.xy.DefaultHighLowDataset;
 import org.jfree.data.xy.OHLCDataset;
 import org.ta4j.core.Bar;
-import org.ta4j.core.Order;
-import org.ta4j.core.Order.OrderType;
-import org.ta4j.core.Strategy;
 import org.ta4j.core.TimeSeries;
-import org.ta4j.core.TimeSeriesManager;
-import org.ta4j.core.Trade;
-import org.ta4j.core.TradingRecord;
-import org.ta4j.core.num.PrecisionNum;
-
-import com.tapereader.gui.utils.TRCandlestickRenderer;
+import com.tapereader.gui.chart.TRCandlestickRenderer;
 
 public class ChartUtils {
 
@@ -52,7 +39,7 @@ public class ChartUtils {
     public static JFreeChart newCandleStickChart(TimeSeries timeseries) {
         String title = timeseries.getName();
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, timeseries);
-        JFreeChart chart = ChartFactory.createCandlestickChart(title, "", "", ohlcDataset, false);
+        JFreeChart chart = ChartFactory.createCandlestickChart(title, "Date", "Price", ohlcDataset, false);
         XYPlot plot = chart.getXYPlot();
         Duration barSize = timeseries.getFirstBar().getTimePeriod();
         String dateFormat = null;
@@ -110,41 +97,6 @@ public class ChartUtils {
             volumes[i] = bar.getVolume().doubleValue();
         }
         return new DefaultHighLowDataset(title, dates, highs, lows, opens, closes, volumes);
-    }
-    
-    public static void addBuySellSignals(TimeSeries series, Strategy strategy, JFreeChart chart, OrderType type) {
-        TimeSeriesManager seriesManager = new TimeSeriesManager(series);
-        TradingRecord tradingRecord = seriesManager.run(strategy, type, PrecisionNum.valueOf(1.0));
-        List<Trade> trades = tradingRecord.getTrades();
-        XYPlot plot = chart.getXYPlot();
-        
-        // Adding markers to plot
-        for (Trade trade : trades) {
-            // Buy signal
-            double buySignalBarTime = new Day(
-                    Date.from(series.getBar(trade.getEntry().getIndex()).getEndTime().toInstant()))
-                            .getLastMillisecond();
-            Marker buyMarker = new ValueMarker(buySignalBarTime, ChartColor.GREEN, ChartUtils.FATLINE);
-            plot.addDomainMarker(buyMarker);
-            // Sell signal
-            double sellSignalBarTime = new Day(
-                    Date.from(series.getBar(trade.getExit().getIndex()).getEndTime().toInstant())).getLastMillisecond();
-            Marker sellMarker = new ValueMarker(sellSignalBarTime, ChartColor.RED, ChartUtils.FATLINE);
-            plot.addDomainMarker(sellMarker);
-        }
-        Order last = tradingRecord.getLastOrder();
-        if (last != null && (type == OrderType.BUY && last.isBuy())) {
-            double buySignalBarTime = new Day(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant()))
-                    .getLastMillisecond();
-            Marker buyMarker = new ValueMarker(buySignalBarTime, ChartColor.GREEN, ChartUtils.FATLINE);
-            plot.addDomainMarker(buyMarker);
-        } else if (last != null && (type == OrderType.SELL && last.isSell())) {
-            double sellSignalBarTime = new Day(Date.from(series.getBar(last.getIndex()).getEndTime().toInstant())).getLastMillisecond();
-            Marker sellMarker = new ValueMarker(sellSignalBarTime);
-            sellMarker.setPaint(ChartColor.GREEN);
-            sellMarker.setStroke(ChartUtils.FATLINE);
-            plot.addDomainMarker(sellMarker);
-        }
     }
 
 }
