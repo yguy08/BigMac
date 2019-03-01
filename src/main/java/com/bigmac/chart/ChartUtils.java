@@ -1,6 +1,7 @@
 package com.bigmac.chart;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Stroke;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -15,13 +16,12 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.CandlestickRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.ui.Layer;
-import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.data.time.FixedMillisecond;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.DefaultHighLowDataset;
@@ -42,15 +42,19 @@ import com.bigmac.gui.chart.TRCandlestickRenderer;
 
 public class ChartUtils {
 
-    public static final Stroke FATLINE = new BasicStroke(.9f);
+    private static final Stroke FATLINE = new BasicStroke(.9f);
+
+    private static TRCandlestickRenderer TrCandleStickRenderer;
+
+    private static final String SHORT_DATE_FORMAT = "MM/dd";
     
-    private static CandlestickRenderer CANDLESTICK_RENDERER;
-    
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd");
-    
+    private static final String DATE_TIME_FORMAT = "MM/dd HH:mm";
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(SHORT_DATE_FORMAT);
+
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone(ZoneId.of("UTC"));
     
-    private static final RectangleInsets INSETS = new RectangleInsets(2, 2, 2, 2);
+    private static JFreeChart chart;
 
     public static JFreeChart newCandleStickChart(TimeSeries series) {
         return ChartUtils.newCandleStickChart(series, true);
@@ -59,35 +63,33 @@ public class ChartUtils {
     public static JFreeChart newCandleStickChart(TimeSeries series, boolean autoRangeIncludeZero) {
         String title = series.getName();
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, series);
-        JFreeChart chart = ChartFactory.createCandlestickChart(title, "Date", "Price", ohlcDataset, false);
-        XYPlot plot = chart.getXYPlot();
-        plot.setDataset(0, ohlcDataset);
+        chart = ChartFactory.createCandlestickChart(title, "Date", "Price", ohlcDataset, false);
         Duration barSize = series.getFirstBar().getTimePeriod();
-        String dateFormat = null;
-        if (barSize.toDays() > 0) {
-            dateFormat = "MM/dd";
-        } else {
-            dateFormat = "MM/dd HH:mm";
-        }
-        CANDLESTICK_RENDERER = new TRCandlestickRenderer(dateFormat);
-        plot.setRenderer(0, CANDLESTICK_RENDERER);
-        // Misc
+        String dateFormat = barSize.toDays() > 0 ? SHORT_DATE_FORMAT : DATE_TIME_FORMAT;
+        
+        // Candlestick rendering
+        TrCandleStickRenderer = new TRCandlestickRenderer(dateFormat);
+        XYPlot plot = chart.getXYPlot();
+        plot.setRenderer(TrCandleStickRenderer);
+        
+        // Price Axis
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
         numberAxis.setAutoRangeIncludesZero(autoRangeIncludeZero);
         NumberFormat format = title.contains("USDT") ? new DecimalFormat("#") : new DecimalFormat("#.########");
         numberAxis.setNumberFormatOverride(format);
-        plot.setDomainPannable(true);
-        plot.setBackgroundPaint(ChartColor.BLACK);
-        plot.setDomainGridlinesVisible(false);
-        plot.setRangeGridlinesVisible(false);
-        // Chart
+        
+        // Date Axis
         DateAxis axis = (DateAxis) plot.getDomainAxis();
         axis.setDateFormatOverride(DATE_FORMAT);
         axis.setTimeZone(TIME_ZONE);
-        axis.setLowerMargin(0.04);
-        axis.setUpperMargin(0.04);
         
-        chart.setPadding(INSETS);
+        // Misc
+        plot.setDomainPannable(true);
+        plot.setBackgroundPaint(ChartColor.BLACK);
+        plot.setRangeGridlinePaint(Color.lightGray);
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        
+        // remove if issue
         return chart;
     }
 
@@ -126,18 +128,22 @@ public class ChartUtils {
         }
         
         if (addSMA) {
+            // short
             TimeSeriesCollection xyDataset = buildChartTimeSeries(series, 
-                    new SMAIndicator(new ClosePriceIndicator(series), 10), "SMA");
+                    new SMAIndicator(new ClosePriceIndicator(series), 20), "SMA");
             // Additional dataset
             int index = 1;
             plot.setDataset(index, xyDataset);
             plot.mapDatasetToRangeAxis(index, 0);
             XYLineAndShapeRenderer renderer2 = new XYLineAndShapeRenderer(true, false);
-            renderer2.setSeriesPaint(index, ChartColor.BLUE);
+            renderer2.setSeriesFillPaint(index, ChartColor.RED);
+            renderer2.setSeriesPaint(index, ChartColor.RED);
+            renderer2.setUseFillPaint(true);
             plot.setRenderer(index, renderer2);
         }
         return chart;
     }
+
     /**
      * Builds a JFreeChart OHLC dataset from a ta4j time series.
      * 

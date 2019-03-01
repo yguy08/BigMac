@@ -127,6 +127,17 @@ public class TRGuiMain implements ItemListener {
             }
         });
         
+        JButton chart = new JButton("Chart");
+        chart.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ChartSettingDialog dialog = new ChartSettingDialog(getMainJFrame());
+                dialog.pack();
+                dialog.setVisible(true);
+            }
+        });
+        
         toolBarPanel = new JPanel(new BorderLayout(5, 5));
         JToolBar toolBar = new JToolBar();
         JPanel comboPanel = new JPanel();
@@ -146,6 +157,7 @@ public class TRGuiMain implements ItemListener {
         toolBar.add(buildChartOptionPanel());
         
         JPanel refreshPanel = new JPanel();
+        refreshPanel.add(chart);
         refreshPanel.add(refresh);
         toolBar.add(refreshPanel);
         toolBarPanel.add(toolBar);
