@@ -81,19 +81,38 @@ public class BarDaoImpl extends AbstractDao implements BarDao {
 
     @Override
     public boolean delete(Bar bar) throws Exception {
-        // TODO Auto-generated method stub
-        return false;
+        String sql = "DELETE FROM BARS WHERE SYMBOL = ? AND TICKER = ? AND DURATION = ? AND TIMESTAMP = ?";
+        LOGGER.debug("DELETE FROM BARS WHERE SYMBOL = {} AND TICKER = {} AND DURATION = {} AND TIMESTAMP = {}", 
+                bar.getSymbol(), bar.getTicker(), bar.getDuration(), bar.getTimestamp());
+        try (Connection connection = getConnection();
+                DbAutoTransaction dbAuto = new DbAutoTransaction(connection, false);
+                PreparedStatement statement = 
+                    connection.prepareStatement(sql)) {
+                statement.setString(1, bar.getSymbol());
+                statement.setString(2, bar.getTicker().toString());
+                statement.setLong(3, bar.getDuration().toMillis());
+                statement.setLong(4, bar.getTimestamp());
+              int count = statement.executeUpdate();
+              dbAuto.commit();
+              LOGGER.debug("Deleted {} bars for {}", count, bar.getSymbol());
+              return true;
+        } catch (SQLException ex) {
+            LOGGER.error("Failed to delete last bar..", ex);
+            throw ex;
+        }
     }
 
     @Override
     public List<Bar> getAllBySymbolTickerAndDuration(String symbol, String ticker, long start, long end, long duration) throws Exception {
         String sql = "SELECT * FROM BARS WHERE SYMBOL = ? AND "
                 + "TICKER = ? AND TIMESTAMP BETWEEN ? AND ? AND DURATION = ?";
+        LOGGER.debug("SELECT * FROM BARS WHERE SYMBOL = {} AND "
+                + "TICKER = {} AND TIMESTAMP BETWEEN {} AND {} AND DURATION = {}", symbol, ticker, start, end, duration);
         try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql);){
           statement.setString(1, symbol);
           statement.setString(2, ticker);
-          statement.setLong(3, start - duration);
+          statement.setLong(3, start);
           statement.setLong(4, end + duration);
           statement.setLong(5, duration);
           List<Bar> bars = new ArrayList<>();
@@ -122,16 +141,56 @@ public class BarDaoImpl extends AbstractDao implements BarDao {
 
     @Override
     public void deleteLastBarBySymbolTickerAndDuration(String symbol, String ticker, long duration) throws Exception {
+        String sql = "SELECT * FROM BARS WHERE SYMBOL = ? AND TICKER = ? AND DURATION = ? ORDER BY TIMESTAMP DESC LIMIT 1";
+        LOGGER.debug("SELECT * FROM BARS WHERE SYMBOL = ? AND TICKER = ? AND DURATION = ? ORDER BY TIMESTAMP DESC LIMIT 1", 
+                symbol, ticker, duration);
         try (Connection connection = getConnection();
-                DbAutoTransaction dbAuto = new DbAutoTransaction(connection, false);
                 PreparedStatement statement = 
-                    connection.prepareStatement("DELETE FROM BARS WHERE SYMBOL = ? AND TICKER = ? AND DURATION = ?")) {
+                    connection.prepareStatement(sql)) {
                 statement.setString(1, symbol);
                 statement.setString(2, ticker);
                 statement.setLong(3, duration);
-              statement.execute();
-              dbAuto.commit();
+                Bar bar = null;
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        bar = createBar(resultSet);
+                    }
+                }
+                if (bar != null) {
+                    LOGGER.debug("Last Bar found {}", bar);
+                    delete(bar);
+                    LOGGER.debug("Last Bar deleted. Successfully.");
+                } else {
+                    LOGGER.debug("Last Bar was not found for {}", symbol);
+                }
         } catch (SQLException ex) {
+            LOGGER.error("Failed to delete last bar..", ex);
+            throw ex;
+        }
+    }
+
+    @Override
+    public Bar findBySymbolTickerDurationAndTimestamp(String symbol, String ticker, long duration, long timestamp)
+            throws Exception {
+        String sql = "SELECT * FROM BARS WHERE SYMBOL = ? AND TICKER = ? AND DURATION = ? AND TIMESTAMP = ? LIMIT 1";
+        LOGGER.debug("SELECT * FROM BARS WHERE SYMBOL = ? AND TICKER = ? AND DURATION = ? AND TIMESTAMP = {} LIMIT 1", 
+                symbol, ticker, duration, timestamp);
+        try (Connection connection = getConnection();
+                PreparedStatement statement = 
+                    connection.prepareStatement(sql)) {
+                statement.setString(1, symbol);
+                statement.setString(2, ticker);
+                statement.setLong(3, duration);
+                statement.setLong(4, timestamp);
+                Bar bar = null;
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        bar = createBar(resultSet);
+                    }
+                }
+                return bar;
+        } catch (SQLException ex) {
+            LOGGER.error("Failed to delete last bar..", ex);
             throw ex;
         }
     }

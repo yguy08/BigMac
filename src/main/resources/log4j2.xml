@@ -33,6 +33,7 @@ See log4j2 guide for more options: http://logging.apache.org/log4j/2.x/manual/ap
         I recommend running at 'info'. 'debug' logging will produce a *lot* of output for the Exchange Adapters;
         very handy for debugging, but not so good for your disk space!
         -->
+        <Logger name="com.bigmac" level="DEBUG"/>
         <Root level="info">
             <AppenderRef ref="BigMac_RollingFile"/>
             <AppenderRef ref="STDOUT"/>

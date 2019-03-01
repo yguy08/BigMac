@@ -29,6 +29,7 @@ import com.bigmac.dao.BarSchemaSql;
 import com.bigmac.dao.TickDao;
 import com.bigmac.dao.TickDaoImpl;
 import com.bigmac.dao.TickSchemaSql;
+import com.bigmac.enumeration.LookbackPeriod;
 import com.bigmac.enumeration.MarketType;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.enumeration.TipType;
@@ -93,7 +94,7 @@ public class Application {
         config.setBarSize(Duration.ofDays(1));
         config.setDefaultSymbol("BTC/USDT");
         config.setDefaultTip(TipType.BUY_HIGH);
-        config.setLookback(150);
+        config.setLookback(LookbackPeriod.M3.getPeriod());
         config.setTickerType(TickerType.BINANCE);
         config.setMarketType(MarketType.BTC);
         config.setOutOfDateSeconds(300);

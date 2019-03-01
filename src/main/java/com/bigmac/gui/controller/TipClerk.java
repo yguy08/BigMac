@@ -98,25 +98,42 @@ public class TipClerk {
         TickerType ticker = config.getTickerType();
         Duration barsize = config.getBarSize();
         
+        LOGGER.debug("Checking cache for bars.");
         List<Bar> bars = getCacheClerk().getHistoricalBars(symbol, ticker,
                 start, Instant.now(), barsize);
         if (bars == null || bars.isEmpty()) {
-            LOGGER.info("No bars cached...Getting new bars from exchange.");
+            LOGGER.debug("No bars cached for {} from {} with bar size of {}. Getting new bars from exchange.", symbol, start, barsize);
             bars = getHistoricalDataClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
-        } else {
-            Instant lastTS = Instant.ofEpochMilli(bars.get(bars.size() - 1).getTimestamp());
-            if (isOutOfDate(lastTS, barsize)) {
-                LOGGER.info("Cached bars found but out of date...Getting new bars from exchange.");
-                getHistoricalDataClerk().updateBars(symbol, ticker, start, barsize);
-                bars = getCacheClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
-            } else {
-                LOGGER.info("Using cached bars. Updating last price from latest tick.");
-                Bar bar = bars.get(bars.size() - 1);
-                Tick tick = getCacheClerk().getCurrentTick(symbol, ticker);
-                if (tick != null) {
-                    bar.setClose(tick.getLast());
-                }
-            }
+            LOGGER.debug("Got new bars from {} to {}", start, Instant.now());
+        }
+        Instant firstStart = Instant.ofEpochMilli(bars.get(0).getTimestamp());
+        Instant end = Instant.ofEpochMilli(bars.get(bars.size() - 1).getTimestamp());
+        boolean refreshCache = false;
+        if (bars.size() < config.getLookback()) {
+            LOGGER.debug("Found cached bars for {} from {} to {} with bar size of {}. "
+                    + "But count {} does not match look back period of {}. Getting older bars.", 
+                    symbol, firstStart, end, barsize, bars.size(), config.getLookback());
+            getHistoricalDataClerk().updateBars(symbol, ticker, start, firstStart, barsize);
+            refreshCache = true;
+        }
+        if (isOutOfDate(end, barsize)) {
+            LOGGER.debug("Cached bars found but last bar is out of date...Getting new bars from exchange.");
+            getHistoricalDataClerk().updateBars(symbol, ticker, end, Instant.now(), barsize);
+            refreshCache = true;
+        }
+        if (refreshCache) {
+            LOGGER.debug("Refreshing cache because updates were made.");
+            // now get from updated cache
+            bars = getCacheClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
+        }
+        LOGGER.debug("Bars up to Date! Symbol: {} Count: {} Start: {} End: {}",
+                symbol, bars.size(), bars.get(0).getTimestamp(), bars.get(bars.size() - 1).getTimestamp());
+        LOGGER.debug("Updating last price from latest tick.");
+        Bar lastBar = bars.get(bars.size() - 1);
+        LOGGER.debug("Last bar to be updated {} ", lastBar);
+        Tick tick = getCacheClerk().getCurrentTick(symbol, ticker);
+        if (tick != null) {
+            lastBar.setClose(tick.getLast());
         }
         for (Bar b : bars) {
             BaseBar bar = new BaseBar(barsize, Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),

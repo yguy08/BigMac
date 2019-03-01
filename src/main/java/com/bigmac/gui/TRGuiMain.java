@@ -186,6 +186,7 @@ public class TRGuiMain implements ItemListener {
     private void buildChart() {
         ChartStrategy strategy = tipClerk.getChartStrategy();
         TimeSeries series = tipClerk.buildTimeSeries();
+        LOGGER.debug("Building Chart with TimeSeries count of {}", series.getBarCount());
         strategy.setSeries(series);
         JFreeChart chart = ChartUtils.buildChart(strategy, ChartConfig.getIncludeZero(), ChartConfig.isAddSMA());
         if (chartPanel != null) {
