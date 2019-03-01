@@ -31,7 +31,7 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, tick.getTimestamp());
             statement.setString(2, tick.getSymbol());
-            statement.setString(3, tick.getTicker().toString());
+            statement.setString(3, tick.getTicker().getCode());
             statement.setDouble(4, tick.getLast());
             statement.setInt(5, tick.getVolume());
             statement.setDouble(6, tick.getPriceChangePercent());
@@ -58,7 +58,7 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
             for (Tick tick : ticks) {
                 statement.setLong(1, tick.getTimestamp());
                 statement.setString(2, tick.getSymbol());
-                statement.setString(3, tick.getTicker().toString());
+                statement.setString(3, tick.getTicker().getCode());
                 statement.setDouble(4, tick.getLast());
                 statement.setInt(5, tick.getVolume());
                 statement.setDouble(6, tick.getPriceChangePercent());
@@ -117,7 +117,7 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
     
     private Tick createTick(ResultSet resultSet) throws SQLException {
         return new Tick(resultSet.getLong("TIMESTAMP"), resultSet.getString("SYMBOL"),
-                TickerType.valueOf(resultSet.getString("TICKER")), resultSet.getDouble("LAST"),
+                TickerType.enumOf(resultSet.getString("TICKER")), resultSet.getDouble("LAST"),
                 resultSet.getInt("VOLUME"), resultSet.getDouble("CHANGE"));
     }
 

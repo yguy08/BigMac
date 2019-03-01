@@ -29,7 +29,7 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
     @Override
     public Tick getCurrentTick(String symbol, TickerType ticker) {
         try {
-            return tickDao.findBySymbolAndTicker(symbol, ticker.toString());
+            return tickDao.findBySymbolAndTicker(symbol, ticker.getCode());
         } catch (Exception e) {
             return null;
         }
@@ -38,7 +38,7 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
     @Override
     public List<Tick> getCurrentTicks(TickerType ticker) {
         try {
-            return tickDao.getAllByTicker(ticker.toString());
+            return tickDao.getAllByTicker(ticker.getCode());
         } catch (Exception e) {
             LOGGER.error("ERROR:", e);
             return null;

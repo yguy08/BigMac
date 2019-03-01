@@ -8,11 +8,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.coinbasepro.CoinbaseProExchange;
 import org.knowm.xchange.coinbasepro.dto.marketdata.CoinbaseProCandle;
 import org.knowm.xchange.coinbasepro.dto.marketdata.CoinbaseProProductTicker;
-import org.knowm.xchange.coinbasepro.service.CoinbaseProMarketDataService;
 import org.knowm.xchange.coinbasepro.service.CoinbaseProMarketDataServiceRaw;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
