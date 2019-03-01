@@ -17,10 +17,8 @@ dependency-reduced-pom.xml
 *.swo
 
 # externalized configuration file for keys
-*.exchange.properties
 *.properties
 
 #logs
 *.log
-log/
 logs/
