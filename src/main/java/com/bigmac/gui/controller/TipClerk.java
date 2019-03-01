@@ -128,12 +128,18 @@ public class TipClerk {
         }
         LOGGER.debug("Bars up to Date! Symbol: {} Count: {} Start: {} End: {}",
                 symbol, bars.size(), bars.get(0).getTimestamp(), bars.get(bars.size() - 1).getTimestamp());
-        LOGGER.debug("Updating last price from latest tick.");
         Bar lastBar = bars.get(bars.size() - 1);
         LOGGER.debug("Last bar to be updated {} ", lastBar);
         Tick tick = getCacheClerk().getCurrentTick(symbol, ticker);
+        LOGGER.debug("Updating last price from latest tick: {} ", tick);
         if (tick != null) {
+            double last = tick.getLast();
             lastBar.setClose(tick.getLast());
+            if (lastBar.getLow() > tick.getLast()) {
+                lastBar.setLow(last);
+            } else if (lastBar.getHigh() < tick.getLast()) {
+                lastBar.setHigh(last);
+            }
         }
         for (Bar b : bars) {
             BaseBar bar = new BaseBar(barsize, Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
