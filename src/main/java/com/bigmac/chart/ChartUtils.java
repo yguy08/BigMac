@@ -38,6 +38,7 @@ import org.ta4j.core.indicators.helpers.ClosePriceIndicator;
 import org.ta4j.core.num.Num;
 
 import com.bigmac.chart.strategy.ChartStrategy;
+import com.bigmac.config.ChartConfig;
 import com.bigmac.gui.chart.TRCandlestickRenderer;
 
 public class ChartUtils {
@@ -53,14 +54,10 @@ public class ChartUtils {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(SHORT_DATE_FORMAT);
 
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone(ZoneId.of("UTC"));
-    
-    private static JFreeChart chart;
 
-    public static JFreeChart newCandleStickChart(TimeSeries series) {
-        return ChartUtils.newCandleStickChart(series, true);
-    }
+    private static JFreeChart chart;
     
-    public static JFreeChart newCandleStickChart(TimeSeries series, boolean autoRangeIncludeZero) {
+    public static JFreeChart newCandleStickChart(TimeSeries series) {
         String title = series.getName();
         OHLCDataset ohlcDataset = ChartUtils.createOHLCDataset(title, series);
         chart = ChartFactory.createCandlestickChart(title, "Date", "Price", ohlcDataset, false);
@@ -74,7 +71,7 @@ public class ChartUtils {
         
         // Price Axis
         NumberAxis numberAxis = (NumberAxis) plot.getRangeAxis();
-        numberAxis.setAutoRangeIncludesZero(autoRangeIncludeZero);
+        numberAxis.setAutoRangeIncludesZero(ChartConfig.getIncludeZero());
         NumberFormat format = title.contains("USDT") ? new DecimalFormat("#") : new DecimalFormat("#.########");
         numberAxis.setNumberFormatOverride(format);
         
@@ -93,11 +90,11 @@ public class ChartUtils {
         return chart;
     }
 
-    public static JFreeChart buildChart(ChartStrategy strategy, boolean autoRangeIncludeZero, boolean addSMA) {
+    public static JFreeChart buildChart(ChartStrategy strategy) {
         TimeSeries series = strategy.getSeries();
         TradingRecord tradingRecord = strategy.getTradingRecord();
         //Building chart datasets
-        JFreeChart chart = ChartUtils.newCandleStickChart(series, autoRangeIncludeZero);
+        JFreeChart chart = ChartUtils.newCandleStickChart(series);
         XYPlot plot = chart.getXYPlot();
         // Adding markers to plot
         for (Trade trade : tradingRecord.getTrades()) {
@@ -126,8 +123,8 @@ public class ChartUtils {
             sellMarker.setStroke(ChartUtils.FATLINE);
             plot.addDomainMarker(sellMarker);
         }
-        
-        if (addSMA) {
+
+        if (ChartConfig.isAddSMA()) {
             // short
             TimeSeriesCollection xyDataset = buildChartTimeSeries(series, 
                     new SMAIndicator(new ClosePriceIndicator(series), 20), "SMA");

@@ -43,7 +43,7 @@ import com.bigmac.gui.chart.TRChartPanel;
 import com.bigmac.gui.controller.TipClerk;
 import com.bigmac.marketdata.Tick;
 
-public class TRGuiMain implements ItemListener {
+public class TRGuiMain {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(TRGuiMain.class);
     
@@ -66,10 +66,6 @@ public class TRGuiMain implements ItemListener {
     private TipClerk tipClerk;
     
     private JPanel toolBarPanel;
-    
-    // checkbox
-    JCheckBox includeZeroButton;
-    JCheckBox addSMAButton;
     
     public TRGuiMain(TipClerk tipClerk) {
         this.mainFrame = new JFrame("Bucketshop");
@@ -127,14 +123,15 @@ public class TRGuiMain implements ItemListener {
             }
         });
         
-        JButton chart = new JButton("Chart");
-        chart.addActionListener(new ActionListener() {
+        JButton chartBtn = new JButton("Chart");
+        chartBtn.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 ChartSettingDialog dialog = new ChartSettingDialog(getMainJFrame());
                 dialog.pack();
                 dialog.setVisible(true);
+                buildChart();
             }
         });
         
@@ -154,10 +151,8 @@ public class TRGuiMain implements ItemListener {
         }
         toolBar.add(lookbackPanel);
         
-        toolBar.add(buildChartOptionPanel());
-        
         JPanel refreshPanel = new JPanel();
-        refreshPanel.add(chart);
+        refreshPanel.add(chartBtn);
         refreshPanel.add(refresh);
         toolBar.add(refreshPanel);
         toolBarPanel.add(toolBar);
@@ -200,7 +195,7 @@ public class TRGuiMain implements ItemListener {
         TimeSeries series = tipClerk.buildTimeSeries();
         LOGGER.debug("Building Chart with TimeSeries count of {}", series.getBarCount());
         strategy.setSeries(series);
-        JFreeChart chart = ChartUtils.buildChart(strategy, ChartConfig.getIncludeZero(), ChartConfig.isAddSMA());
+        JFreeChart chart = ChartUtils.buildChart(strategy);
         if (chartPanel != null) {
             chartPanel.rebuildChart(chart);
         } else {
@@ -268,26 +263,6 @@ public class TRGuiMain implements ItemListener {
         return lBtn;
     }
     
-    private JPanel buildChartOptionPanel() {
-        //Create the check boxes.
-        includeZeroButton = new JCheckBox("Include 0");
-        includeZeroButton.setSelected(true);
-        
-        //Create the check boxes.
-        addSMAButton = new JCheckBox("Add SMA");
-        addSMAButton.setSelected(true);
- 
-        //Register a listener for the check boxes.
-        includeZeroButton.addItemListener(this);
-        addSMAButton.addItemListener(this);
- 
-        //Put the check boxes in a column in a panel
-        JPanel checkPanel = new JPanel();
-        checkPanel.add(includeZeroButton);
-        checkPanel.add(addSMAButton);
-        return checkPanel;
-    }
-    
     private class TRComboBoxListener implements ActionListener {
 
         @Override
@@ -334,19 +309,6 @@ public class TRGuiMain implements ItemListener {
                 buildChart();
                 setStrategyAnalysis();
             }
-        }
-    }
-
-    @Override
-    public void itemStateChanged(ItemEvent e) {
-        Object source = e.getItemSelectable();
-        boolean selected = e.getStateChange() == ItemEvent.SELECTED;
-        if (source == includeZeroButton) {
-            ChartConfig.setIncludeZero(selected);
-            buildChart();
-        } else if (source == addSMAButton) {
-            ChartConfig.setAddSMA(selected);
-            buildChart();
         }
     }
 }

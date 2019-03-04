@@ -2,33 +2,30 @@ package com.bigmac.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-public class ChartSettingDialog extends JDialog {
+import com.bigmac.config.ChartConfig;
+
+public class ChartSettingDialog extends JDialog implements ItemListener {
+    
+    // checkbox
+    JCheckBox includeZeroButton;
+    JCheckBox addSMAButton;
     
     public ChartSettingDialog(Frame aFrame) {
         super(aFrame, "Chart Settings", true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         
         setLocationRelativeTo(aFrame);
-
-        JLabel label = new JLabel("Chart Settings");
-        label.setHorizontalAlignment(JLabel.CENTER);
-        Font font = label.getFont();
-        label.setFont(label.getFont().deriveFont(font.PLAIN,
-                                                 14.0f));
 
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(new ActionListener() {
@@ -38,15 +35,10 @@ public class ChartSettingDialog extends JDialog {
             }
         });
         JPanel closePanel = new JPanel();
-        closePanel.setLayout(new BoxLayout(closePanel,
-                                           BoxLayout.LINE_AXIS));
-        closePanel.add(Box.createHorizontalGlue());
         closePanel.add(closeButton);
-        closePanel.setBorder(BorderFactory.
-            createEmptyBorder(0,0,5,5));
 
         JPanel contentPane = new JPanel(new BorderLayout());
-        contentPane.add(label, BorderLayout.CENTER);
+        contentPane.add(buildChartOptionPanel());
         contentPane.add(closePanel, BorderLayout.PAGE_END);
         contentPane.setOpaque(true);
         setContentPane(contentPane);
@@ -59,6 +51,37 @@ public class ChartSettingDialog extends JDialog {
     /** This method clears the dialog and hides it. */
     public void clearAndHide() {
         setVisible(false);
+    }
+    
+    private JPanel buildChartOptionPanel() {
+        //Create the check boxes.
+        includeZeroButton = new JCheckBox("Include 0");
+        includeZeroButton.setSelected(ChartConfig.getIncludeZero());
+        
+        //Create the check boxes.
+        addSMAButton = new JCheckBox("Add SMA");
+        addSMAButton.setSelected(ChartConfig.isAddSMA());
+ 
+        //Register a listener for the check boxes.
+        includeZeroButton.addItemListener(this);
+        addSMAButton.addItemListener(this);
+ 
+        //Put the check boxes in a column in a panel
+        JPanel checkPanel = new JPanel();
+        checkPanel.add(includeZeroButton);
+        checkPanel.add(addSMAButton);
+        return checkPanel;
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        Object source = e.getItemSelectable();
+        boolean selected = e.getStateChange() == ItemEvent.SELECTED;
+        if (source == includeZeroButton) {
+            ChartConfig.setIncludeZero(selected);
+        } else if (source == addSMAButton) {
+            ChartConfig.setAddSMA(selected);
+        }
     }
 
 }
