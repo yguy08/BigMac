@@ -49,7 +49,7 @@ public class BinanceExchangeAdapter extends XchangeAdapterAbs {
         List<Bar> bars = new ArrayList<>();
         KlineInterval kline = getKLineInterval(duration);
         try {
-            List<BinanceKline> chartData = ((BinanceMarketDataServiceRaw) getMarketDataService()).klines(new CurrencyPair(security), kline, null,
+            List<BinanceKline> chartData = ((BinanceMarketDataServiceRaw) getMarketDataService()).klines(new CurrencyPair(security), kline, 1000,
                     startDate.toEpochMilli(), endDate.toEpochMilli());
             for (BinanceKline bncBar : chartData) {
                 long millis = bncBar.getCloseTime();
