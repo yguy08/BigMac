@@ -4,12 +4,14 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import com.tapereader.Application;
-import com.tapereader.db.dao.bar.BarDao;
-import com.tapereader.db.dao.bar.BarDaoImpl;
-import com.tapereader.enumeration.TickerType;
-import com.tapereader.marketdata.Bar;
-import com.tapereader.marketdata.MarketData;
+import com.bigmac.Application;
+import com.bigmac.dao.BarDao;
+import com.bigmac.dao.BarDaoImpl;
+import com.bigmac.engine.Engine;
+import com.bigmac.engine.EngineConfig;
+import com.bigmac.enumeration.TickerType;
+import com.bigmac.marketdata.Bar;
+import com.bigmac.marketdata.MarketData;
 
 public class EngineTest {
     

@@ -1,10 +1,11 @@
-package com.tapereader.engine;
+package com.bigmac.engine;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.List;
 
+import com.bigmac.Subscriber;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPRuntime;
 import com.espertech.esper.client.EPServiceProvider;
@@ -14,7 +15,6 @@ import com.espertech.esper.client.deploy.DeploymentOptions;
 import com.espertech.esper.client.deploy.DeploymentResult;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.ParseException;
-import com.tapereader.Subscriber;
 
 public class EngineImpl implements Engine {
 

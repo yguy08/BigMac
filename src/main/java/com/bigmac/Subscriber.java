@@ -1,4 +1,4 @@
-package com.tapereader;
+package com.bigmac;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 

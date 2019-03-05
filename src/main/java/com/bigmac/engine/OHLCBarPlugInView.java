@@ -1,4 +1,4 @@
-package com.tapereader.engine;
+package com.bigmac.engine;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.EventType;
@@ -9,8 +9,8 @@ import com.espertech.esper.epl.expression.core.ExprNode;
 import com.espertech.esper.event.EventAdapterService;
 import com.espertech.esper.schedule.ScheduleHandleCallback;
 import com.espertech.esper.view.ViewSupport;
-import com.tapereader.enumeration.TickerType;
-import com.tapereader.marketdata.Bar;
+import com.bigmac.enumeration.TickerType;
+import com.bigmac.marketdata.Bar;
 
 import java.time.Duration;
 import java.util.Calendar;

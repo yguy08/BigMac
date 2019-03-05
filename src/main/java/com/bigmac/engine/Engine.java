@@ -1,4 +1,4 @@
-package com.tapereader.engine;
+package com.bigmac.engine;
 
 import com.espertech.esper.client.EPStatement;
 

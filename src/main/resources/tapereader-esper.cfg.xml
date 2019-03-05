@@ -5,17 +5,17 @@
  xsi:schemaLocation="http://www.espertech.com/schema/esper/esper-configuration-7-0.xsd">
 
  <plugin-view
-  factory-class="com.tapereader.engine.OHLCBarPlugInViewFactory"
+  factory-class="com.bigmac.engine.OHLCBarPlugInViewFactory"
   name="ohlcbar"
   namespace="custom" />
 
- <auto-import import-name="com.tapereader.*" />
+ <auto-import import-name="com.bigmac.*" />
  <event-type
   name="TickEvent"
-  class="com.tapereader.marketdata.Tick" />
+  class="com.bigmac.marketdata.Tick" />
  <event-type
   name="BarEvent"
-  class="com.tapereader.marketdata.Bar" />
+  class="com.bigmac.marketdata.Bar" />
 
  <engine-settings>
   <defaults>
