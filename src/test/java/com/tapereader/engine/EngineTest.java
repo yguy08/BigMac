@@ -17,6 +17,8 @@ public class EngineTest {
     
     private static int count = 1;
     
+    private static Instant lastInstant = null;
+    
     public EngineTest() {
         BarDao barDao = new BarDaoImpl(Application.createDataSource());
         try {
@@ -25,6 +27,7 @@ public class EngineTest {
             
             Engine engine = new EngineConfig().engine();
             engine.loadStatements("BarToBar", this);
+            System.out.println("Total bar count: " + bars.size());
             for (Bar bar : bars) {
                 engine.sendEvent(bar);
             }
@@ -38,8 +41,16 @@ public class EngineTest {
     }
     
     public void sendMarketDataEvent(MarketData marketData) {
+        Instant nextInstant = Instant.ofEpochMilli(marketData.getTimestamp());
+        if (lastInstant != null) {
+            if (nextInstant.getEpochSecond() - lastInstant.getEpochSecond() < 86400) {
+                System.out.println(lastInstant);
+                System.out.println(nextInstant);
+            }
+        }
         System.out.println(marketData);
         System.out.println(count++);
+        lastInstant = nextInstant;
     }
 
 }

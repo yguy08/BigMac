@@ -13,6 +13,9 @@ import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.Bar;
 
 import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
@@ -65,7 +68,7 @@ public class OHLCBarPlugInView extends ViewSupport {
             eventsPerStream[0] = theEvent;
             symbol = (String) symbolExpression.getForge().getExprEvaluator().evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
             Long timestamp = (Long) timestampExpression.getForge().getExprEvaluator().evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
-            Long timestampMinute = removeSeconds(timestamp);
+            Long timestampMinute = truncateTo(timestamp, ChronoUnit.DAYS);
             double value = (Double) valueExpression.getForge().getExprEvaluator().evaluate(eventsPerStream, true, agentInstanceViewFactoryContext);
 
             // test if this minute has already been published, the event is too late
@@ -130,6 +133,10 @@ public class OHLCBarPlugInView extends ViewSupport {
         cal.set(Calendar.MINUTE, 0);
         return cal.getTimeInMillis();
     }
+    
+    private static long truncateTo(long timestamp, TemporalUnit unit) {
+        return Instant.ofEpochMilli(timestamp).truncatedTo(unit).toEpochMilli();
+    }
 
     private void scheduleCallback() {
         if (handle != null) {
@@ -139,7 +146,7 @@ public class OHLCBarPlugInView extends ViewSupport {
         }
 
         long currentTime = agentInstanceViewFactoryContext.getStatementContext().getSchedulingService().getTime();
-        long currentRemoveSeconds = removeSeconds(currentTime);
+        long currentRemoveSeconds = truncateTo(currentTime, ChronoUnit.DAYS);
         long targetTime = currentRemoveSeconds + (60 + LATE_EVENT_SLACK_SECONDS) * 1000; // leave some seconds for late comers
         long scheduleAfterMSec = targetTime - currentTime;
 
