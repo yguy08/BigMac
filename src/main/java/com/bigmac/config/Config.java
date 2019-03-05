@@ -24,6 +24,8 @@ public class Config {
     
     private long outOfDateSeconds;
     
+    private static boolean useBarCache = true;
+    
     public Config() {
         
     }
@@ -138,6 +140,20 @@ public class Config {
      */
     public void setOutOfDateSeconds(long outOfDateSeconds) {
         this.outOfDateSeconds = outOfDateSeconds;
+    }
+
+    /**
+     * @return the useBarCache
+     */
+    public static boolean isUseBarCache() {
+        return useBarCache;
+    }
+
+    /**
+     * @param useBarCache the useBarCache to set
+     */
+    public static void setUseBarCache(boolean useBarCache) {
+        Config.useBarCache = useBarCache;
     }
     
     

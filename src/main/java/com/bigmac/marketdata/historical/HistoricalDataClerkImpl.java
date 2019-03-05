@@ -32,7 +32,6 @@ public class HistoricalDataClerkImpl implements HistoricalDataClerk {
         try {
             ExchangeAdapter adapter = adapterMap.get(ticker.toString());
             bars = adapter.getHistoricalBars(symbol, startDate, endDate, duration);
-            barDao.save(bars);
             return bars;
         } catch (Exception e) {
             LOGGER.error("ERROR", e);

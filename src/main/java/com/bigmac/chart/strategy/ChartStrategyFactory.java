@@ -14,6 +14,8 @@ public class ChartStrategyFactory {
             return new BuyLow(series);
         case DOUBLE_U:
             return new DoubleYou(series);
+        case MOVING_MOMENTUM:
+            return new MovingMomentum(series);
         default:
             return new BuyHigh(series);
         }

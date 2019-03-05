@@ -98,75 +98,13 @@ public class TipClerk {
         TickerType ticker = config.getTickerType();
         Duration barsize = config.getBarSize();
         
-        LOGGER.debug("Checking cache for bars.");
-        List<Bar> bars = getCacheClerk().getHistoricalBars(symbol, ticker,
-                start, Instant.now(), barsize);
-        if (bars == null || bars.isEmpty()) {
-            LOGGER.debug("No bars cached for {} from {} with bar size of {}. Getting new bars from exchange.", symbol, start, barsize);
-            bars = getHistoricalDataClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
-            LOGGER.debug("Got new bars from {} to {}", start, Instant.now());
-        }
-        Instant firstStart = Instant.ofEpochMilli(bars.get(0).getTimestamp());
-        Instant end = Instant.ofEpochMilli(bars.get(bars.size() - 1).getTimestamp());
-        boolean refreshCache = false;
-        if (bars.size() < config.getLookback()) {
-            LOGGER.debug("Found cached bars for {} from {} to {} with bar size of {}. "
-                    + "But count {} does not match look back period of {}. Getting older bars.", 
-                    symbol, firstStart, end, barsize, bars.size(), config.getLookback());
-            getHistoricalDataClerk().updateBars(symbol, ticker, start, firstStart, barsize);
-            refreshCache = true;
-        }
-        if (isOutOfDate(end, barsize)) {
-            LOGGER.debug("Cached bars found but last bar is out of date...Getting new bars from exchange.");
-            getHistoricalDataClerk().updateBars(symbol, ticker, end, Instant.now(), barsize);
-            refreshCache = true;
-        }
-        if (refreshCache) {
-            LOGGER.debug("Refreshing cache because updates were made.");
-            // now get from updated cache
-            bars = getCacheClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
-        }
-        LOGGER.debug("Bars up to Date! Symbol: {} Count: {} Start: {} End: {}",
-                symbol, bars.size(), bars.get(0).getTimestamp(), bars.get(bars.size() - 1).getTimestamp());
-        Bar lastBar = bars.get(bars.size() - 1);
-        LOGGER.debug("Last bar to be updated {} ", lastBar);
-        Tick tick = getCacheClerk().getCurrentTick(symbol, ticker);
-        LOGGER.debug("Updating last price from latest tick: {} ", tick);
-        if (tick != null) {
-            double last = tick.getLast();
-            lastBar.setClose(tick.getLast());
-            if (lastBar.getLow() > tick.getLast()) {
-                lastBar.setLow(last);
-            } else if (lastBar.getHigh() < tick.getLast()) {
-                lastBar.setHigh(last);
-            }
-        }
+        List<Bar> bars = getHistoricalDataClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
         for (Bar b : bars) {
             BaseBar bar = new BaseBar(barsize, Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
                     numOf(b.getOpen()), numOf(b.getHigh()), numOf(b.getLow()), numOf(b.getClose()), numOf(b.getVolume()), numOf(0));
             series.addBar(bar);
         }
         return series;
-    }
-    
-    private boolean isOutOfDate(Instant lastTS, Duration barSize) {
-        Instant outOfDateTS;
-        Instant lastTrunc;
-        if (barSize.toDays() > 0) {
-            outOfDateTS = Instant.now().truncatedTo(ChronoUnit.DAYS).minus(1, ChronoUnit.DAYS);
-            lastTrunc = lastTS.truncatedTo(ChronoUnit.DAYS);
-        } else if (barSize.toHours() > 0) {
-            outOfDateTS = Instant.now().truncatedTo(ChronoUnit.HOURS).minus(1, ChronoUnit.HOURS);
-            lastTrunc = lastTS.truncatedTo(ChronoUnit.HOURS);
-        } else {
-            outOfDateTS = Instant.now().truncatedTo(ChronoUnit.MINUTES).minus(1, ChronoUnit.MINUTES);
-            lastTrunc = lastTS.truncatedTo(ChronoUnit.MINUTES);
-        }
-        if (lastTrunc.compareTo(outOfDateTS) < 1){
-            return true;
-        } else {
-            return false;
-        }
     }
     
     private Num numOf(Number num) {
