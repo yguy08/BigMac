@@ -9,9 +9,9 @@ Only the last 90 archives are kept.
 The logging level is set to 'info'.
 See log4j2 guide for more options: http://logging.apache.org/log4j/2.x/manual/appenders.html#RollingRandomAccessFileAppender
 -->
-<Configuration status="warn" name="Charts" packages="">
+<Configuration status="warn" name="BigMac" packages="">
     <Appenders>
-        <RollingFile name="Charts_RollingFile" fileName="./logs/charts.log"
+        <RollingFile name="BigMac_RollingFile" fileName="./logs/BigMac.log"
                      filePattern="logs/$${date:yyyy-MM}/charts-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>%-4r [%t] %d %-5p %c{1} %M() - %m%n</Pattern>
@@ -33,8 +33,9 @@ See log4j2 guide for more options: http://logging.apache.org/log4j/2.x/manual/ap
         I recommend running at 'info'. 'debug' logging will produce a *lot* of output for the Exchange Adapters;
         very handy for debugging, but not so good for your disk space!
         -->
+        <Logger name="com.bigmac" level="DEBUG"/>
         <Root level="info">
-            <AppenderRef ref="Charts_RollingFile"/>
+            <AppenderRef ref="BigMac_RollingFile"/>
             <AppenderRef ref="STDOUT"/>
         </Root>
     </Loggers>
