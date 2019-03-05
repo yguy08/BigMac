@@ -16,6 +16,8 @@ public class ChartStrategyFactory {
             return new DoubleYou(series);
         case MOVING_MOMENTUM:
             return new MovingMomentum(series);
+        case WHITE_SOLDIER:
+            return new ThreeWhiteSoldier(series);
         default:
             return new BuyHigh(series);
         }

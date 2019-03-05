@@ -5,7 +5,8 @@ public enum TipType {
     BUY_HIGH("Buy High"),
     BUY_LOW("Buy Low"),
     DOUBLE_U("Double (You)"),
-    MOVING_MOMENTUM("Mov Mo");
+    MOVING_MOMENTUM("Mov Mo"),
+    WHITE_SOLDIER("White Soldier");
     
     private String displayName;
     

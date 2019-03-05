@@ -19,7 +19,6 @@ public class MovingMomentum extends ChartStrategyAbs {
 
     public MovingMomentum(TimeSeries series) {
         super(series);
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -49,10 +48,6 @@ public class MovingMomentum extends ChartStrategyAbs {
 
         MACDIndicator macd = new MACDIndicator(closePrice, 9, 26);
         EMAIndicator emaMacd = new EMAIndicator(macd, 18);
-        // Entry rule
-        Rule entryRule = new OverIndicatorRule(shortEma, longEma) // Trend
-                .and(new CrossedDownIndicatorRule(stochasticOscillK, 20)) // Signal 1
-                .and(new OverIndicatorRule(macd, emaMacd)); 
         // Exit rule
         Rule exitRule = new UnderIndicatorRule(shortEma, longEma) // Trend
                 .and(new CrossedUpIndicatorRule(stochasticOscillK,20)) // Signal 1
