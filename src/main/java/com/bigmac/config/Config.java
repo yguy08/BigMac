@@ -22,8 +22,6 @@ public class Config {
     
     private boolean filterDelisted;
     
-    private long outOfDateSeconds;
-    
     private static boolean useBarCache = true;
     
     public Config() {
@@ -126,20 +124,6 @@ public class Config {
      */
     public void setFilterDelisted(boolean filterDelisted) {
         this.filterDelisted = filterDelisted;
-    }
-
-    /**
-     * @return the outOfDateSeconds
-     */
-    public long getOutOfDateSeconds() {
-        return outOfDateSeconds;
-    }
-
-    /**
-     * @param outOfDateSeconds the outOfDateSeconds to set
-     */
-    public void setOutOfDateSeconds(long outOfDateSeconds) {
-        this.outOfDateSeconds = outOfDateSeconds;
     }
 
     /**

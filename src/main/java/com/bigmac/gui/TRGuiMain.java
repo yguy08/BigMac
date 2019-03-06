@@ -39,7 +39,7 @@ import com.bigmac.gui.chart.TRChartPanel;
 import com.bigmac.gui.controller.TipClerk;
 import com.bigmac.marketdata.Tick;
 
-public class TRGuiMain {
+public class TRGuiMain implements ActionListener {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(TRGuiMain.class);
     
@@ -63,29 +63,28 @@ public class TRGuiMain {
     
     private JPanel toolBarPanel;
     
+    private static final String APP_TITLE = "Big Mac";
+    
     public TRGuiMain(TipClerk tipClerk) {
-        this.mainFrame = new JFrame("Bucketshop");
+        this.mainFrame = new JFrame(APP_TITLE);
         this.tipClerk = tipClerk;
     }
     
     private void createBaseGui() {
-        ActionListener comboListener = new TRComboBoxListener();
         tipCombo = new JComboBox<>(TipType.values());
-        tipCombo.addActionListener(comboListener);
+        tipCombo.addActionListener(this);
         
         tickerCombo = new JComboBox<TickerType>(TickerType.values());
         tickerCombo.setSelectedItem(tipClerk.getConfig().getTickerType());
-        tickerCombo.addActionListener(comboListener);
+        tickerCombo.addActionListener(this);
         
         marketCombo = new JComboBox<MarketType>(MarketType.values());
         marketCombo.setSelectedItem(tipClerk.getConfig().getMarketType());
-        marketCombo.addActionListener(comboListener);
+        marketCombo.addActionListener(this);
         
         barSizeCombo = new JComboBox<BarSize>(BarSize.values());
         barSizeCombo.setSelectedItem(BarSize.d1);
-        barSizeCombo.addActionListener(comboListener);
-        
-        buildChart();
+        barSizeCombo.addActionListener(this);
         
         // clear tick cache
         tipClerk.getCacheClerk().clearTickCache();
@@ -142,7 +141,17 @@ public class TRGuiMain {
         
         JPanel lookbackPanel = new JPanel();
         for (LookbackPeriod period : LookbackPeriod.values()) {
-            JButton jbutton = createLookbackBtn(period);
+            JButton jbutton = createJButton(period.toString());
+            jbutton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String periodStr = ((JButton) e.getSource()).getText();
+                    LookbackPeriod period = LookbackPeriod.valueOf(periodStr);
+                    tipClerk.getConfig().setLookback(period.getPeriod());
+                    buildChart();
+                    setStrategyAnalysis();
+                }
+            });
             lookbackPanel.add(jbutton);
         }
         toolBar.add(lookbackPanel);
@@ -152,6 +161,8 @@ public class TRGuiMain {
         refreshPanel.add(refresh);
         toolBar.add(refreshPanel);
         toolBarPanel.add(toolBar);
+        
+        buildChart();
         
         JPanel contentPane = new JPanel(new BorderLayout(5, 5));
         contentPane.setBorder(new EmptyBorder(2, 2, 2, 2));
@@ -175,7 +186,6 @@ public class TRGuiMain {
         UIUtils.centerFrameOnScreen(frame);
         
         resetFilter();
-        setStrategyAnalysis();
     }
     
     private JFrame getMainJFrame() {
@@ -197,6 +207,7 @@ public class TRGuiMain {
         } else {
             chartPanel = new TRChartPanel(chart);
         }
+        setStrategyAnalysis();
     }
     
     private void setStrategyAnalysis() {
@@ -242,27 +253,28 @@ public class TRGuiMain {
         }
     }
     
-    private JButton createLookbackBtn(LookbackPeriod period) {
+    private JButton createJButton(String period) {
         JButton lBtn = new JButton(period.toString());
-        lBtn.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String periodStr = ((JButton) e.getSource()).getText();
-                LookbackPeriod period = LookbackPeriod.valueOf(periodStr);
-                tipClerk.getConfig().setLookback(period.getPeriod());
-                buildChart();
-                setStrategyAnalysis();
-            }
-            
-        });
         return lBtn;
     }
     
-    private class TRComboBoxListener implements ActionListener {
-
+    private class MarketDataTableListener extends MouseAdapter {
+        
         @Override
-        public void actionPerformed(ActionEvent e) {
+        public void mouseReleased(MouseEvent e) {
+            if (e.getClickCount() > 1) {
+                List<Tick> ticks = (List<Tick>) ((ListTableModel) trTable.getModel()).getElements();
+                int i = trTable.convertRowIndexToModel(trTable.getSelectedRow());
+                Tick tick = ticks.get(i);
+                tipClerk.getConfig().setDefaultSymbol(tick.getSymbol());
+                buildChart();
+            }
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() instanceof JComboBox) {
             JComboBox<?> cb = (JComboBox<?>)e.getSource();
             if (cb == tipCombo) {
                 TipType tip = (TipType) cb.getSelectedItem();
@@ -270,7 +282,6 @@ public class TRGuiMain {
                         new BaseTimeSeries.SeriesBuilder().withName(tipClerk.getConfig().getDefaultSymbol()).build());
                 tipClerk.setChartStrategy(strategy);
                 buildChart();
-                setStrategyAnalysis();
             } else if (cb == tickerCombo) {
                 TickerType ticker = (TickerType) cb.getSelectedItem();
                 if (TickerType.CPRO.equals(ticker)) {
@@ -288,22 +299,6 @@ public class TRGuiMain {
                 BarSize barSize = ((BarSize) cb.getSelectedItem());
                 tipClerk.getConfig().setBarSize(Duration.ofMillis(barSize.getMillis()));
                 buildChart();
-                setStrategyAnalysis();
-            }
-        }
-    }
-    
-    private class MarketDataTableListener extends MouseAdapter {
-        
-        @Override
-        public void mouseReleased(MouseEvent e) {
-            if (e.getClickCount() > 1) {
-                List<Tick> ticks = (List<Tick>) ((ListTableModel) trTable.getModel()).getElements();
-                int i = trTable.convertRowIndexToModel(trTable.getSelectedRow());
-                Tick tick = ticks.get(i);
-                tipClerk.getConfig().setDefaultSymbol(tick.getSymbol());
-                buildChart();
-                setStrategyAnalysis();
             }
         }
     }

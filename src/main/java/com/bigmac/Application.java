@@ -1,7 +1,11 @@
 package com.bigmac;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,10 +13,13 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ta4j.core.BaseTimeSeries;
 import org.ta4j.core.TimeSeries;
 
@@ -44,29 +51,35 @@ import com.bigmac.marketdata.historical.HistoricalDataClerkImpl;
 
 public class Application {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Application.class);
+
     private final String propertiesFile;
 
-    public final static String DB_URL = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
+    private final static String DB_URL = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
+
+    private static final String BANNER_FILE = "banner.txt";
+
+    private static final String SEP = File.separator;
 
     public Application(String propertiesFile) {
         this.propertiesFile = propertiesFile;
     }
 
     private void run() {
+        displayBanner();
         /* Load Properties File */
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream input = classLoader.getResourceAsStream(propertiesFile);
+        String path = "." + SEP + "src" + SEP + "main" + SEP + "resources" + SEP + propertiesFile;
+        InputStream input = null;
         Properties properties = new Properties();
         try {
+            input = new FileInputStream(path);
             properties.load(input);
         } catch (IOException e) {
-            throw new RuntimeException("Unable to load properties file.");
+            LOGGER.warn("Unable to load properties file from {}. Using defaults.", path);
         }
 
         ExchangeAdapter bncAdapter = new BinanceExchangeAdapter();
-
         ExchangeAdapter poloAdapter = new PoloniexExchangeAdapter();
-
         ExchangeAdapter cproAdapter = new CProExchangeAdapter();
 
         Map<String, ExchangeAdapter> adapterMap = new HashMap<>();
@@ -97,7 +110,6 @@ public class Application {
         config.setLookback(LookbackPeriod.M3.getPeriod());
         config.setTickerType(TickerType.BINANCE);
         config.setMarketType(MarketType.BTC);
-        config.setOutOfDateSeconds(300);
 
         TimeSeries series = new BaseTimeSeries.SeriesBuilder().withName(config.getDefaultSymbol()).build();
         ChartStrategy strategy = new BuyHigh(series);
@@ -109,6 +121,18 @@ public class Application {
                 app.createAndShowGui();
             }
         });
+    }
+    
+    private static void displayBanner() {
+        try {
+            String path = "." + SEP + "src" + SEP + "main" + SEP + "resources" + SEP + BANNER_FILE;
+            File file = new File(path);
+            String banner = Files.readAllLines(Paths.get(file.getPath())).stream().map(s -> s.toString())
+                    .collect(Collectors.joining("\n"));
+            System.out.println("\n\n" + banner);
+        } catch (Exception e) {
+            LOGGER.debug("Unable to load banner.", e);
+        }
     }
 
     private static void createSchema(DataSource dataSource) throws SQLException {
@@ -131,7 +155,13 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        new Application("application.properties").run();
+        String properties = null;
+        if (args.length > 0) {
+            properties = args[0];
+        } else {
+            properties = "application.properties";
+        }
+        new Application(properties).run();
     }
 
 }
