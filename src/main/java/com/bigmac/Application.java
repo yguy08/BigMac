@@ -69,10 +69,8 @@ public class Application {
         displayBanner();
         /* Load Properties File */
         String path = "." + SEP + "src" + SEP + "main" + SEP + "resources" + SEP + propertiesFile;
-        InputStream input = null;
         Properties properties = new Properties();
-        try {
-            input = new FileInputStream(path);
+        try (InputStream input = new FileInputStream(path)) {
             properties.load(input);
         } catch (IOException e) {
             LOGGER.warn("Unable to load properties file from {}. Using defaults.", path);
@@ -100,7 +98,7 @@ public class Application {
         BarDao barDao = new BarDaoImpl(dataSource);
 
         MarketDataClerk marketDataClerk = new MarketDataClerkImpl(adapterMap, tickDao);
-        HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap, barDao);
+        HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap);
         MarketDataCacheClerk cacheClerk = new MarketDataCacheClerkImpl(tickDao, barDao);
 
         Config config = new Config();

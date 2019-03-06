@@ -134,4 +134,10 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
         }
     }
 
+    @Override
+    public List<Tick> loadAll() throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

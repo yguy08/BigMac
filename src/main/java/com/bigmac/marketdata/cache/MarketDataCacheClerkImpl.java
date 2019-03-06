@@ -1,7 +1,5 @@
 package com.bigmac.marketdata.cache;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import com.bigmac.dao.BarDao;
 import com.bigmac.dao.TickDao;
 import com.bigmac.enumeration.TickerType;
-import com.bigmac.marketdata.Bar;
 import com.bigmac.marketdata.MarketDataClerkImpl;
 import com.bigmac.marketdata.Tick;
 
@@ -46,18 +43,6 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
     }
 
     @Override
-    public List<Bar> getHistoricalBars(String symbol, TickerType ticker, Instant startDate, Instant endDate,
-            Duration duration) {
-        try {
-            return barDao.getAllBySymbolTickerAndDuration(symbol, ticker.toString(), 
-                    startDate.toEpochMilli(), endDate.toEpochMilli(), duration.toMillis());
-        } catch (Exception e) {
-            LOGGER.error("ERROR:", e);
-            return null;
-        }
-    }
-
-    @Override
     public void clearTickCache() {
         try {
             tickDao.deleteAll();
@@ -66,12 +51,4 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
         }
     }
 
-    @Override
-    public void updateLastBar(Bar bar) {
-        try {
-            barDao.update(bar);
-        } catch (Exception e) {
-            LOGGER.error("ERROR: ", e);
-        }
-    }
 }

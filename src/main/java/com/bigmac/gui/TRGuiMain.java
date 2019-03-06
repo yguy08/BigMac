@@ -112,6 +112,8 @@ public class TRGuiMain implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setBusy(true);
+                // clear tick cache
+                tipClerk.getCacheClerk().clearTickCache();
                 List<Tick> ticks = tipClerk.getMarketDataClerk().getCurrentTicks(tipClerk.getConfig().getTickerType());
                 updateTable(ticks);
                 setBusy(false);
