@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bigmac.domain.Symbol;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.Tick;
 
@@ -29,12 +30,11 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
         try (Connection connection = getConnection();
                 DbAutoTransaction dbAuto = new DbAutoTransaction(connection, false);
                 PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, tick.getTimestamp());
-            statement.setString(2, tick.getSymbol());
-            statement.setString(3, tick.getTicker().getCode());
-            statement.setDouble(4, tick.getLast());
-            statement.setInt(5, tick.getVolume());
-            statement.setDouble(6, tick.getPriceChangePercent());
+            statement.setLong(1, tick.getTimestamp().toEpochMilli());
+            statement.setString(2, tick.getSymbol().toString());
+            statement.setDouble(3, tick.getLast());
+            statement.setInt(4, tick.getVolume());
+            statement.setDouble(5, tick.getPriceChangePercent());
             statement.execute();
             dbAuto.commit();
             return true;
@@ -51,17 +51,16 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
 
     @Override
     public boolean save(Collection<Tick> ticks) throws Exception {
-        String sql = "INSERT INTO TICKS VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO TICKS VALUES (?,?,?,?,?)";
         try (Connection connection = getConnection();
                 DbAutoTransaction dbAuto = new DbAutoTransaction(connection, false);
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             for (Tick tick : ticks) {
-                statement.setLong(1, tick.getTimestamp());
-                statement.setString(2, tick.getSymbol());
-                statement.setString(3, tick.getTicker().getCode());
-                statement.setDouble(4, tick.getLast());
-                statement.setInt(5, tick.getVolume());
-                statement.setDouble(6, tick.getPriceChangePercent());
+                statement.setLong(1, tick.getTimestamp().toEpochMilli());
+                statement.setString(2, tick.getSymbol().toString());
+                statement.setDouble(3, tick.getLast());
+                statement.setInt(4, tick.getVolume());
+                statement.setDouble(5, tick.getPriceChangePercent());
                 statement.addBatch();
             }
             statement.executeBatch();
@@ -80,10 +79,10 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
 
     @Override
     public List<Tick> getAllByTicker(String ticker) throws Exception {
-        String sql = "SELECT * FROM TICKS WHERE TICKER = ?";
+        String sql = "SELECT * FROM TICKS WHERE SYMBOL LIKE ?";
         try (Connection con = getConnection();
                 PreparedStatement statement = con.prepareStatement(sql)) {
-            statement.setString(1, ticker);
+            statement.setString(1, "%:" + ticker);
             List<Tick> ticks = new ArrayList<>();
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -97,12 +96,11 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
     }
 
     @Override
-    public Tick findBySymbolAndTicker(String symbol, String ticker) throws Exception {
-        String sql = "SELECT * FROM TICKS WHERE SYMBOL = ? AND TICKER = ?";
+    public Tick findBySymbol(String symbol) throws Exception {
+        String sql = "SELECT * FROM TICKS WHERE SYMBOL = ?";
         try (Connection con = getConnection();
                 PreparedStatement statement = con.prepareStatement(sql)) {
-            statement.setString(1, symbol);
-            statement.setString(2, ticker);
+            statement.setString(1, new Symbol(symbol).toString());
             Tick tick = null;
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -117,8 +115,8 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
     
     private Tick createTick(ResultSet resultSet) throws SQLException {
         return new Tick(resultSet.getLong("TIMESTAMP"), resultSet.getString("SYMBOL"),
-                TickerType.enumOf(resultSet.getString("TICKER")), resultSet.getDouble("LAST"),
-                resultSet.getInt("VOLUME"), resultSet.getDouble("CHANGE"));
+                resultSet.getDouble("LAST"), resultSet.getInt("VOLUME"), 
+                resultSet.getDouble("CHANGE"));
     }
 
     @Override

@@ -1,54 +1,36 @@
 package com.bigmac.marketdata;
 
+import java.time.Instant;
+
+import com.bigmac.domain.Symbol;
 import com.bigmac.enumeration.TickerType;
 
 public abstract class MarketData {
 
     // unix time in millis
-    protected long timestamp;
+    public final Instant timestamp;
     
-    protected String symbol;
-    
-    protected TickerType ticker;
+    public final Symbol symbol;
 
-    public MarketData() {
-
-    }
-
-    public MarketData(long timestamp, String symbol, TickerType ticker) {
+    public MarketData(Instant timestamp, Symbol symbol) {
         this.timestamp = timestamp;
         this.symbol = symbol;
-        this.ticker = ticker;
     }
 
-    public long getTimestamp() {
+    public MarketData(long millis, String symbol, TickerType ticker) {
+        this(Instant.ofEpochMilli(millis), new Symbol(symbol, ticker));
+    }
+    
+    public MarketData(long millis, String symbol, String ticker) {
+        this(Instant.ofEpochMilli(millis), new Symbol(symbol, TickerType.enumOf(ticker)));
+    }
+    
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getSymbol() {
+    public Symbol getSymbol() {
         return symbol;
-    }
-
-    public void setSymbol(String security) {
-        this.symbol = security;
-    }
-
-    /**
-     * @return the ticker
-     */
-    public TickerType getTicker() {
-        return ticker;
-    }
-
-    /**
-     * @param ticker the ticker to set
-     */
-    public void setTicker(TickerType ticker) {
-        this.ticker = ticker;
     }
 
 }

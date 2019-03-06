@@ -86,7 +86,7 @@ public class BinanceExchangeAdapter extends XchangeAdapterAbs {
             List<BinanceTicker24h> binanceTicks = ((BinanceMarketDataServiceRaw) getMarketDataService()).ticker24h();
             for (BinanceTicker24h bncTick : binanceTicks) {
                 Tick tick = binanceTicker24hToTick(bncTick);
-                if (Instant.ofEpochMilli(tick.getTimestamp()).isBefore(Instant.now().minus(1, ChronoUnit.DAYS))) {
+                if (tick.getTimestamp().isBefore(Instant.now().minus(1, ChronoUnit.DAYS))) {
                     continue;
                 }
                 ticks.add(tick);

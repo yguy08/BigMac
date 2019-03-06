@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bigmac.dao.BarDao;
 import com.bigmac.dao.TickDao;
+import com.bigmac.domain.Symbol;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.MarketDataClerkImpl;
 import com.bigmac.marketdata.Tick;
@@ -16,17 +17,14 @@ public class MarketDataCacheClerkImpl implements MarketDataCacheClerk {
     
     private final TickDao tickDao;
     
-    private final BarDao barDao;
-    
-    public MarketDataCacheClerkImpl(TickDao tickDao, BarDao barDao) {
+    public MarketDataCacheClerkImpl(TickDao tickDao) {
         this.tickDao = tickDao;
-        this.barDao = barDao;
     }
 
     @Override
     public Tick getCurrentTick(String symbol, TickerType ticker) {
         try {
-            return tickDao.findBySymbolAndTicker(symbol, ticker.getCode());
+            return tickDao.findBySymbol(new Symbol(symbol, ticker).toString());
         } catch (Exception e) {
             return null;
         }

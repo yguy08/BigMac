@@ -99,7 +99,7 @@ public class Application {
 
         MarketDataClerk marketDataClerk = new MarketDataClerkImpl(adapterMap, tickDao);
         HistoricalDataClerk historicalDataClerk = new HistoricalDataClerkImpl(adapterMap);
-        MarketDataCacheClerk cacheClerk = new MarketDataCacheClerkImpl(tickDao, barDao);
+        MarketDataCacheClerk cacheClerk = new MarketDataCacheClerkImpl(tickDao);
 
         Config config = new Config();
         config.setBarSize(Duration.ofDays(1));

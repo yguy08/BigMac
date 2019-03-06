@@ -10,5 +10,5 @@ public interface TickDao extends IDao<Tick> {
 
     List<Tick> getAllByTicker(String ticker) throws Exception;
 
-    Tick findBySymbolAndTicker(String symbol, String ticker) throws Exception;
+    Tick findBySymbol(String symbol) throws Exception;
 }

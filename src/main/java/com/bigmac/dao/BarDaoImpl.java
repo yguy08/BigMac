@@ -29,15 +29,14 @@ public class BarDaoImpl extends AbstractDao implements BarDao {
                 DbAutoTransaction dbAuto = new DbAutoTransaction(connection, false);
                 PreparedStatement statement = 
                     connection.prepareStatement("INSERT INTO BARS VALUES (?,?,?,?,?,?,?,?,?)")) {
-                statement.setLong(1, bar.getTimestamp());
-                statement.setString(2, bar.getSymbol());
-                statement.setString(3, bar.getTicker().toString());
-                statement.setDouble(4, bar.getOpen());
-                statement.setDouble(5, bar.getHigh());
-                statement.setDouble(6, bar.getLow());
-                statement.setDouble(7, bar.getClose());
-                statement.setInt(8, bar.getVolume());
-                statement.setLong(9, bar.getDuration().toMillis());
+                statement.setLong(1, bar.getTimestamp().toEpochMilli());
+                statement.setString(2, bar.getSymbol().toString());
+                statement.setDouble(3, bar.getOpen());
+                statement.setDouble(4, bar.getHigh());
+                statement.setDouble(5, bar.getLow());
+                statement.setDouble(6, bar.getClose());
+                statement.setInt(7, bar.getVolume());
+                statement.setLong(8, bar.getDuration().toMillis());
               statement.execute();
               dbAuto.commit();
               return true;
@@ -59,15 +58,14 @@ public class BarDaoImpl extends AbstractDao implements BarDao {
                 PreparedStatement statement = 
                     connection.prepareStatement("INSERT INTO BARS VALUES (?,?,?,?,?,?,?,?,?)")) {
               for (Bar bar : bars) {
-                  statement.setLong(1, bar.getTimestamp());
-                  statement.setString(2, bar.getSymbol());
-                  statement.setString(3, bar.getTicker().toString());
-                  statement.setDouble(4, bar.getOpen());
-                  statement.setDouble(5, bar.getHigh());
-                  statement.setDouble(6, bar.getLow());
-                  statement.setDouble(7, bar.getClose());
-                  statement.setInt(8, bar.getVolume());
-                  statement.setLong(9, bar.getDuration().toMillis());
+                  statement.setLong(1, bar.getTimestamp().toEpochMilli());
+                  statement.setString(2, bar.getSymbol().toString());
+                  statement.setDouble(3, bar.getOpen());
+                  statement.setDouble(4, bar.getHigh());
+                  statement.setDouble(5, bar.getLow());
+                  statement.setDouble(6, bar.getClose());
+                  statement.setInt(7, bar.getVolume());
+                  statement.setLong(8, bar.getDuration().toMillis());
                   statement.addBatch();
               }
               statement.executeBatch();
@@ -80,17 +78,16 @@ public class BarDaoImpl extends AbstractDao implements BarDao {
 
     @Override
     public boolean delete(Bar bar) throws Exception {
-        String sql = "DELETE FROM BARS WHERE SYMBOL = ? AND TICKER = ? AND DURATION = ? AND TIMESTAMP = ?";
-        LOGGER.debug("DELETE FROM BARS WHERE SYMBOL = {} AND TICKER = {} AND DURATION = {} AND TIMESTAMP = {}", 
-                bar.getSymbol(), bar.getTicker(), bar.getDuration(), bar.getTimestamp());
+        String sql = "DELETE FROM BARS WHERE SYMBOL = ? AND DURATION = ? AND TIMESTAMP = ?";
+        LOGGER.debug("DELETE FROM BARS WHERE SYMBOL = {} AND DURATION = {} AND TIMESTAMP = {}", 
+                bar.getSymbol(), bar.getDuration(), bar.getTimestamp());
         try (Connection connection = getConnection();
                 DbAutoTransaction dbAuto = new DbAutoTransaction(connection, false);
                 PreparedStatement statement = 
                     connection.prepareStatement(sql)) {
-                statement.setString(1, bar.getSymbol());
-                statement.setString(2, bar.getTicker().toString());
-                statement.setLong(3, bar.getDuration().toMillis());
-                statement.setLong(4, bar.getTimestamp());
+                statement.setString(1, bar.getSymbol().toString());
+                statement.setLong(2, bar.getDuration().toMillis());
+                statement.setLong(3, bar.getTimestamp().toEpochMilli());
               int count = statement.executeUpdate();
               dbAuto.commit();
               LOGGER.debug("Deleted {} bars for {}", count, bar.getSymbol());

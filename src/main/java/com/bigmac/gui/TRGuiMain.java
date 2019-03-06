@@ -268,7 +268,7 @@ public class TRGuiMain implements ActionListener {
                 List<Tick> ticks = (List<Tick>) ((ListTableModel) trTable.getModel()).getElements();
                 int i = trTable.convertRowIndexToModel(trTable.getSelectedRow());
                 Tick tick = ticks.get(i);
-                tipClerk.getConfig().setDefaultSymbol(tick.getSymbol());
+                tipClerk.getConfig().setDefaultSymbol(tick.getSymbol().toCurrencyPairString());
                 buildChart();
             }
         }

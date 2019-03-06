@@ -94,7 +94,7 @@ public class CProExchangeAdapter extends XchangeAdapterAbs {
     private Tick coinBaseTickerToTick(CoinbaseProProductTicker ticker, CurrencyPair pair) {
         long millis = Instant.now().toEpochMilli();
         double last = ticker.getPrice().doubleValue();
-        int vol = ticker.getVolume().intValue();
+        int vol = (int) (ticker.getVolume().doubleValue() * ticker.getPrice().doubleValue());
         return new Tick(millis, pair.toString(), TickerType.CPRO, last, vol, 0);
     }
 

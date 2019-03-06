@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bigmac.adapter.ExchangeAdapter;
-import com.bigmac.dao.BarDao;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.Bar;
 

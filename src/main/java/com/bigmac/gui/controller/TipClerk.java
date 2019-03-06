@@ -100,7 +100,7 @@ public class TipClerk {
         
         List<Bar> bars = getHistoricalDataClerk().getHistoricalBars(symbol, ticker, start, Instant.now(), barsize);
         for (Bar b : bars) {
-            BaseBar bar = new BaseBar(barsize, Instant.ofEpochMilli(b.getTimestamp()).atZone(ZoneOffset.UTC),
+            BaseBar bar = new BaseBar(barsize, b.getTimestamp().atZone(ZoneOffset.UTC),
                     numOf(b.getOpen()), numOf(b.getHigh()), numOf(b.getLow()), numOf(b.getClose()), numOf(b.getVolume()), numOf(0));
             series.addBar(bar);
         }

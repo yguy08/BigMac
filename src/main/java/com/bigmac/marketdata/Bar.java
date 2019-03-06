@@ -14,10 +14,6 @@ public class Bar extends MarketData {
     // The bar's duration - daily/hourly/etc.
     private Duration duration;
     
-    public Bar() {
-        
-    }
-    
     public Bar(long timestamp, String security, TickerType ticker, double open, double high, double low,
             double close, int volume, Duration duration) {
         super(timestamp, security, ticker);

@@ -22,7 +22,7 @@ public class MarketDataTableMapper implements TableModelMapper {
         try {
             switch(col) {
             case 0:
-                return tick.getSymbol();
+                return tick.getSymbol().toCurrencyPairString();
             case 1:
                 return DECIMALFUNC.apply(tick);
             case 2:
@@ -39,7 +39,7 @@ public class MarketDataTableMapper implements TableModelMapper {
     }
     
     private Function<Tick, String> DECIMALFUNC = t -> {
-        return t.getSymbol().endsWith("USDT") ? String.format("%.2f", t.getLast()) :
+        return t.getSymbol().toCurrencyPairString().endsWith("USDT") ? String.format("%.2f", t.getLast()) :
             String.format("%.8f", t.getLast());
     };
 
