@@ -1,8 +1,9 @@
 package com.bigmac.marketdata;
 
 import java.time.Duration;
+import java.time.Instant;
 
-import com.bigmac.enumeration.TickerType;
+import com.bigmac.domain.Symbol;
 
 public class Bar extends MarketData {
     
@@ -14,9 +15,9 @@ public class Bar extends MarketData {
     // The bar's duration - daily/hourly/etc.
     private Duration duration;
     
-    public Bar(long timestamp, String security, TickerType ticker, double open, double high, double low,
+    public Bar(Instant timestamp, Symbol symbol, double open, double high, double low,
             double close, int volume, Duration duration) {
-        super(timestamp, security, ticker);
+        super(timestamp, symbol);
         this.open = open; 
         this.high = high; 
         this.low = low; 

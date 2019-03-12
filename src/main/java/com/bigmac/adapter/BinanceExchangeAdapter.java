@@ -16,6 +16,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bigmac.domain.Symbol;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.Bar;
 import com.bigmac.marketdata.Tick;
@@ -52,14 +53,14 @@ public class BinanceExchangeAdapter extends XchangeAdapterAbs {
             List<BinanceKline> chartData = ((BinanceMarketDataServiceRaw) getMarketDataService()).klines(new CurrencyPair(security), kline, 1000,
                     startDate.toEpochMilli(), endDate.toEpochMilli());
             for (BinanceKline bncBar : chartData) {
-                long millis = bncBar.getCloseTime();
+                Instant millis = Instant.ofEpochMilli(bncBar.getCloseTime());
                 String symbol = bncBar.getCurrencyPair().toString();
                 double open = bncBar.getOpenPrice().doubleValue();
                 double high = bncBar.getHighPrice().doubleValue();
                 double low = bncBar.getLowPrice().doubleValue();
                 double close = bncBar.getClosePrice().doubleValue();
                 int vol = bncBar.getVolume().intValue();
-                bars.add(new Bar(millis, symbol, TickerType.BINANCE, open, high, low, close, vol, duration));
+                bars.add(new Bar(millis, new Symbol(symbol, TickerType.BINANCE), open, high, low, close, vol, duration));
             }
         } catch (Exception e) {
             LOGGER.error("BinanceExchangeAdapter.getHistoricalBars: Error getting historical bars.");
@@ -100,12 +101,12 @@ public class BinanceExchangeAdapter extends XchangeAdapterAbs {
     }
     
     private Tick binanceTicker24hToTick(BinanceTicker24h ticker) {
-        long millis = ticker.getCloseTime().toInstant().toEpochMilli();
+        Instant millis = ticker.getCloseTime().toInstant();
         String symbol = BinanceAdapters.adaptSymbol(ticker.getSymbol()).toString();
         double last = ticker.getLastPrice().doubleValue();
         int vol = ticker.getQuoteVolume().intValue();
         double percent = ticker.getPriceChangePercent().doubleValue();
-        return new Tick(millis, symbol, TickerType.BINANCE, last, vol, percent);
+        return new Tick(millis, new Symbol(symbol, TickerType.BINANCE), last, vol, percent);
     }
 
 }

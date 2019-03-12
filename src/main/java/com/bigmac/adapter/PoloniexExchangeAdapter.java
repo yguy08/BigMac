@@ -16,6 +16,7 @@ import org.knowm.xchange.poloniex.service.PoloniexMarketDataServiceRaw;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bigmac.domain.Symbol;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.Bar;
 import com.bigmac.marketdata.Tick;
@@ -51,13 +52,13 @@ public class PoloniexExchangeAdapter extends XchangeAdapterAbs {
             PoloniexChartData[] chartData = ((PoloniexMarketDataServiceRaw) getMarketDataService()).getPoloniexChartData(new CurrencyPair(symbol), 
                     startDate.getEpochSecond(), endDate.getEpochSecond(), poloPeriodType);
             for (PoloniexChartData data : chartData) {
-                long millis = data.getDate().toInstant().toEpochMilli();
+                Instant millis = data.getDate().toInstant();
                 double open = data.getOpen().doubleValue();
                 double high = data.getHigh().doubleValue();
                 double low = data.getLow().doubleValue();
                 double close = data.getClose().doubleValue();
                 int vol = data.getVolume().intValue();
-                bars.add(new Bar(millis, symbol, TickerType.POLONIEX, open, high, low, close, vol, duration));
+                bars.add(new Bar(millis, new Symbol(symbol, TickerType.POLONIEX), open, high, low, close, vol, duration));
             }
         } catch (Exception e) {
             LOGGER.error("PoloniexExchangeAdapter.getHistoricalBars: Error getting current bars.", e);
@@ -99,11 +100,11 @@ public class PoloniexExchangeAdapter extends XchangeAdapterAbs {
     
     private Tick poloniexMarketDataToTick(PoloniexMarketData marketData, CurrencyPair pair) {
         String symbol = pair.toString();
-        long millis = Instant.now().toEpochMilli();
+        Instant millis = Instant.now();
         double last = marketData.getLast().doubleValue();
         int vol = marketData.getBaseVolume().intValue();
         double percent = marketData.getPercentChange().doubleValue() * 100;
-        return new Tick(millis, symbol, TickerType.POLONIEX, last, vol, percent);
+        return new Tick(millis, new Symbol(symbol, TickerType.POLONIEX), last, vol, percent);
     }
 
 }

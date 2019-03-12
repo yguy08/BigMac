@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -114,7 +115,7 @@ public class TickDaoImpl extends AbstractDao implements TickDao {
     }
     
     private Tick createTick(ResultSet resultSet) throws SQLException {
-        return new Tick(resultSet.getLong("TIMESTAMP"), resultSet.getString("SYMBOL"),
+        return new Tick(Instant.ofEpochMilli(resultSet.getLong("TIMESTAMP")), new Symbol(resultSet.getString("SYMBOL")),
                 resultSet.getDouble("LAST"), resultSet.getInt("VOLUME"), 
                 resultSet.getDouble("CHANGE"));
     }

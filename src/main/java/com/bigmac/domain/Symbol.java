@@ -20,10 +20,6 @@ public class Symbol {
         this.ticker = ticker;
     }
     
-    public Symbol(String base, String counter, String ticker) {
-      this(base, counter, TickerType.enumOf(ticker));
-    }
-    
     /**
      * Parse currency pair from a string in the same format as returned by toString() method - ABC/XYZ
      */
@@ -55,7 +51,12 @@ public class Symbol {
         }
         String base = symbol.substring(0, splitSymbol);
         String counter = symbol.substring(splitSymbol + 1);
-
+        int splitTicker = symbol.indexOf(COUNTER_TICKER_SEP);
+        if (splitTicker < 1) {
+            counter = symbol.substring(splitSymbol + 1);
+        } else {
+            counter = symbol.substring(splitSymbol + 1, splitTicker);
+        }
         this.base = base;
         this.counter = counter;
         this.ticker = ticker;

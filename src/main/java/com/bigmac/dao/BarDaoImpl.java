@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import javax.sql.DataSource;
@@ -12,6 +13,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bigmac.domain.Symbol;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.Bar;
 
@@ -99,9 +101,9 @@ public class BarDaoImpl extends AbstractDao implements BarDao {
     }
     
     private Bar createBar(ResultSet resultSet) throws SQLException {
-        return new Bar(resultSet.getLong("TIMESTAMP"), 
-            resultSet.getString("SYMBOL"),
-            TickerType.valueOf(resultSet.getString("TICKER")),
+        return new Bar(Instant.ofEpochMilli(resultSet.getLong("TIMESTAMP")), 
+            new Symbol(resultSet.getString("SYMBOL"),
+            TickerType.valueOf(resultSet.getString("TICKER"))),
             resultSet.getDouble("OPEN"),
             resultSet.getDouble("HIGH"),
             resultSet.getDouble("LOW"),

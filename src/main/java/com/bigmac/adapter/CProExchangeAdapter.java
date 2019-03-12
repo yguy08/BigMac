@@ -16,6 +16,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bigmac.domain.Symbol;
 import com.bigmac.enumeration.TickerType;
 import com.bigmac.marketdata.Bar;
 import com.bigmac.marketdata.Tick;
@@ -60,13 +61,13 @@ public class CProExchangeAdapter extends XchangeAdapterAbs {
                     Collections.reverse(Arrays.asList(candles));
                 }
                 for (CoinbaseProCandle candle : candles) {
-                    long timestamp = candle.getTime().toInstant().toEpochMilli();
+                    Instant timestamp = candle.getTime().toInstant();
                     double open = candle.getOpen().doubleValue();
                     double high = candle.getHigh().doubleValue();
                     double low = candle.getLow().doubleValue();
                     double close = candle.getClose().doubleValue();
                     int volume = candle.getVolume().intValue();
-                    bars.add(new Bar(timestamp, symbol, TickerType.CPRO, open, high, low, close, volume, duration));
+                    bars.add(new Bar(timestamp, new Symbol(symbol, TickerType.CPRO), open, high, low, close, volume, duration));
                 }
             }
         } catch (IOException e) {
@@ -92,10 +93,10 @@ public class CProExchangeAdapter extends XchangeAdapterAbs {
     }
     
     private Tick coinBaseTickerToTick(CoinbaseProProductTicker ticker, CurrencyPair pair) {
-        long millis = Instant.now().toEpochMilli();
+        Instant millis = Instant.now();
         double last = ticker.getPrice().doubleValue();
         int vol = (int) (ticker.getVolume().doubleValue() * ticker.getPrice().doubleValue());
-        return new Tick(millis, pair.toString(), TickerType.CPRO, last, vol, 0);
+        return new Tick(millis, new Symbol(pair.toString(), TickerType.CPRO), last, vol, 0);
     }
 
 }

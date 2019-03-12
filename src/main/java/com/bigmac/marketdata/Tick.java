@@ -1,7 +1,8 @@
 package com.bigmac.marketdata;
 
+import java.time.Instant;
+
 import com.bigmac.domain.Symbol;
-import com.bigmac.enumeration.TickerType;
 
 public class Tick extends MarketData {
 
@@ -11,23 +12,11 @@ public class Tick extends MarketData {
 
     private double priceChangePercent;
 
-    public Tick(long timestamp, String security, TickerType ticker, double last, int volume) {
-        this(timestamp, security, ticker, last, volume, 0);
-    }
-    
-    public Tick(long timestamp, String security, TickerType ticker, double last, int volume, double priceChangePercent) {
-        super(timestamp, security, ticker);
+    public Tick(Instant timestamp, Symbol symbol, double last, int volume, double priceChangePercent) {
+        super(timestamp, symbol);
         this.last = last;
         this.volume = volume;
         this.priceChangePercent = priceChangePercent;
-    }
-    
-    public Tick(long timestamp, Symbol symbol, double last, int volume, double priceChangePercent) {
-        this(timestamp, symbol.toString(), symbol.ticker, last, volume, priceChangePercent);
-    }
-    
-    public Tick(long timestamp, String symbol, double last, int volume, double priceChangePercent) {
-        this(timestamp, new Symbol(symbol), last, volume, priceChangePercent);
     }
 
     public void setLast(double last) {
